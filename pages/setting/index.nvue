@@ -1,0 +1,338 @@
+<template>
+	<view class="setting" :style="{'background-color': skinColor.bgColor}">
+		<nav-bar title="阅读设置" :backColor="skinColor.iconColor" :bgColor="skinColor.navColor" :titleColor="skinColor.iconColor"></nav-bar>
+		<list>
+			<cell>
+				<view class="list list2" :style="{'border-bottom-color': skinColor.gapColor}">
+					<text class="list-title" :style="{'color': skinColor.titleColor}">阅读动画</text>
+					<view class="list-right list-bottom">
+						<text
+						@tap="changeBookReadPageType(item.value)"
+						:style="{
+							'background-color': bookReadMode.pageType == item.value ? skinColor.activeBgColor : '',
+							'color': bookReadMode.pageType == item.value ? skinColor.activeColor : skinColor.titleColor
+						}"
+						class="lr-text" v-for="(item, index) in pagesTypes"
+						:key="index">{{item.title}}</text>
+					</view>
+				</view>
+			</cell>
+			<cell>
+				<view class="list list2" :style="{'border-bottom-color': skinColor.gapColor}">
+					<text class="list-title" :style="{'color': skinColor.titleColor}">青壮年模式</text>
+					<view class="list-bottom">
+						<view class="check-line">
+							<text class="lr-text" :style="{'color': skinColor.menuTitleColor}">是否开启</text>
+							<c-switch
+							:itemColor='skinColor.itemColor'
+							:gapColor="skinColor.gapColor"
+							:bgColor="skinColor.bgColor"
+							:value="adultMode"
+							@input="changeModeSources"></c-switch>
+						</view>
+						<view class="check-line" :class="skinColor.activedName" @tap="selectPwd">
+							<text class="lr-text" :style="{'color': skinColor.menuTitleColor}">设置密码</text>
+							<view class="check-right">
+								<text class="lr-text" :style="{'color': skinColor.menuTitleColor}">{{getAdultPwd ? '******' : '无'}}</text>
+								<c-icon name="arrow-right" :color="skinColor.menuTitleColor" size="30"></c-icon>
+							</view>
+						</view>
+					</view>
+				</view>
+			</cell>
+			<cell>
+				<view class="list list2" :style="{'border-bottom-color': skinColor.gapColor}">
+					<text class="list-title" :style="{'color': skinColor.titleColor}">漫画来源</text>
+					<view class="list-bottom">
+						<view class="check-line" v-for="(item, index) in comicSource">
+							<text class="lr-text" :style="{'color': skinColor.menuTitleColor}">{{item.title}}</text>
+							<c-switch
+							:itemColor='skinColor.itemColor'
+							:gapColor="skinColor.gapColor"
+							:bgColor="skinColor.bgColor"
+							:value="item.isOpen"
+							@input="changeComicSources($event, index)"></c-switch>
+						</view>
+					</view>
+				</view>
+			</cell>
+			<cell>
+				<view class="list list2" :style="{'border-bottom-color': skinColor.gapColor}">
+					<text class="list-title" :style="{'color': skinColor.titleColor}">小说来源</text>
+					<view class="list-bottom">
+						<view class="check-line" v-for="(item, index) in bookSource">
+							<text class="lr-text" :style="{'color': skinColor.menuTitleColor}">{{item.title}}</text>
+							<c-switch
+							:itemColor='skinColor.itemColor'
+							:gapColor="skinColor.gapColor"
+							:bgColor="skinColor.bgColor"
+							:value="item.isOpen"
+							@input="changeBookSources($event, index)"></c-switch>
+						</view>
+					</view>
+				</view>
+			</cell>
+			<cell>
+				<view class="list list2" :style="{'border-bottom-color': skinColor.gapColor}">
+					<text class="list-title" :style="{'color': skinColor.titleColor}">音乐来源</text>
+					<view class="list-bottom">
+						<view class="check-line" v-for="(item, index) in musicSource">
+							<text class="lr-text" :style="{'color': skinColor.menuTitleColor}">{{item.title}}</text>
+							<c-switch
+							:itemColor='skinColor.itemColor'
+							:gapColor="skinColor.gapColor"
+							:bgColor="skinColor.bgColor"
+							:value="item.isOpen"
+							@input="changeMusicSources($event, index)"></c-switch>
+						</view>
+					</view>
+				</view>
+			</cell>
+		</list>
+	</view>
+</template>
+
+<script>
+	import { skinMixin } from '@/common/mixin/index.js'
+	import musicMixin from '@/common/mixin/music.js'
+	import bookMixin from '@/common/mixin/book.js'
+	import appMixin from '@/common/mixin/app.js'
+	import CSwitch from '@/components/c-switch/c-switch.nvue'
+	export default {
+		mixins:[skinMixin, bookMixin, musicMixin, appMixin],
+		data () {
+			return {
+				pagesTypes: [{
+					title: '上下滚动',
+					value: 'scroll'
+				},{
+					title: '仿真翻页',
+					value: 'real'
+				},{
+					title: '覆盖翻页',
+					value: 'cover'
+				},{
+					title: '关闭动画',
+					value: 'none'
+				}],
+				comicSource: [],
+				musicSource: [],
+				bookSource: [],
+				adultMode: false
+			}
+		},
+		onLoad () {
+			this.init();
+			this.adultMode = this.getAdult
+		},
+		methods: {
+			init () {
+				const { COMICURL, MUSICURL, BOOKURL, ADULTS } = getApp().globalData.$config;
+				this.comicSource = []
+				this.musicSource = []
+				this.bookSource = []
+				for ( let i in COMICURL ) {
+					if ( ADULTS.indexOf(i) == -1 || this.getAdult ) {
+						let index = this.getComicSourcesController.indexOf(i);
+						this.comicSource.push({
+							isOpen: index > -1 ? false : true,
+							title: COMICURL[i].title,
+							value: i
+						})
+					}
+				}
+				for ( let i in MUSICURL ) {
+					if ( ADULTS.indexOf(i) == -1 || this.getAdult ) {
+						let index = this.getMusicSourcesController.indexOf(i);
+						this.musicSource.push({
+							isOpen: index > -1 ? false : true,
+							title: MUSICURL[i].title,
+							value: i
+						})
+					}
+				}
+				for ( let i in BOOKURL ) {
+					if ( ADULTS.indexOf(i) == -1 || this.getAdult ) {
+						let index = this.getBookSourcesController.indexOf(i);
+						this.bookSource.push({
+							isOpen: index > -1 ? false : true,
+							title: BOOKURL[i].title,
+							value: i
+						})
+					}
+				}
+			},
+			changeComicSources (bool, index) {
+				this.$set(this.comicSource[index], 'isOpen', bool);
+				let arr = [];
+				for ( let i in this.comicSource ) {
+					if ( !this.comicSource[i].isOpen ) {
+						arr.push(this.comicSource[i].value)
+					}
+				}
+				this.setComicSourcesController(arr);
+			},
+			changeBookSources (bool, index) {
+				this.$set(this.bookSource[index], 'isOpen', bool);
+				let arr = [];
+				for ( let i in this.bookSource ) {
+					if ( !this.bookSource[i].isOpen ) {
+						arr.push(this.bookSource[i].value)
+					}
+				}
+				this.setBookSourcesController(arr);
+			},
+			changeMusicSources (bool, index) {
+				this.$set(this.musicSource[index], 'isOpen', bool);
+				let arr = [];
+				for ( let i in this.musicSource ) {
+					if ( !this.musicSource[i].isOpen ) {
+						arr.push(this.musicSource[i].value)
+					}
+				}
+				this.setMusicSourcesController(arr);
+			},
+			changeModeSources (bool) {
+				this.adultMode = bool;
+				if ( bool && this.getAdultPwd ) {
+					getApp().globalData.$dom.security({
+						title: '请输入密码',
+						type: 'input'
+					}).then((ret) => {
+						if ( ret.confirm ) {
+							if ( ret.password == this.getAdultPwd ) {
+								this.setAdult(bool)
+								this.init();
+							} else {
+								this.adultMode = false;
+								uni.showToast({
+									title: '密码不正确',
+									icon: 'none'
+								})
+							}
+						} else {
+							this.adultMode = false;
+						}
+					});
+				} else {
+					this.setAdult(bool)
+					this.init();
+				}
+			},
+			selectPwd () {
+				getApp().globalData.$dom.actionSheet([
+					{
+						title: '设置密码',
+						value: 'set'
+					},{
+						title: '清空密码',
+						value: 'clear'
+					}
+				]).then((action) => {
+					if ( action.flag == 'confirm' ) {
+						if ( action.value == 'clear' ) {
+							if ( this.getAdultPwd ) {
+								getApp().globalData.$dom.security({
+									title: '输入密码',
+									type: 'input'
+								}).then((ret) => {
+									if ( ret.confirm ) {
+										if ( this.getAdultPwd == ret.password ) {
+											this.setAdultPwd('');
+											uni.showToast({
+												title: '清除密码成功',
+												icon: 'none'
+											})
+										} else {
+											uni.showToast({
+												title: '输入密码不正确',
+												icon: 'none'
+											})
+										}
+									}
+								});
+							}
+						}
+						if ( action.value == 'set' ) {
+							getApp().globalData.$dom.security({
+								title: this.getAdultPwd ? '重置密码' : '设置密码',
+								type: this.getAdultPwd ? 'reset' : 'init'
+							}).then((ret) => {
+								if ( ret.confirm ) {
+									if ( this.getAdultPwd ) {
+										if ( this.getAdultPwd == ret.oldPassword ) {
+											this.setAdultPwd(ret.newPassword);
+											uni.showToast({
+												title: '设置密码成功',
+												icon: 'none'
+											})
+										} else {
+											uni.showToast({
+												title: '旧密码不匹配',
+												icon: 'none'
+											})
+										}
+									} else {
+										if ( ret.password ) {
+											this.setAdultPwd(ret.password);
+											uni.showToast({
+												title: '设置密码成功',
+												icon: 'none'
+											})
+										}
+									}
+								}
+							});
+						}
+					}
+					
+				})
+			}
+		},
+		components: {
+			CSwitch
+		}
+	}
+</script>
+
+<style scoped>
+	.list {
+		padding: 30rpx 30rpx;
+		border-bottom-width: 1px;
+		flex-direction: row;
+	}
+	.list2 {
+		flex-direction: column;
+	}
+	.list-title {
+		font-size: 32rpx;
+	}
+	.list-right {
+		flex-direction: row;
+		align-items: center;
+	}
+	.lr-text {
+		font-size: 26rpx;
+		border-radius: 10rpx;
+		text-align: center;
+		padding: 10rpx 15rpx;
+	}
+	.list-bottom {
+		margin-top: 30rpx;
+		flex-wrap: wrap;
+	}
+	.check-line {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 5rpx 0;
+	}
+	.check-right {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.switch {
+		transform: scale(0.7);
+	}
+</style>

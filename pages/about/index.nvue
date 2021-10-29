@@ -1,0 +1,77 @@
+<template>
+	<view class="about" :style="{'background-color': skinColor.bgColor}">
+		<nav-bar title="关于软件" :backColor="skinColor.iconColor" :bgColor="skinColor.navColor" :titleColor="skinColor.iconColor"></nav-bar>
+		<view class="aboute-banner" :style="{'background-color': skinColor.navColor}">
+			<text class="app-name" :style="{color: skinColor.iconColor}">好用阅读器</text>
+			<text class="app-author" :style="{color: skinColor.iconColor}">yingbing</text>
+			<text class="app-version" :style="{color: skinColor.iconColor}">版本：V{{version}}</text>
+		</view>
+		<list>
+			<cell v-for="item in list">
+				<view class="about-list">
+					<text class="about-list-title" :style="{color: skinColor.titleColor}">{{item.title}}</text>
+					<text class="about-list-link" :style="{color: skinColor.textColor}">{{item.link}}</text>
+				</view>
+			</cell>
+		</list>
+	</view>
+</template>
+
+<script>
+	import { skinMixin } from '@/common/mixin/index.js'
+	export default {
+		mixins:[skinMixin],
+		data () {
+			return {
+				list: [{
+					title: '主页',
+					link: 'https://github.com/yingbing-developer/uni-reader'
+				},{
+					title: '原作仓库',
+					link: 'https://github.com/yingbing-developer/uni-book'
+				},{
+					title: '源代码',
+					link: 'https://github.com/yingbing-developer/uni-reader'
+				},{
+					title: '意见反馈',
+					link: 'https://github.com/yingbing-developer/uni-reader/issues'
+				}]
+			}
+		},
+		computed: {
+			version () {
+				return plus.runtime.version;
+			}
+		}
+	}
+</script>
+
+<style>
+	.aboute-banner {
+		justify-content: center;
+		align-items: center;
+		height: 400rpx;
+	}
+	.app-name {
+		font-size: 45rpx;
+		font-weight: bold;
+	}
+	.app-author {
+		font-size: 25rpx;
+		margin-top: 20rpx;
+	}
+	.app-version {
+		margin-top: 10rpx;
+		font-size: 25rpx;
+	}
+	.about-list {
+		padding: 60rpx 40rpx 10rpx 40rpx;
+	}
+	.about-list-title {
+		font-size: 35rpx;
+	}
+	.about-list-link {
+		font-size: 25rpx;
+		margin-top: 10rpx;
+	}
+</style>

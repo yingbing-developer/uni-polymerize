@@ -1,0 +1,185 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index"
+		},
+		//本地小说添加页
+		{
+			"path": "pages/book/search/index"
+		},
+		//在线小说添加页
+		{
+			"path": "pages/book/online/index"
+		},
+		//小说详情页
+		{
+			"path": "pages/book/detail/index"
+		},
+		//小说阅读页
+		{
+			"path": "pages/book/read/index",
+			"style": {
+				"disableScroll": false,
+				"app-plus": {
+					"bounce":"none"
+				}
+			}
+		},
+		//小说设置页
+		{
+			"path": "pages/book/setting/index",
+			"style": {
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
+		//本地漫画添加页
+		{
+			"path": "pages/comic/search/index"
+		},
+		//在线漫画添加页
+		{
+			"path": "pages/comic/online/index"
+		},
+		//漫画详情页
+		{
+			"path": "pages/comic/detail/index"
+		},
+		//漫画阅读页
+		{
+			"path": "pages/comic/read/index"
+		},
+		//设置页
+		{
+			"path": "pages/setting/index"
+		},
+		//关于软件
+		{
+			"path": "pages/about/index"
+		},
+		//音乐播放页面
+		{
+			"path": "pages/music/player",
+			"style": {
+				"backgroundColor": "transparent"
+			}
+		},
+		//音乐播放列表
+		{
+			"path": "pages/music/index",
+			"style": {
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
+		//添加音乐
+		{
+			"path": "pages/music/search"
+		},
+		//添加在线音乐
+		{
+			"path": "pages/music/online"
+		},
+		//确认弹窗
+		{
+			"path": "modules/confirm",
+			"style": {
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
+		//选择对话框
+		{
+			"path": "modules/actionSheet",
+			"style": {
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
+		//文本编辑框
+		{
+			"path": "modules/edit",
+			"style": {
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
+		//章节书签展示页
+		{
+			"path": "modules/catalog",
+			"style": {
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
+		//安全密码
+		{
+			"path": "modules/security",
+			"style": {
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		}
+	],
+	"globalStyle": {
+		"disableScroll": true, // 不嵌套 scroller
+		"navigationStyle": "custom",
+		"navigationBarTextStyle": "white",
+		"navigationBarBackgroundColor": "transparent",
+		"app-plus": {
+			"titleNView": false
+		}
+	},
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

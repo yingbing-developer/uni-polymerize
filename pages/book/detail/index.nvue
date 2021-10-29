@@ -1,0 +1,323 @@
+<template>
+	<view class="detail" :style="{'background-color': skinColor.bgColor}">
+		<nav-bar title="小说详情" :bgColor="skinColor.navColor" :titleColor="skinColor.iconColor"></nav-bar>
+		<list-scroll :line-height="80" :list="chapterSync" :bounce="false">
+			<view slot="listTop">
+				<view class="book-info">
+					<c-image class="book-img" :src="bookInfo.image" mode="aspectFill"></c-image>
+					<view class="book-info-right">
+						<text class="book-name" :style="{'color': skinColor.titleColor}">{{bookInfo.name}}</text>
+						<text class="book-intro-title" :style="{'color': skinColor.menuTitleColor}">作者：{{bookInfo.source == 'local' ? '佚名' : author}}</text>
+						<view class="book-intro">
+							<text class="book-intro-title" :style="{'color': skinColor.titleColor}">内容简介</text>
+							<text class="book-intro-text" :style="{'color': skinColor.menuTitleColor}">{{bookInfo.source == 'local' ? '暂无介绍' : desc}}</text>
+						</view>
+					</view>
+				</view>
+				<view class="btns">
+					<view class="old-btn btn" @tap="readRecord">
+						<text class="btn-text" :style="{'color': skinColor.bgColor}">{{readed ? '上次读到 ' + record.title : '未阅读'}}</text>
+					</view>
+					<view class="new-btn btn" @tap="startRead">
+						<text class="btn-text new-btn-text">开始阅读</text>
+					</view>
+				</view>
+				<view class="gap"></view>
+				<view class="tab-line" :style="{'background-color': skinColor.navColor}">
+					<text class="tab-text" :style="{'color': skinColor.iconColor}">内容简介</text>
+				</view>
+				<view class="book-desc">
+					<text class="book-desc-text" :class="{'book-lines-5': descHide}" :style="{'color': skinColor.menuTitleColor, 'border-color': skinColor.gapColor}">{{bookInfo.source == 'local' ? '暂无介绍' : desc}}</text>
+					<text class="desc-btn-text" :style="{'color': skinColor.navColor}" @tap="descHide = false" v-if="descHide">显示全部</text>
+					<text class="desc-btn-text" :style="{'color': skinColor.navColor}" @tap="descHide = true" v-if="!descHide">隐藏内容</text>
+				</view>
+				<view class="gap"></view>
+				<view class="tab-line" :style="{'background-color': skinColor.navColor}">
+					<text class="tab-text" :style="{'color': skinColor.iconColor}">正文</text>
+					<text class="tab-text" :style="{'color': skinColor.iconColor}">共{{catalog.length}}章</text>
+				</view>
+				<!-- <view class="catalog-line" :style="{'border-color': skinColor.gapColor}">
+					<text class="catalog-title" :style="{'color': skinColor.titleColor}">小说章节</text>
+					<text class="sort-title" @tap="changeSortType">{{sortType == 'reverse' ? '倒序' : '正序'}}</text>
+				</view> -->
+			</view>
+			<template v-slot="{item}">
+				<view class="catalog-list">
+					<view class="catalog-block" :class="skinColor.activedName" :style="{'border-color': skinColor.gapColor}" @tap="readBook(item.path)">
+						<text class="catalog-text" :style="{'color': item.path == readed.path ? '#FF3B30' : skinColor.menuTitleColor}">{{item.title}}</text>
+						<text class="readed-text color-red" v-if="item.path == readed.path">阅读中</text>
+					</view>
+				</view>
+			</template>
+			<view slot="listBottom">
+				<text class="chapter-btn-text" :style="{'color': skinColor.navColor}" v-if="catalog.length > 0" @tap="showCatalog">更多章节</text>
+			</view>
+		</list-scroll>
+	</view>
+</template>
+
+<script>
+	import CImage from '@/components/c-image/c-image.nvue'
+	import ListScroll from '@/components/list-scroll/list-scroll.nvue'
+	import { skinMixin } from '@/common/mixin/index.js'
+	import bookMixin from '@/common/mixin/book.js';
+	import bookcertifyMixin from '@/common/mixin/bookcertify.js';
+	import { getBookInfo } from '@/common/online/getBook.js'
+	export default {
+		mixins: [skinMixin, bookMixin, bookcertifyMixin],
+		data () {
+			return {
+				catalog: [],
+				author: '',
+				desc: '',
+				descHide: true,
+				sortType: 'reverse'
+			}
+		},
+		computed: {
+			record () {
+				return this.bookInfo.record;
+			},
+			//上次阅读章节
+			readed () {
+				let arr = getApp().globalData.$utils.deepClone(this.catalog);
+				if ( this.sortType == 'reverse' ) {
+					arr.reverse();
+				}
+				let index = getApp().globalData.$utils.indexOf(arr, 'chapter', this.record.chapter);
+				return index > -1 ? arr[index] : false;
+			},
+			chapterSync () {
+				let arr = getApp().globalData.$utils.deepClone(this.catalog);
+				if ( this.sortType == 'reverse' ) {
+					arr.reverse();
+				}
+				let index = getApp().globalData.$utils.indexOf(arr, 'chapter', this.record.chapter > -1 ? this.record.chapter : 1);
+				let list = arr.slice(index, index + 5);
+				list = arr.slice(index - 5 > 0 ? index - 5 : 0, index).concat(list);
+				return list; 
+			}
+		},
+		onReady () {
+			if ( this.bookInfo.source == 'local' ) {
+				// this.getLocalComicCatalog()
+			} else {
+				this.getDetail({
+					source: this.bookInfo.source,
+					href: this.bookInfo.path
+				})
+				
+			}
+		},
+		methods: {
+			//获取小说详情信息
+			getDetail (obj) {
+				uni.showLoading({
+					title: '解析中',
+					mask: true
+				})
+				getBookInfo(obj).then((res) => {
+					uni.hideLoading();
+					if ( res.code == 200 ) {
+						let data = res.data.data;
+						this.author = data.author;
+						this.desc = data.desc;
+						//如果名字发生更改，则更新本地记录的名称
+						if ( data.name != this.bookInfo.name ) {
+							this.updateBookInfo({
+								path: this.bookInfo.path,
+								name: data.name
+							})
+						}
+						//如果图片更改，则更新本地记录的图片
+						if ( data.cover != this.bookInfo.image && data.cover ) {
+							this.updateBookInfo({
+								path: this.bookInfo.path,
+								image: data.cover
+							})
+						}
+						this.catalog = data.chapters;
+						let arr = getApp().globalData.$utils.deepClone(this.catalog);
+						let chapters = this.sortType == 'reverse' ? arr.reverse() : arr;
+						this.setBookChapters(chapters);
+					}
+				}).catch((err) => {
+					uni.showToast({
+						title: '解析失败',
+						icon: 'none'
+					})
+				})
+			},
+			//开始阅读
+			startRead () {
+				let arr = getApp().globalData.$utils.deepClone(this.catalog);
+				let chapters = this.sortType == 'reverse' ? arr.reverse() : arr;
+				this.readBook(chapters[0].path);
+			},
+			//从上次位置开始阅读
+			readRecord () {
+				if ( this.readed ) {
+					this.readBook(this.readed.path);
+				} else {
+					this.startRead();
+				}
+			},
+			//阅读
+			readBook (path) {
+				let arr = getApp().globalData.$utils.deepClone(this.catalog);
+				let readIndex = getApp().globalData.$utils.indexOf(arr, 'path', path);
+				getApp().globalData.$Router.push({path: '/pages/book/read/index', query: {
+					chapter: arr[readIndex].chapter
+				}});
+			},
+			//改变排序方式
+			changeSortType () {
+				this.sortType = this.sortType == 'reverse' ? 'positive' : 'reverse';
+				this.catalog.reverse();
+			},
+			showCatalog () {
+				getApp().globalData.$dom.catalog('chapter').then((item) => {
+					if ( item ) this.readBook(item.path);
+				})
+			}
+		},
+		components: {
+			CImage,
+			ListScroll
+		}
+	}
+</script>
+
+<style scoped>
+	.book-info {
+		flex-direction: row;
+		padding: 20rpx;
+	}
+	.book-img {
+		width: 200rpx;
+		height: 240rpx;
+	}
+	.book-info-right {
+		flex: 1;
+		padding: 0 15rpx;
+	}
+	.book-name {
+		font-size: 30rpx;
+		font-weight: bold;
+		lines: 1;
+		text-overflow: ellipsis;
+		margin: 20rpx 0;
+	}
+	.book-intro {
+		margin-top: 20rpx;
+	}
+	.book-intro-title {
+		font-size: 24rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+	}
+	.book-intro-text {
+		margin-top: 10rpx;
+		font-size: 20rpx;
+		lines: 3;
+		text-overflow: ellipsis;
+	}
+	.btns {
+		flex-direction: row;
+		justify-content: space-between;
+		padding: 0 20rpx;
+	}
+	.btn {
+		flex: 1;
+		height: 75rpx;
+		justify-content: center;
+		align-items: center;
+		border-radius: 5rpx;
+		border-color: #21C088;
+		border-style: solid;
+		border-width: 1px;
+	}
+	.btn-text {
+		font-size: 30rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+	}
+	.new-btn {
+		margin-left: 10rpx;
+	}
+	.new-btn-text {
+		color: #21C088;
+	}
+	.old-btn {
+		margin-right: 10rpx;
+		background-color: #21C088;
+	}
+	.tab-line {
+		padding: 20rpx;
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.tab-text {
+		font-size: 28rpx;
+	}
+	.gap {
+		height: 20rpx;
+	}
+	.book-desc {
+		padding: 20rpx;
+	}
+	.book-desc-text {
+		font-size: 28rpx;
+	}
+	.desc-btn-text {
+		font-size: 28rpx;
+	}
+	.book-lines-5 {
+		lines: 5;
+		text-overflow: ellipsis;
+	}
+	.listscroll {
+		height: 600rpx;
+	}
+	.catalog-line {
+		padding: 20rpx 20rpx;
+		flex-direction: row;
+		justify-content: space-between;
+		border-width: 1px;
+	}
+	.catalog-title {
+		font-size: 28rpx;
+		font-weight: bold;
+		color: #333333;
+	}
+	.sort-title {
+		color: #DD524D;
+		font-size: 28rpx;
+	}
+	.catalog-list {
+		height: 80rpx;
+		justify-content: center;
+	}
+	.catalog-block {
+		padding: 20rpx;
+		height: 80rpx;
+		border-bottom-width: 1px;
+		border-radius: 5rpx;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.catalog-text {
+		font-size: 24rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+		flex: 1;
+	}
+	.readed-text {
+		font-size: 24rpx;
+	}
+	.chapter-btn-text {
+		font-size: 28rpx;
+		padding: 20rpx;
+	}
+</style>

@@ -1,0 +1,152 @@
+<template>
+	<view class="action" @touchmove.stop.prevent="">
+		<view class="mask" ref="mask" @tap="hide('cancel')"></view>
+		<view class="popup" ref="popup" :style="{transform: 'translateY(' + Math.abs(lateY) + 'px)'}">
+			<view class="item-box" :style="{'background-color': skinColor.menuBgColor}">
+				<view v-for="(item, index) in list" :key="index">
+					<view class="list" @tap="hide('confirm', index)" :class="skinColor.activedName">
+						<text class="list-text" :class="{'color-red': current == index}" :style="{'color': skinColor.menuTitleColor}">{{item.title}}</text>
+					</view>
+					<view class="list-gap" style="height: 2rpx" :style="{'background-color': skinColor.gapColor}" v-if="index < list.length"></view>
+				</view>
+			</view>
+			<view style="height: 15rpx"></view>
+			<view class="list item-box" @tap="hide('cancel')" :style="{'background-color': skinColor.menuBgColor}">
+				<text class="list-text" :style="{'color': skinColor.menuTitleColor}">取消</text>
+			</view>
+			<view style="height: 15rpx"></view>
+		</view>
+	</view>
+</template>
+
+<script>
+	const animation = weex.requireModule('animation');
+	import { skinMixin } from '@/common/mixin/index.js'
+	export default {
+		mixins: [skinMixin],
+		data () {
+			return {
+				list: [],
+				current: -1,
+				anima: {
+					opac: 0.4,
+					duration: 200
+				}
+			}
+		},
+		computed: {
+			lateY () {
+				return -(this.list.length * 60 + 60);
+			}
+		},
+		onLoad (data) {
+			this.list = JSON.parse(decodeURIComponent(data.list));
+			this.current = data.current || -1;
+			uni.$emit('musicBtn-down');
+		},
+		onReady () {
+			this.show();
+		},
+		methods: {
+			show () {
+				animation.transition(this.$refs.mask, {
+				    styles: {
+						opacity: this.anima.opac
+				    },
+				    duration: this.anima.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				animation.transition(this.$refs.popup, {
+				    styles: {
+						transform: 'translateY(0)'
+				    },
+				    duration: this.anima.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+			},
+			hide (flag, index = -1) {
+				animation.transition(this.$refs.mask, {
+				    styles: {
+						opacity: 0
+				    },
+				    duration: this.anima.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				animation.transition(this.$refs.popup, {
+				    styles: {
+						transform: 'translateY(' + Math.abs(this.lateY) + 'px)'
+				    },
+				    duration: this.anima.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				}, (res) => {
+					uni.$emit('actionSheet-btn', {
+						flag: flag,
+						value: index > -1 ? this.list[index].value : '',
+						index: index
+					});
+				})
+			}
+		},
+		beforeDestroy () {
+			uni.$emit('musicBtn-open');
+		},
+		onBackPress(event) {
+			if ( event.from == 'backbutton' ) {
+				this.hide('cancel');
+				return true;
+			}
+			return false
+		}
+	}
+</script>
+
+<style scoped>
+	.action {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.mask {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000000;
+		opacity: 0;
+	}
+	.popup {
+		position: absolute;
+		left: 10rpx;
+		right: 10rpx;
+		bottom: 0;
+	}
+	.item-box {
+		border-radius: 20rpx;
+		background-color: #FFFFFF;
+	}
+	.list {
+		height: 90rpx;
+		align-items: center;
+		justify-content: center;
+	}
+	.list:active {
+		background-color: #EEEEEE;
+	}
+	.list-gap {
+		background-color: #EEEEEE;
+	}
+	.list-text {
+		font-size: 27rpx;
+	}
+</style>

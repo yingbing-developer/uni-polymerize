@@ -1,0 +1,185 @@
+<template>
+	<view class="list-scroll" ref="listBox">
+		<list ref="list" :offset-accuracy="offsetAccuracy" @scroll="scroll" :scrollable="scrollable" :loadmoreoffset="loadmoreoffset" :bounce="bounce" @loadmore="loadmore">
+			<cell>
+				<slot name="listTop"></slot>
+			</cell>
+			<cell v-for="(lists, i) in listSync" @appear="appear(i)" @disappear="disappear(i)">
+				<view class="box" :style="listStyleObj(i)" ref="listItem">
+					<view :style="itemStyleObj(index)" v-for="(child, index) in lists" :key="index" ref="item">
+						<block v-if="isShows.indexOf(i) > -1 || isShows.indexOf(i + 1) > -1 || isShows.indexOf(i - 1) > -1">
+							<slot :item="child"></slot>
+						</block>
+					</view>
+				</view>
+			</cell>
+			<cell>
+				<slot name="listBottom"></slot>
+			</cell>
+			<cell>
+				<slot name="loading"></slot>
+			</cell>
+			<slot name="fixed"></slot>
+		</list>
+	</view>
+</template>
+
+<script>
+	const dom = weex.requireModule('dom');
+	export default {
+		props: {
+			//列数
+			columnCount: {
+				type: Number,
+				default: 1
+			},
+			//列宽
+			columnWidth: {
+				type: Number,
+				default: 750
+			},
+			//每行高度
+			lineHeight: {
+				type: Number,
+				default: 0
+			},
+			//是否禁用滚动
+			scrollable: {
+				type: Boolean,
+				default: true
+			},
+			//列表数据
+			list: {
+				type: Array,
+				default () {
+					return new Array();
+				}
+			},
+			//离底部多少像素时触发加载更多事件
+			loadmoreoffset: {
+				type: Number,
+				default: 50
+			},
+			//触发滚动事件的频率，没多少像素触发一次
+			offsetAccuracy: {
+				type: Number,
+				default: 2000
+			},
+			bounce: {
+				type: Boolean,
+				default: true
+			}
+		},
+		computed: {
+			listStyleObj () {
+				return function (index) {
+					if ( index < this.listSync.length - 1 ) {
+						return {
+							paddingLeft: this.columnGap + 'px',
+							paddingRight: this.columnGap + 'px'
+						}
+					} else {
+						return {
+							paddingLeft: this.columnGap + 'px',
+							paddingRight: this.columnGap + 'px',
+							paddingBottom: this.columnGap + 'px'
+						}
+					}
+				}
+			},
+			itemStyleObj () {
+				return function (index) {
+					let value = index >= this.columnCount ? index % this.columnCount : index;
+					if ( value < this.columnCount - 1 ) {
+						return {
+							width: this.columnWidth + 'rpx',
+							height: this.lineHeight + 'rpx',
+							marginRight: this.columnGap + 'px',
+							marginTop: this.columnGap + 'px'
+						}
+					} else {
+						return {
+							width: this.columnWidth + 'rpx',
+							height: this.lineHeight + 'rpx',
+							marginTop: this.columnGap + 'px'
+						}
+					}
+				}
+			}
+		},
+		mounted () {
+			setTimeout(() => {
+				this.getListSync();
+			}, 300)
+		},
+		data() {
+			return {
+				windowHeight: 0,
+				columnGap: 0,
+				isShows: [],
+				listSync: []
+			}
+		},
+		methods: {
+			scroll(e) {
+				this.$emit('scroll', e)
+			},
+			loadmore(e) {
+				this.$emit('loadmore', e);
+			},
+			resetLoadmore () {
+				this.$refs["list"].resetLoadmore();
+			},
+			//计算数据
+			getListSync() {
+				dom.getComponentRect(this.$refs.listBox, (res) => {
+					this.windowHeight = res.size.height;
+					this.columnGap = this.columnCount > 1 ? ((res.size.width - (this.columnCount * uni.upx2px(this.columnWidth))) / (this.columnCount + 1)) : 0;
+					let maxCount = parseInt(this.columnCount * Math.ceil(res.size.height / (uni.upx2px(this.lineHeight) + this.columnGap)));
+					let arr = [];
+					let j = -1;
+					let len = this.list.length;
+					for (let i = 0; i < len; i++) {
+						if (i % maxCount == 0) {
+							j++;
+							this.$set(arr, j, []);
+						}
+						arr[j].push(this.list[i]);
+					}
+					this.listSync = arr;
+				})
+			},
+			appear(i) {
+				if ( this.isShows.indexOf(i) == -1 ) {
+					this.isShows.push(i);
+				}
+			},
+			disappear(i) {
+				let index = this.isShows.indexOf(i);
+				if ( index > -1 ) {
+					this.isShows.splice(index, 1);
+				}
+			},
+			scrollTo (index) {
+				dom.scrollToElement(this.$refs['item'][index], {animated: false});
+			}
+		},
+		watch: {
+			list () {
+				setTimeout(() => {
+					this.getListSync();
+				}, 100)
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.list-scroll {
+		flex: 1;
+	}
+	.box {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+</style>

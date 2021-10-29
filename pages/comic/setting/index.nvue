@@ -1,0 +1,289 @@
+<template>
+	<view class="read-menu" @touchmove.stop.prevent="" v-if="isShow">
+		<view class="mask" @tap="hide"></view>
+		
+		<!-- 顶部 -->
+		<view class="read-top" ref="readTop" @touchmove.stop.prevent="">
+			<nav-bar :title="comicInfo.name + '  ' + chapters[chapter].name" bgColor="#333333" titleColor="#EFEFEF">
+				<view class="nav-right" slot="right">
+					<view class="nr-item" @tap="changeComicOrien(comicOrienMode == 'portrait' ? 'landscape' : 'portrait')">
+						<c-icon name="screenrotation" :size="38" color="#EFEFEF"></c-icon>
+					</view>
+					<view class="nr-item" v-if="skinMode == 'default'" @tap="changeSkin('night')">
+						<c-icon name="night" :size="40" color="#EFEFEF"></c-icon>
+					</view>
+					<view class="nr-item" v-if="skinMode == 'night'" @tap="changeSkin('default')">
+						<c-icon name="light" :size="45" color="#EFEFEF"></c-icon>
+					</view>
+				</view>
+			</nav-bar>
+		</view>
+		
+		<!-- 底部设置 -->
+		<view class="read-board" ref="readBottom" @touchmove.stop.prevent="">
+			<view class="read-board-line chapter-line">
+				<text class="chapter-text" @tap="changeChapter(-1)">上一话</text>
+				<!-- <text class="chapter-text" @tap="changeImageType">图片修复</text> -->
+				<text class="chapter-text" @tap="changeChapter(1)">下一话</text>
+			</view>
+			<!-- <view class="read-board-line img-line">
+				<crosswise class="img-scroll" :list="comicSync" :actId="actNum" :itemWidth="100">
+					<template v-slot="{item}">
+						<view class="img-box" @tap="upPNum(item.index)">
+							<view style="position: relative;">
+								<c-image class="img" lazy-load :src="item.item.path" mode="aspectFill"></c-image>
+								<view class="img-actived" v-if="actNum == item.index">
+									<c-icon name="check-fill" size="60" color="#DD524D"></c-icon>
+								</view>
+							</view>
+							<text class="img-name">{{item.item.name}}</text>
+						</view>
+					</template>
+				</crosswise>
+			</view> -->
+		</view>
+	</view>
+</template>
+
+<script>
+	import { skinMixin } from '@/common/mixin/index.js'
+	import bookMixin from '@/common/mixin/book.js';
+	import CIcon from '@/components/c-icon/c-icon.nvue'
+	import NavBar from '@/components/nav-bar/nav-bar.nvue'
+	import Crosswise from '@/components/crosswise/crosswise.nvue'
+	import CImage from '@/components/c-image/c-image.nvue'
+	const animation = weex.requireModule('animation');
+	export default {
+		mixins: [skinMixin, bookMixin],
+		props: {
+			path: {
+				type: String,
+				default: ''
+			},
+			comicSync: {
+				type: Array,
+				default () {
+					return new Array();
+				}
+			},
+			actNum: {
+				type: String,
+				default: '0'
+			},
+			chapters: {
+				type: Array,
+				default () {
+					return new Array();
+				}
+			}
+		},
+		data () {
+			return {
+				isShow: false
+			}
+		},
+		computed: {
+			comicInfo () {
+				return this.bookList[getApp().globalData.$utils.indexOf(this.bookList, 'path', this.path)];
+			},
+			//章节 第几话
+			chapter () {
+				return parseFloat(this.comicInfo.record.chapter);
+			},
+			//章节第几张图
+			pNum () {
+				return parseFloat(this.comicInfo.record.position);
+			}
+		},
+		methods: {
+			show () {
+				this.isShow = true;
+				uni.$emit('musicBtn-show');
+				setTimeout(() => {
+					animation.transition(this.$refs.readTop, {
+					    styles: {
+							transform: 'translateY(0)'
+					    },
+					    duration: 300, //ms
+					    timingFunction: 'ease',
+					    needLayout:false,
+					    delay: 0 //ms
+					})
+					animation.transition(this.$refs.readBottom, {
+					    styles: {
+							transform: 'translateY(0)'
+					    },
+					    duration: 300, //ms
+					    timingFunction: 'ease',
+					    needLayout:false,
+					    delay: 0 //ms
+					})
+				}, 30)
+			},
+			hide () {
+				animation.transition(this.$refs.readTop, {
+				    styles: {
+						transform: 'translateY(-100%)'
+				    },
+				    duration: 300, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				animation.transition(this.$refs.readBottom, {
+				    styles: {
+						transform: 'translateY(100%)'
+				    },
+				    duration: 300, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				}, (res) => {
+					this.isShow = false;
+					uni.$emit('musicBtn-hide');
+				})
+			},
+			changeChapter (value) {
+				if ( this.chapter == 0 && value < 0 ) {
+					uni.showToast({
+						title: '已经是第一话了',
+						icon: 'none'
+					})
+					return;
+				}
+				if ( this.chapter == this.chapters.length - 1 && value > 0 ) {
+					uni.showToast({
+						title: '已经是最后一话了',
+						icon: 'none'
+					})
+					return;
+				}
+				let chapter = this.chapter + value;
+				this.upChapter(chapter);
+			},
+			upChapter (chapter) {
+				let record = {
+					chapter: chapter,
+					position: 0,
+					title: this.chapters[chapter].name
+				}
+				this.updateBookInfo({
+					path: this.comicInfo.path,
+					record: record
+				})
+			},
+			upPNum (index) {
+				let record = {
+					chapter: this.chapter,
+					position: index,
+					title: this.chapters[this.chapter].name
+				}
+				this.updateBookInfo({
+					path: this.comicInfo.path,
+					record: record
+				})
+			},
+			changeImageType () {
+				this.$emit('changeType')
+			}
+		},
+		components: {
+			CIcon,
+			Crosswise,
+			NavBar,
+			CImage
+		}
+	}
+</script>
+
+<style scoped>
+	.btn-actived:active {
+		background-color: #8A8A8A!important;
+		
+	}
+	.mask {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.read-top {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		transform: translateY(-200rpx);
+	}
+	.nav-right {
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+		flex: 1;
+	}
+	.nr-item {
+		width: 50rpx;
+		margin-left: 10rpx;
+	}
+	.read-board {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		transform: translateY(600rpx);
+	}
+	.read-board-line {
+		background-color: #333333;
+		flex-direction: row;
+		padding: 0 20rpx;
+		border-bottom-width: 1px;
+		border-bottom-color: #3D3D3D;
+		border-bottom-style: solid;
+		height: 100rpx;
+		align-items: center;
+	}
+	.img-line {
+		height: 150rpx;
+		justify-content: center;
+	}
+	.img-scroll {
+		flex: 1;
+	}
+	.img-box {
+		width: 100rpx;
+		height: 120rpx;
+		margin: 0 5rpx;
+		justify-content: center;
+		align-items: center;
+	}
+	.img {
+		width: 80rpx;
+		height: 120rpx;
+	}
+	.img-actived {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0,0,0,0.2);
+		justify-content: center;
+		align-items: center;
+	}
+	.img-name {
+		font-size: 28rpx;
+		margin-top: 5rpx;
+		text-align: center;
+		lines: 1;
+		text-overflow: ellipsis;
+		color: #8A8A8A;
+	}
+	.chapter-line {
+		justify-content: space-between;
+		height: 80rpx;
+	}
+	.chapter-text {
+		color: #8A8A8A;
+		font-size: 25rpx;
+	}
+</style>
