@@ -49,7 +49,7 @@ export default class Router {
 		const url = urlJoint(rule.path, rule.query);
 		uni.navigateTo({
 			url: url,
-			animationType: rule.animationType || 'pop-in',
+			animationType: rule.animationType || 'fade-in',
 			animationDuration: rule.animationDuration || 300
 		})
 	}

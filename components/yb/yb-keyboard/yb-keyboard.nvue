@@ -1,0 +1,148 @@
+<template>
+	<view class="keyboard" :style="{'background-color': dark ? '#131313' : '#FFFFFF'}">
+		<view class="key"
+		:class="{'default': !dark && item.type == 'num', 'night': dark && item.type == 'num'}"
+		v-for="(item, index) in keys"
+		:key="index" @tap="selectNum(index)"
+		:style="{
+			'border-color': dark ? '#3F3F3F' : '#EEEEEE',
+			'background-color': item.type == 'other' && dark ? '#3F3F3F' : item.type == 'other' && !dark ?  '#F2F2F2' : ''}">
+			<text class="key-text" v-if="item.type == 'num'" :style="{color: dark ? '#f4f7f5' : '#333333'}">{{item.value}}</text>
+			<view
+			v-if="item.value == 'delete'"
+			class="backspace" :style="{'background-color': dark ? '#f4f7f5' : '#333333'}">
+				<view class="fork fork-v" :style="{'background-color': dark ? '#3F3F3F' : '#EEEEEE'}"></view>
+				<view class="fork fork-h" :style="{'background-color': dark ? '#3F3F3F' : '#EEEEEE'}"></view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			value: {
+				type: String,
+				default: ''
+			},
+			dark: {
+				type: Boolean,
+				default: false
+			}
+		},
+		data () {
+			return {
+				keys: [{
+					type: 'num',
+					value: 1
+				},{
+					type: 'num',
+					value: 2
+				},{
+					type: 'num',
+					value: 3
+				},{
+					type: 'num',
+					value: 4
+				},{
+					type: 'num',
+					value: 5
+				},{
+					type: 'num',
+					value: 6
+				},{
+					type: 'num',
+					value: 7
+				},{
+					type: 'num',
+					value: 8
+				},{
+					type: 'num',
+					value: 9
+				},{
+					type: 'other',
+					value: ''
+				},{
+					type: 'num',
+					value: 0
+				},{
+					type: 'other',
+					value: 'delete'
+				}],
+				valueSync: ''
+			}
+		},
+		created () {
+			this.valueSync = this.value
+		},
+		methods: {
+			selectNum (index) {
+				if ( this.keys[index].type == 'num' ) {
+					this.valueSync += this.keys[index].value
+				}
+				if ( this.keys[index].value == 'delete' ) {
+					this.valueSync = this.valueSync.slice(0, this.valueSync.length - 1)
+				}
+				this.$emit('input', this.valueSync)
+			}
+		},
+		watch: {
+			value (newVal) {
+				if ( newVal != this.valueSync ) {
+					this.valueSync = newVal
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.keyboard {
+		flex-direction: row;
+		flex-wrap: wrap;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	.key {
+		width: 250rpx;
+		justify-content: center;
+		align-items: center;
+		height: 90rpx;
+		border-width: 1px;
+	}
+	.default:active {
+		background-color: #eee;
+	}
+	.night:active {
+		background-color: #3F3F3F;
+	}
+	.key-text {
+		font-weight: bold;
+		font-size: 45rpx;
+	}
+	
+	.backspace {
+		position: relative;
+		width: 50rpx;
+		height: 30rpx;
+		border-radius: 5rpx;
+	}
+	.backspace .fork {
+		width: 20rpx;
+		height: 5rpx;
+		position: absolute;
+		left: 15rpx;
+		top: 12.5rpx;
+	}
+	
+	.backspace .fork-v {
+		transform: rotateZ(135deg);
+		transform-origin: center;
+	}
+	.backspace .fork-h {
+		transform: rotateZ(45deg);
+		transform-origin: center;
+	}
+</style>

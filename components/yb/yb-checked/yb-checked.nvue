@@ -1,0 +1,308 @@
+<template>
+	<view class="yb-checked" :style="{'background-color': bgColor, top: top, height: height > 0 ? height + 'rpx' : 'auto'}">
+		<template v-if="type == 'linkage' || type == 'singleRow'">
+			<view class="linkage">
+				<scroll-view scroll-y="true" class="left" :style="{'background-color': gapColor}" v-if="type == 'linkage'">
+					<view class="tab"
+					v-for="(tab, i) in tabs"
+					:style="{'background-color': i == currentSync ? bgColor : gapColor}" :key="i"
+					@tap="changeTab(i)">
+						<text class="text" :style="{color: frontColor}">{{tab.label}}</text>
+					</view>
+				</scroll-view>
+				<scroll-view scroll-y="true" class="right" v-if="showScrollView">
+					<view class="value" v-for="(item, index) in list" :key="index" :style="{'border-color': gapColor}" @tap="clickValue(index, currentSync)">
+						<text class="text" :style="{color: item.isChecked ? themeColor : frontColor}">{{item.label}}</text>
+						<view class="check" :style="{'border-color': themeColor}" v-if="item.isChecked"></view>
+					</view>
+				</scroll-view>
+			</view>
+		</template>
+		<template v-if="type == 'square'">
+			<view class="linkage square">
+				<scroll-view scroll-y="true" class="right" v-if="showScrollView">
+					<view class="square-line" v-for="(data, i) in dataSync" :key="i" :style="{'border-color': gapColor}">
+						<text class="title" :style="{color: frontColor}">{{data.label}}</text>
+						<yb-grid :data="data.child" :column="4">
+							<template v-slot="{gridItem}">
+								<view class="square-item"
+								:style="{
+									'background-color': gridItem.detail.isChecked ? themeColor : '',
+									'border-color': gridItem.detail.isChecked ? themeColor :gapColor
+								}"
+								@tap="clickValue(gridItem.index, i)">
+									<text class="square-text" :style="{color: gridItem.detail.isChecked ? bgColor : frontColor}">{{gridItem.detail.label}}</text>
+								</view>
+							</template>
+						</yb-grid>
+					</view>
+				</scroll-view>
+			</view>
+		</template>
+		<view class="btns" v-if="mode == 'multiple'">
+			<yb-button :themeColor="themeColor" class="btn" round type="plain" title="重置" @tap="reset" />
+			<view style="width: 50rpx;"></view>
+			<yb-button :themeColor="themeColor" class="btn" round title="确定" @tap="confirm" />
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			data: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			},
+			//默认选中tab栏
+			current: {
+				type: Number,
+				default: 0
+			},
+			height: {
+				type: Number,
+				default: 580
+			},
+			bgColor: {
+				type: String,
+				default: '#FFFFFF'
+			},
+			frontColor: {
+				type: String,
+				default: '#333'
+			},
+			themeColor: {
+				type: String,
+				default: '#ec652a'
+			},
+			gapColor: {
+				type: String,
+				default: '#eeeeee'
+			},
+			//类型  singleRow为单列选择 linkage为左右联动选择 square为方框列表
+			type: {
+				type: String,
+				default: 'linkage'
+			},
+			//模式 single为单选 multiple为多选
+			mode: {
+				type: String,
+				default: 'single'
+			},
+		},
+		data () {
+			return {
+				currentSync: 0,
+				dataSync: [],
+				showScrollView: true
+			}
+		},
+		computed: {
+			tabs () {
+				return this.type != 'singleRow' ? this.dataSync.map((item, key) => {
+					return {
+						label: item.label
+					}
+				}) : []
+			},
+			list () {
+				if ( this.type != 'singleRow' ) {
+					return this.dataSync.length > 0 ? this.dataSync[this.currentSync].child : []
+				}
+				return []
+			}
+		},
+		created () {
+			this.currentSync = this.current
+			this.dataSync = JSON.parse(JSON.stringify(this.data))
+		},
+		methods: {
+			changeTab (i) {
+				this.currentSync = i
+				this.showScrollView = false
+				setTimeout(() => {
+					this.showScrollView = true
+				}, 20)
+			},
+			clickValue (index, current = 0) {
+				if ( this.mode == 'single' ) {
+					this.reset()
+					if ( this.type != 'singleRow' ) {
+						this.dataSync[current].child[index].isChecked = !this.dataSync[current].child[index].isChecked
+					} else {
+						this.dataSync[index].isChecked = !this.dataSync[index].isChecked
+					}
+					this.$emit('change', {
+						results: this.type != 'singleRow' ? this.dataSync[current].child[index] : this.dataSync[index],
+						current: this.type != 'singleRow' ? current : null,
+					})
+				} else {
+					if ( this.type != 'singleRow' ) {
+						this.dataSync[current].child[index].isChecked = !this.dataSync[current].child[index].isChecked
+					} else {
+						this.dataSync[index].isChecked = !this.dataSync[index].isChecked
+					}
+				}
+			},
+			reset () {
+				if ( this.type != 'singleRow' ) {
+					Object.keys(this.dataSync).forEach(key => {
+						Object.keys(this.dataSync[key].child).forEach(ckey => {
+							this.dataSync[key].child[ckey].isChecked = false
+						})
+					})
+				} else {
+					Object.keys(this.dataSync).forEach(key => {
+						this.dataSync[key].isChecked = false
+					})
+				}
+			},
+			confirm () {
+				let results = []
+				if ( this.type != 'singleRow' ) {
+					const list = this.dataSync.map(data => {
+							const arr = data.child.filter(child => child.isChecked)
+							return {
+								label: data.label,
+								child: arr
+							}
+					})
+					results = list.filter(item => item.child.length > 0)
+				} else {
+					results = this.dataSync.filter(data => data.isChecked)
+				}
+				this.$emit('change', {
+					results: results
+				})
+			}
+		},
+		watch: {
+			data (newVal) {
+				this.dataSync = JSON.parse(JSON.stringify(newVal))
+				// if ( this.type != 'singleRow' ) {
+				// 	this.list = this.dataSync.length > 0 ? this.dataSync[this.currentSync].child : []
+				// } else {
+				// 	this.list = this.dataSync.length > 0 ? this.dataSync : []
+				// }
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-checked {
+		/* #ifndef APP-NVUE */
+		width: 100%;
+		height: 100%;
+		/* #endif */
+		flex: 1;
+	}
+	.linkage {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		height: 100%;
+		/* #endif */
+		flex: 1;
+		flex-direction: row;
+	}
+	.linkage .left {
+		width: 200rpx;
+	}
+	.linkage .right {
+		flex: 1;
+	}
+	.linkage .text {
+		font-size: 24rpx;
+		flex: 1;
+		/* #ifdef APP-NVUE */
+		lines: 1;
+		text-overflow: ellipsis;
+		/* #endif */
+		/* #ifndef APP-NVUE */
+		word-break: break-all;  /* break-all(允许在单词内换行。) */
+		text-overflow: ellipsis;  /* 超出部分省略号 */
+		display: -webkit-box; /** 对象作为伸缩盒子模型显示 **/
+		-webkit-box-orient: vertical; /** 设置或检索伸缩盒对象的子元素的排列方式 **/
+		-webkit-line-clamp: 1;//限制行数
+		overflow: hidden;
+		/* #endif */
+	}
+	.linkage .tab {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		flex-direction: column;
+		/* #endif */
+		padding: 32rpx 0 32rpx 30rpx;
+	}
+	.linkage .value {
+		/* #ifndef APP-NVUE */
+		box-sizing: border-box;
+		display: flex;
+		/* #endif */
+		height: 88rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom-width: 1rpx;
+		margin: 0 30rpx;
+	}
+	.linkage .value .check {
+		border-left-width: 2rpx;
+		border-bottom-width: 2rpx;
+		width: 20rpx;
+		height: 12rpx;
+		transform: rotateZ(-45deg);
+	}
+	
+	.square {
+		margin: 20rpx 0;
+	}
+	
+	.square-line {
+		margin: 30rpx 30rpx 0 30rpx;
+	}
+	.square-line .title {
+		font-size: 26rpx;
+		margin-bottom: 20rpx;
+	}
+	.square-line .square-item {
+		width: 150rpx;
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		align-items: center;
+		justify-content: center;
+		height: 60rpx;
+		border-width: 1rpx;
+		margin-bottom: 20rpx;
+	}
+	.square-line .square-text {
+		font-size: 24rpx;
+		/* #ifdef APP-NVUE */
+		lines: 1;
+		text-overflow: ellipsis;
+		/* #endif */
+		/* #ifndef APP-NVUE */
+		word-break: break-all;  /* break-all(允许在单词内换行。) */
+		text-overflow: ellipsis;  /* 超出部分省略号 */
+		display: -webkit-box; /** 对象作为伸缩盒子模型显示 **/
+		-webkit-box-orient: vertical; /** 设置或检索伸缩盒对象的子元素的排列方式 **/
+		-webkit-line-clamp: 1;//限制行数
+		overflow: hidden;
+		/* #endif */
+	}
+	
+	.btns {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+		padding: 40rpx 30rpx;
+	}
+	.btns .btn {
+		flex: 1;
+		height: 70rpx;
+	}
+</style>

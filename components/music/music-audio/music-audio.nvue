@@ -1,0 +1,92 @@
+<script>
+	import Player from '@/assets/constructor/player.js'
+	import appMixin from '@/common/mixin/app.js'
+	let ob = null
+	let player = null
+	export default {
+		mixins: [appMixin],
+		beforeCreate() {
+			uni.$on('initPlayer', (data) => {
+				this.initPlayer(data.song)
+			})
+		},
+		created () {
+			ob = getApp().globalData.$nativeUI.scircle({
+				size: uni.upx2px(60),
+				left: uni.getSystemInfoSync().windowWidth - 50,
+				top: uni.getSystemInfoSync().windowHeight - 60,
+				border: 5,
+				touch: true,
+				dark: this.skinMode == 'night',
+				func: (e) => {
+					ob.hide()
+					// getApp().globalData.$dom.control({
+					// 	x: e.left,
+					// 	y: e.top
+					// }).then(() => {
+					// 	ob.show()
+					// })
+					getApp().globalData.$Router.push({
+						path: '/pages/music/player'
+					})
+					uni.$once('scircle', data => {
+						ob.show()
+					})
+				}
+			})
+			ob.show();
+		},
+		methods: {
+			initPlayer (song) {
+				this.$store.dispatch('player/addSong', [song])
+				this.$store.dispatch('player/create', song.id)
+				// player = this.$store.getters['player/getPlayer']
+				// player.init().then(status => {
+				// 	if ( status ) {
+				// 		player.instance.onEnded(() => {
+				// 			this.$store.dispatch('player/next')
+				// 		})
+				// 		player.instance.onCanplay(() => {
+				// 			player.instance.play()
+				// 		})
+				// 		player.instance.onError(() => {
+				// 			this.error(player.song.id)
+				// 			this.$store.dispatch('player/destroy')
+				// 		})
+				// 	} else {
+				// 		this.error(player.song.id)
+				// 		this.$store.dispatch('player/destroy')
+				// 	}
+				// })
+			},
+			error (id) {
+				getApp().globalData.$nativeUI.alert({
+					title: '错误提示',
+					content: '歌曲播放失败！换首歌曲播放吧',
+					dark: this.skinMode == 'night',
+					success: (res) => {
+						this.$store.dispatch('player/removeSong', id)
+					}
+				})
+			}
+		},
+		beforeDestroy () {
+			uni.$off('initPlayer')
+			if ( player ) {
+				player.instance ? player.destroy() : null
+				player = null
+			}
+		},
+		watch: {
+			skinMode (newVal) {
+				ob.reset({
+					dark: newVal == 'night'
+				})
+			}
+		}
+	}
+</script>
+
+<style>
+
+</style>

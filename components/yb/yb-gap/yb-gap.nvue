@@ -1,0 +1,26 @@
+<template>
+	<view class="gap" :style="{height: height, 'background-color': color}"></view>
+</template>
+
+<script>
+	export default {
+		props: {
+			height: {
+				type: String | Number,
+				default: '24rpx'
+			},
+			color: {
+				type: String,
+				default: ''
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	/* #ifndef APP-NVUE */
+	.gap {
+		width: 100%;
+	}
+	/* #endif */
+</style>

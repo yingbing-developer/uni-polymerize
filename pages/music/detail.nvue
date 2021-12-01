@@ -1,0 +1,377 @@
+<template>
+	<yb-page-anime :bgColor="skinColor.color_bg_1">
+		<scroll-view style="flex: 1;" scroll-y="true" @scroll="onScroll" :render-whole="true">
+			<view class="top" ref="top">
+				<rd-image lazyLoad class="bg" enable-blur :src="params.cover" mode="aspectFill"></rd-image>
+				<yb-nav-bar :backShow="false" bgColor="rgba(0,0,0,0)"></yb-nav-bar>
+				<view class="info" :style="{'justify-content': params.desc ? 'flex-start' : 'center'}">
+					<rd-image lazyLoad borderRadius="12" class="cover" :src="params.cover" mode="aspectFill"></rd-image>
+					<view class="info-right" v-if="params.desc">
+						<!-- <text class="title" :style="{color: '#fff'}">英文舒适向英文舒适向英文舒适向英文舒适向</text> -->
+						<!-- <text class="author" :style="{color: '#fff'}">再来一本浓茶</text> -->
+						<!-- <text class="desc" :style="{color: '#fff'}"></text> -->
+						<rich-text class="desc" :nodes="topDesc"></rich-text>
+						<view style="align-items: flex-start;">
+							<text class="more opac-actived" :style="{color: skinColor.color_blue}" @tap="infoShow = true">[更多]</text>
+						</view>
+					</view>
+				</view>
+				<view class="play-line">
+					<yb-button class="play" size="20" type="plain" round :themeColor="skinColor.color_red" title="播放全部" />
+				</view>
+			</view>
+			<view :style="{'background-color': skinColor.color_bg_1}" v-if="list.length > 0">
+				<view class="item"
+				:style="{'border-color': skinColor.color_gap_1}"
+				v-for="(item, index) in list" :key="index"
+				@tap="play(item)">
+					<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>
+					<image v-if="index == 0" class="trophy" src="/static/music/trophy_1.png" mode="aspectFill"></image>
+					<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
+					<image v-if="index == 2" class="trophy" src="/static/music/trophy_3.png" mode="aspectFill"></image>
+					<rd-icon name="music-fill" size="30" :color="skinColor.color_green"></rd-icon>
+					<view class="info">
+						<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+						<text class="label" :style="{color: skinColor.color_3}">{{item.singer}}</text>
+					</view>
+					<rd-icon class="more opac-actived" name="more-vertical" :color="skinColor.color_3" @click="showMore"></rd-icon>
+				</view>
+			</view>
+		</scroll-view>
+		<yb-page-anime-fixed v-if="list.length == 0">
+			<yb-list-no-data top="490rpx" title="暂无数据" v-if="list.length == 0 && !loading" />
+			<yb-list-loading top="490rpx" size="80" :color="skinColor.color_3" title="加载中" v-if="loading" />
+		</yb-page-anime-fixed>
+		<yb-nav-bar ref="navbar" class="nav-bar" :title="title" :bg-color="navBg" front-color="#fff">
+			<template slot="right">
+				<view class="nav-right">
+					<rd-icon name="love" size="40" color="#fff"></rd-icon>
+				</view>
+			</template>
+		</yb-nav-bar>
+		<music-panel :data="panelData" :visible.sync="panelShow"></music-panel>
+		<yb-popup popout="fade" :visible.sync="infoShow" height="800rpx">
+			<view class="info-desc" :style="{'background-color': skinColor.color_bg_2}">
+				<text class="title" :style="{color: skinColor.color_actived_1}">{{typeText}}介绍</text>
+				<scroll-view :show-scrollbar="false" style="flex: 1;" scroll-y="true" >
+					<rich-text class="info-text" :nodes="infoDesc"></rich-text>
+				</scroll-view>
+				<rd-icon enableClick size="35":color="skinColor.color_2" name="fork" class="close" @click="infoShow = false"></rd-icon>
+			</view>
+		</yb-popup>
+	</yb-page-anime>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	const animation = weex.requireModule('animation');
+	let that
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {
+				navOpac: 0,
+				params: '',
+				bgImage: '',
+				loading: true,
+				list: [],
+				panelData: '',
+				panelShow: false,
+				infoShow: false
+			}
+		},
+		computed: {
+			navBg () {
+				let bg = getApp().globalData.$utils.hex2rgb(this.skinColor.color_theme_1);
+				bg = bg.match(/rgb\((\S*)\)/)[1]
+				bg = `rgba(${bg},${this.navOpac})`
+				return bg
+			},
+			topDesc () {
+				return [{
+				    name: 'div',
+					attrs: {
+						style: 'color: #fff'
+					},
+				    children: [{
+				        type: 'text',
+						text: this.params.desc || '热门推荐'
+				    }]
+				}]
+			},
+			infoDesc () {
+				return [{
+				    name: 'div',
+					attrs: {
+						style: `color: ${this.skinColor.color_3};`
+					},
+				    children: [{
+				        type: 'text',
+						text: this.params.desc || '热门推荐'
+				    }]
+				}]
+			},
+			typeText () {
+				return this.params.type == 'singer' ? '歌手' : this.params.type == 'top' ? '排行榜' : '专辑'
+			},
+			title () {
+				return this.params.type == 'banner' && !this.params.title ? '独家首发' : this.params.title
+			}
+		},
+		onLoad () {
+			that = this
+			this.params = JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.params))
+			if ( this.params.song.length == 0 ) {
+				if ( this.params.type == 'singer' ) {
+					this.getSingerDetail().then(data => {
+						this.loading = false
+						this.list = data.list
+						this.params.desc = data.desc
+					})
+				} else if ( this.params.type == 'top' ) {
+					this.getTopDetail().then(list => {
+						this.loading = false
+						this.list = list
+					})
+				} else if ( this.params.type == 'banner' ) {
+					this.getBannerDetail().then(list => {
+						this.loading = false
+						this.list = list
+					})
+				} else if ( this.params.type == 'album' ) {
+					this.getDiscDetail().then(list => {
+						this.loading = false
+						this.list = list
+					})
+				} else {
+					this.getAlbumDetail().then(list => {
+						this.loading = false
+						this.list = list
+					})
+				}
+			} else {
+				this.loading = false
+				this.list = this.params.song
+			}
+		},
+		methods: {
+			onScroll (e) {
+				this.navOpac = (e.detail.scrollTop / 150) > 1 ? 1 : (e.detail.scrollTop / 150)
+				// const trans = e.detail.scrollTop / 4
+				// animation.transition(this.$refs.top, {
+				//     styles: {
+				// 		transform: 'translateY(' + (trans < 0 ? 0 : trans > uni.upx2px(490) ? 490 : trans) + 'px)'
+				//     },
+				//     duration: 0, //ms
+				//     timingFunction: 'ease',
+				//     needLayout:false,
+				//     delay: 0 //ms
+				// })
+			},
+			showMore () {
+				this.panelData = {
+					title: '不能说秘密《主题曲》',
+					label: '周杰伦'
+				}
+				this.panelShow = true
+			},
+			async getSingerDetail () {
+				return await getApp().globalData.$api.music.getSingerDetail({
+					id: this.params.singerId,
+					source: this.params.source
+				}).then((res) => {
+					return {
+						desc: res.data.desc,
+						list: res.data.list
+					}
+				}).catch(() => {
+					return {
+						desc: '',
+						list: []
+					}
+				})
+			},
+			async getTopDetail () {
+				return await getApp().globalData.$api.music.getTopDetail({
+					id: this.params.albumId,
+					source: this.params.source,
+					extra: this.params.extra
+				}).then((res) => {
+					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
+					return res.data.list
+				}).catch(() => {
+					return []
+				})
+			},
+			async getBannerDetail () {
+				return await getApp().globalData.$api.music.getBannerDetail({
+					id: this.params.albumId,
+					source: this.params.source
+				}).then((res) => {
+					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
+					return res.data.list
+				}).catch(() => {
+					return []
+				})
+			},
+			async getDiscDetail () {
+				return await getApp().globalData.$api.music.getDiscDetail({
+					id: this.params.albumId,
+					source: this.params.source
+				}).then((res) => {
+					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
+					return res.data.list
+				}).catch(() => {
+					return []
+				})
+			},
+			async getAlbumDetail () {
+				return await getApp().globalData.$api.music.getAlbumDetail({
+					id: this.params.albumId,
+					source: this.params.source
+				}).then((res) => {
+					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
+					return res.data.list
+				}).catch(() => {
+					return []
+				})
+			}
+		},
+		onBackPress (e) {
+			if ( e.from == 'backbutton' && that.infoShow ) {
+				if ( that.infoShow ) {
+					that.infoShow = false
+					return true
+				}
+			}
+			return false
+		}
+	}
+</script>
+
+<style scoped>
+	.detail {
+		position: relative;
+	}
+	.nav-bar {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+	}
+	.nav-right {
+		flex: 1;
+		flex-direction: row;
+		justify-content: flex-end;
+		align-items: center;
+	}
+	.top {
+		height: 490rpx;
+	}
+	.top .bg {
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		right: 0;
+	}
+	.top .info {
+		flex-direction: row;
+		padding: 0 50rpx;
+		margin-top: 20rpx;
+	}
+	.top .info .cover {
+		width: 200rpx;
+		height: 200rpx;
+	}
+	.top .info .info-right {
+		flex: 1;
+		margin-left: 20rpx;
+	}
+	.top .info .title {
+		font-size: 32rpx;
+		lines: 2;
+		height: 75rpx;
+		font-weight: bold;
+	}
+	.top .info .author, .top .info .desc {
+		font-size: 26rpx;
+	}
+	.top .info .author {
+		lines: 1;
+		margin: 15rpx 0;
+	}
+	.top .info .desc {
+		lines: 6;
+		text-overflow: ellipsis;
+	}
+	.top .info .more {
+		font-size: 26rpx;
+	}
+	.top .play-line {
+		align-items: center;
+		justify-content: center;
+		flex: 1;
+	}
+	.top .play {
+		width: 170rpx;
+		height: 50rpx;
+	}
+	
+	.item {
+		flex-direction: row;
+		align-items: center;
+		margin: 0 30rpx;
+		height: 120rpx;
+		border-bottom-width: 1rpx;
+	}
+	.item .index {
+		font-size: 30rpx;
+		margin-right: 20rpx;
+		width: 60rpx;
+		text-align: center;
+	}
+	.item .trophy {
+		width: 40rpx;
+		height: 40rpx;
+		margin-right: 30rpx;
+		margin-left: 10rpx;
+	}
+	.item .info {
+		flex: 1;
+		margin-left: 30rpx;
+	}
+	.item .info .title, .item .info .label {
+		font-size: 26rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+	}
+	.item .info .label {
+		margin-top: 20rpx;
+	}
+	.item .more {
+		width: 40rpx;
+	}
+	
+	.info-desc {
+		border-top-left-radius: 40rpx;
+		border-top-right-radius: 40rpx;
+		flex: 1;
+		position: relative;
+	}
+	.info-desc .title {
+		font-size: 26rpx;
+		text-align: center;
+		margin: 30rpx 0;
+	}
+	.info-desc .info-text {
+		font-size: 26rpx;
+		line-height: 50rpx;
+		padding: 0 40rpx;
+	}
+	.info-desc .close {
+		position: absolute;
+		right: 30rpx;
+		top: 30rpx;
+	}
+</style>

@@ -1,7 +1,7 @@
-import musicMixin from '@/common/mixin/music.js'
-import musiccertifyMixin from '@/common/mixin/musiccertify.js'
+// import musicMixin from '@/common/mixin/music.js'
+// import musiccertifyMixin from '@/common/mixin/musiccertify.js'
 const lyricMixin = {
-	mixins: [musicMixin, musiccertifyMixin],
+	// mixins: [musicMixin, musiccertifyMixin],
 	computed: {
 		//播放记录
 		playRecord () {

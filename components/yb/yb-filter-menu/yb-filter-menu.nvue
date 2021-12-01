@@ -1,0 +1,222 @@
+<template>
+	<view>
+		<yb-popup popout="fade" direction="top" :height="navHeight" :visible.sync="show" @hide="hide">
+			<yb-nav-bar ref="navbar" :backShow="false" :bgColor="bgColor" :frontColor="frontColor" :title="title">
+				<template slot="right">
+					<view class="nav-right">
+						<rd-icon enableClick class="opac-actived" name="fork" size="50" :color="frontColor" @click="hide"></rd-icon>
+					</view>
+				</template>
+			</yb-nav-bar>
+		</yb-popup>
+		<yb-popup popout="fade" hideMask direction="bottom" :height="widowHeight - navHeight" :visible.sync="show" @hide="hide">
+			<yb-checked
+			:data="data"
+			:current="current"
+			:currentChild="currentChild"
+			:height="height"
+			:bgColor="bgColor"
+			:frontColor="frontColor"
+			:themeColor="themeColor"
+			:gapColor="gapColor"
+			:type="type"
+			:mode="mode"
+			@change="changeValue"></yb-checked>
+		</yb-popup>
+	</view>
+</template>
+
+<script>
+	let pages;
+	let page;
+	let backs;
+	export default {
+		props: {
+			visible: {
+				type: Boolean,
+				default: false
+			},
+			top: {
+				type: Number | String,
+				default: 0
+			},
+			data: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			},
+			//是否展示头部导航
+			showNav: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: '筛选'
+			},
+			//默认选中tab栏
+			current: {
+				type: Number,
+				default: 0
+			},
+			bgColor: {
+				type: String,
+				default: '#FFFFFF'
+			},
+			frontColor: {
+				type: String,
+				default: '#333'
+			},
+			themeColor: {
+				type: String,
+				default: '#ec652a'
+			},
+			gapColor: {
+				type: String,
+				default: '#eeeeee'
+			},
+			//类型
+			type: {
+				type: String,
+				default: 'linkage'
+			},
+			//模式 single为单选 multiple为多选
+			mode: {
+				type: String,
+				default: 'single'
+			},
+		},
+		data () {
+			return {
+				show: false,
+				widowHeight: '',
+				navHeight: 0
+			}
+		},
+		created () {
+			this.show = this.visible;
+			this.widowHeight = uni.getSystemInfoSync().windowHeight
+		},
+		methods: {
+			hide () {
+				this.show = false
+				this.$emit('update:visible', false)
+				page.$vm.$options.onBackPress = backs
+			},
+			changeValue (e) {
+				this.$emit('change', e)
+				this.hide()
+			}
+		},
+		beforeDestroy () {
+			page ? page.$vm.$options.onBackPress = backs : null
+		},
+		watch: {
+			visible (newVal) {
+				if ( newVal ) {
+					pages = getCurrentPages()
+					page = pages[pages.length - 1]
+					backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
+					page.$vm.$options.onBackPress = new Array(0)
+					page.$vm.$options.onBackPress.push((e) => {
+						this.hide()
+						return true
+					})
+				}
+				this.show = newVal
+				
+				if ( newVal ) {
+					setTimeout(() => {
+						this.navHeight = this.$refs.navbar.height
+					}, 10)
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-drop-down {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.popup {
+		position: fixed;
+		left: 0;
+		right: 0;
+	}
+	.linkage {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+	}
+	.linkage .left {
+		width: 200rpx;
+	}
+	.linkage .right {
+		flex: 1;
+	}
+	.linkage .text {
+		font-size: 24rpx;
+		flex: 1;
+		/* #ifdef APP-NVUE */
+		lines: 1;
+		text-overflow: ellipsis;
+		/* #endif */
+		/* #ifndef APP-NVUE */
+		word-break: break-all;  /* break-all(允许在单词内换行。) */
+		text-overflow: ellipsis;  /* 超出部分省略号 */
+		display: -webkit-box; /** 对象作为伸缩盒子模型显示 **/
+		-webkit-box-orient: vertical; /** 设置或检索伸缩盒对象的子元素的排列方式 **/
+		-webkit-line-clamp: 1;//限制行数
+		overflow: hidden;
+		/* #endif */
+	}
+	.linkage .tab {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		flex-direction: column;
+		/* #endif */
+		padding: 32rpx 0 32rpx 30rpx;
+	}
+	.linkage .value {
+		/* #ifndef APP-NVUE */
+		box-sizing: border-box;
+		display: flex;
+		/* #endif */
+		height: 88rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom-width: 1rpx;
+		margin: 0 30rpx;
+	}
+	.linkage .value .check {
+		border-left-width: 2rpx;
+		border-bottom-width: 2rpx;
+		width: 20rpx;
+		height: 12rpx;
+		transform: rotateZ(-45deg);
+	}
+	.btns {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+		padding: 40rpx 30rpx;
+	}
+	.btns .btn {
+		flex: 1;
+		height: 70rpx;
+	}
+	
+	.nav-right {
+		flex: 1;
+		flex-direction: row;
+		justify-content: flex-end;
+	}
+</style>

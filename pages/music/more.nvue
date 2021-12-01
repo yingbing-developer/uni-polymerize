@@ -1,0 +1,215 @@
+<template>
+	<yb-page-anime :bgColor="skinColor.color_bg_1">
+		<template v-if="module">
+			<yb-nav-bar :bgColor="skinColor.color_bg_1" :frontColor="skinColor.color_1" :title="module.title"></yb-nav-bar>
+			<list>
+				<cell>
+					<yb-gap height="5rpx" :color="skinColor.color_gap_1"></yb-gap>
+				</cell>
+				<rd-header title="热门歌手"></rd-header>
+				<cell>
+					<view class="padding-gap">
+						<rd-title title="热门歌手" moreText="更多"
+						@more="app.$Router.push({
+							path: '/pages/music/singer',
+							query: {
+								source: module.source,
+								title: module.title
+							}
+						})"></rd-title>
+						<yb-grid :data="module.hotSinger" :count="8" :column="4">
+							<template v-slot="{gridItem}">
+								<view class="singer" @tap="goDetail(gridItem.detail)">
+									<rd-image lazyLoad border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
+									<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+								</view>
+							</template>
+						</yb-grid>
+					</view>
+				</cell>
+				<rd-header title="推荐歌单"></rd-header>
+				<cell>
+					<view class="padding-gap">
+						<rd-title title="推荐歌单" moreText="更多" @more="app.$Router.push({
+							path: '/pages/music/mix',
+							query: {
+								source: module.source,
+								title: module.title
+							}
+						})"></rd-title>
+						<yb-grid :data="module.hotDisc" :count="3">
+							<template v-slot="{gridItem}">
+								<view class="gridItem" @tap="goDetail(gridItem.detail)">
+									<rd-image  border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
+										<view class="num">
+										<rd-icon name="play-outline" :color="skinColor.color_4"></rd-icon>
+										<text class="num-text" :style="{color: skinColor.color_4}">{{gridItem.detail.num / 10000}}万</text>
+									</view>
+									<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+								</view>
+							</template>
+						</yb-grid>
+					</view>
+				</cell>
+				<cell v-for="(item, index) in module.hotDisc.slice(3)" @tap="goDetail(item)">
+					<view class="cellItem padding-gap">
+						<rd-image lazyLoad border-radius="12" class="cover" :src="item.cover"></rd-image>
+						<view class="info">
+							<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+							<text class="label" :style="{color: skinColor.color_3}">{{item.creator}}</text>
+						</view>
+					</view>
+				</cell>
+				<!-- 新歌速递 -->
+				<template v-if="module.newSong.length > 0">
+					<rd-header title="新歌速递"></rd-header>
+					<cell>
+						<view class="padding-gap">
+							<rd-title title="新歌速递" moreText="更多" @more="app.$Router.push({
+								path: '/pages/music/album',
+								query: {
+									source: module.source,
+									title: module.title
+								}
+							})"></rd-title>
+							<yb-grid :data="module.newSong" :count="3">
+								<template v-slot="{gridItem}">
+									<view class="gridItem" @tap="play(gridItem.detail)">
+										<rd-image  border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
+										<view class="num">
+											<rd-icon name="play-outline" :color="skinColor.color_4"></rd-icon>
+											<text class="num-text" :style="{color: skinColor.color_4}">{{gridItem.detail.singer}}</text>
+										</view>
+										<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+									</view>
+								</template>
+							</yb-grid>
+						</view>
+					</cell>
+					<cell v-for="(item, index) in module.newSong.slice(3)">
+						<view class="cellItem padding-gap" @tap="play(item)">
+							<rd-image lazyLoad border-radius="12" class="cover" :src="item.cover"></rd-image>
+							<view class="info">
+								<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+								<text class="label" :style="{color: skinColor.color_3}">{{item.singer}}</text>
+							</view>
+						</view>
+					</cell>
+				</template>
+				<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="MUSICURL[module.source].newSong"></yb-pullup>
+			</list>
+		</template>
+	</yb-page-anime>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js'
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {
+				module: ''
+			}
+		},
+		computed: {
+			MUSICURL () {
+				return getApp().globalData.$config.MUSICURL
+			}
+		},
+		onLoad() {
+			this.module = JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.module))
+		},
+		methods: {
+			pullup () {
+				this.getNewSongList().then(status => {
+					status ? this.$refs.pullup.finish() : this.$refs.pullup.fail()
+				})
+			},
+			async getNewSongList () {
+				return await getApp().globalData.$api.music.getNewSongList({source: this.module.source}).then((res) => {
+					let status = false
+					if ( res.code == getApp().globalData.$config.ERR_OK ) {
+						this.module.newSong = res.data.list
+						status = res.data.list.length > 0
+					}
+					return status
+				})
+			},
+			goDetail (item) {
+				getApp().globalData.$Router.push({
+					path: '/pages/music/detail',
+					query: {
+						params: encodeURIComponent(JSON.stringify(item))
+					}
+				})
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.gridItem {
+		position: relative;
+		width: 208rpx;
+	}
+	.gridItem .cover {
+		width: 208rpx;
+		height: 208rpx;
+	}
+	.gridItem .name {
+		font-size: 24rpx;
+		height: 66rpx;
+		lines: 2;
+		text-overflow: ellipsis;
+		margin-top: 15rpx;
+	}
+	.gridItem .num {
+		flex-direction: row;
+		align-items: center;
+		position: absolute;
+		bottom: 90rpx;
+		left: 10rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+	}
+	.gridItem .num .num-text {
+		font-size: 24rpx;
+		margin-left: 10rpx;
+	}
+	
+	.cellItem {
+		flex-direction: row;
+		align-items: center;
+		padding-bottom: 30rpx;
+	}
+	.cellItem .cover {
+		width: 150rpx;
+		height: 150rpx;
+	}
+	.cellItem .info {
+		flex: 1;
+		height: 100rpx;
+		justify-content: space-between;
+		margin-left: 30rpx;
+	}
+	.cellItem .info .title, .cellItem .info .label {
+		font-size: 28rpx;
+		text-overflow: ellipsis;
+		lines: 1;
+	}
+	
+	.singer {
+		width: 160rpx;
+	}
+	.singer .cover {
+		width: 160rpx;
+		height: 200rpx;
+	}
+	.singer .name {
+		font-size: 24rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+		text-align: center;
+		margin: 10rpx 0;
+	}
+</style>

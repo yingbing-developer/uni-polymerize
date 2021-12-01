@@ -1,78 +1,118 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		//小说主页
 		{
-			"path": "pages/index/index"
+			"path": "pages/book/index"
 		},
-		//本地小说添加页
+		// // 本地小说添加页
+		// {
+		// 	"path": "pages/book/search/index"
+		// },
+		// //在线小说添加页
+		// {
+		// 	"path": "pages/book/online/index"
+		// },
+		// //小说详情页
+		// {
+		// 	"path": "pages/book/detail/index"
+		// },
+		// //小说阅读页
+		// {
+		// 	"path": "pages/book/read/index",
+		// 	"style": {
+		// 		"disableScroll": false,
+		// 		"app-plus": {
+		// 			"bounce":"none"
+		// 		}
+		// 	}
+		// },
+		// //小说设置页
+		// {
+		// 	"path": "pages/book/setting/index",
+		// 	"style": {
+		// 		"backgroundColor": "transparent",
+		// 		"app-plus": {
+		// 			"bounce":"none",
+		// 			"animationType": "fade-in",
+		// 			"background": "transparent", // 背景透明
+		// 			"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+		// 			"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+		// 		}
+		// 	}
+		// },
+		//漫画主页
 		{
-			"path": "pages/book/search/index"
+			"path": "pages/comic/index"
 		},
-		//在线小说添加页
+		// //本地漫画添加页
+		// {
+		// 	"path": "pages/comic/search/index"
+		// },
+		// //在线漫画添加页
+		// {
+		// 	"path": "pages/comic/online/index"
+		// },
+		// //漫画详情页
+		// {
+		// 	"path": "pages/comic/detail/index"
+		// },
+		// //漫画阅读页
+		// {
+		// 	"path": "pages/comic/read/index"
+		// },
+		// //设置页
+		// {
+		// 	"path": "pages/setting/index"
+		// },
+		// //关于软件
+		// {
+		// 	"path": "pages/about/index"
+		// },
+		//音乐首页
 		{
-			"path": "pages/book/online/index"
+			"path": "pages/music/index"
 		},
-		//小说详情页
+		//音乐歌单分类列表
 		{
-			"path": "pages/book/detail/index"
+			"path": "pages/music/mix"
 		},
-		//小说阅读页
+		//音乐专辑列表
 		{
-			"path": "pages/book/read/index",
-			"style": {
-				"disableScroll": false,
-				"app-plus": {
-					"bounce":"none"
-				}
-			}
+			"path": "pages/music/album"
 		},
-		//小说设置页
+		//音乐歌手分类列表
 		{
-			"path": "pages/book/setting/index",
-			"style": {
-				"backgroundColor": "transparent",
-				"app-plus": {
-					"bounce":"none",
-					"animationType": "fade-in",
-					"background": "transparent", // 背景透明
-					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
-					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
-				}
-			}
+			"path": "pages/music/singer"
 		},
-		//本地漫画添加页
+		//音乐排行榜列表
 		{
-			"path": "pages/comic/search/index"
+			"path": "pages/music/rank"
 		},
-		//在线漫画添加页
+		//音乐更多展示
 		{
-			"path": "pages/comic/online/index"
+			"path": "pages/music/more"
 		},
-		//漫画详情页
+		//音乐详情页
 		{
-			"path": "pages/comic/detail/index"
-		},
-		//漫画阅读页
-		{
-			"path": "pages/comic/read/index"
-		},
-		//设置页
-		{
-			"path": "pages/setting/index"
-		},
-		//关于软件
-		{
-			"path": "pages/about/index"
+			"path": "pages/music/detail"
 		},
 		//音乐播放页面
 		{
 			"path": "pages/music/player",
 			"style": {
-				"backgroundColor": "transparent"
+				"backgroundColor": "transparent",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
 			}
 		},
 		//音乐播放列表
 		{
-			"path": "pages/music/index",
+			"path": "pages/music/playlist",
 			"style": {
 				"backgroundColor": "transparent",
 				"app-plus": {
@@ -84,47 +124,20 @@
 				}
 			}
 		},
-		//添加音乐
+		//搜索音乐
 		{
 			"path": "pages/music/search"
 		},
-		//添加在线音乐
+		//个人
 		{
-			"path": "pages/music/online"
-		},
-		//确认弹窗
-		{
-			"path": "modules/confirm",
-			"style": {
-				"backgroundColor": "transparent",
-				"app-plus": {
-					"bounce":"none",
-					"animationType": "fade-in",
-					"background": "transparent", // 背景透明
-					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
-					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
-				}
-			}
-		},
-		//选择对话框
-		{
-			"path": "modules/actionSheet",
-			"style": {
-				"backgroundColor": "transparent",
-				"app-plus": {
-					"bounce":"none",
-					"animationType": "fade-in",
-					"background": "transparent", // 背景透明
-					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
-					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
-				}
-			}
+			"path": "pages/user/index"
 		},
 		//文本编辑框
 		{
 			"path": "modules/edit",
 			"style": {
 				"backgroundColor": "transparent",
+				"navigationStyle": "custom",
 				"app-plus": {
 					"bounce":"none",
 					"animationType": "fade-in",
@@ -139,6 +152,7 @@
 			"path": "modules/catalog",
 			"style": {
 				"backgroundColor": "transparent",
+				"navigationStyle": "custom",
 				"app-plus": {
 					"bounce":"none",
 					"animationType": "fade-in",
@@ -153,6 +167,22 @@
 			"path": "modules/security",
 			"style": {
 				"backgroundColor": "transparent",
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
+		},
+		//安全密码
+		{
+			"path": "modules/control",
+			"style": {
+				"backgroundColor": "transparent",
+				"navigationStyle": "custom",
 				"app-plus": {
 					"bounce":"none",
 					"animationType": "fade-in",
@@ -165,11 +195,47 @@
 	],
 	"globalStyle": {
 		"disableScroll": true, // 不嵌套 scroller
-		"navigationStyle": "custom",
-		"navigationBarTextStyle": "white",
-		"navigationBarBackgroundColor": "transparent",
+		"navigationStyle":"custom",
+		"backgroundColor": "transparent",
 		"app-plus": {
-			"titleNView": false
+			"titleNView": false,
+			"background": "transparent",
+			"animationType": "fade-in"
+		}
+	},
+	"tabBar": {
+		"color": "#666666",
+		"selectedColor": "#2ca2f9",
+		"borderStyle": "black",
+		"backgroundColor": "#FAFAFA",
+		"list": [{
+			"pagePath": "pages/book/index",
+			"iconPath": "static/tabbar/book_default.png",
+			"selectedIconPath": "static/tabbar/book_default-actived.png",
+			"text": "小说"
+		},{
+			"pagePath": "pages/comic/index",
+			"iconPath": "static/tabbar/comic_default.png",
+			"selectedIconPath": "static/tabbar/comic_default-actived.png",
+			"text": "漫画"
+		},{
+			"pagePath": "pages/music/index",
+			"iconPath": "static/tabbar/music_default.png",
+			"selectedIconPath": "static/tabbar/music_default-actived.png",
+			"text": "音乐"
+		},{
+			"pagePath": "pages/user/index",
+			"iconPath": "static/tabbar/user_default.png",
+			"selectedIconPath": "static/tabbar/user_default-actived.png",
+			"text": "我的"
+		}]
+	},
+	"easycom": {
+		"autoscan": true, //是否自动扫描组件
+		"custom": { //自定义扫描规则
+			"^yb-(.*)": "@/components/yb/yb-$1/yb-$1.nvue",
+			"^rd-(.*)": "@/components/rd/rd-$1/rd-$1.nvue",
+			"^music-(.*)": "@/components/music/music-$1/music-$1.nvue"
 		}
 	},
 	"condition" : { //模式配置，仅开发期间生效

@@ -1,22 +1,20 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import book from './modules/book.js'
-import bookcertify from './modules/bookcertify.js'
-import music from './modules/music.js'
-import musiccertify from './modules/musiccertify.js'
-import skin from './modules/skin.js'
 import app from './modules/app.js'
+import search from './modules/search.js'
 import cache from './modules/cache.js'
+import source from './modules/source.js'
+import collection from './modules/collection.js'
+import player from './modules/player.js'
 Vue.use(Vuex)
 const store = new Vuex.Store({
 	modules: {
-		book,
-		bookcertify,
-		music,
-		musiccertify,
-		skin,
 		app,
-		cache
+		search,
+		cache,
+		source,
+		collection,
+		player
 	}
 })
 export default store

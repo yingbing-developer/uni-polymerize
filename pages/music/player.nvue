@@ -1,134 +1,140 @@
 <template>
-	<view class="player" :style="{'background-color': skinColor.menuBgColor}" @touchmove.stop.prevent="">
-		<c-image class="background" defaultSrc="@/static/music/music-bg.jpg" :enableMask="false" :src="musicInfo ? musicInfo.image : '@/static/music/music-bg.jpg'" mode="aspectFill"></c-image>
-		<view class="bg-mask"></view>
+	<view class="player" :style="{'background-color': skinColor.color_bg_1}" @touchmove.stop.prevent="" :render-whole="true">
+		<rd-image class="background" enable-blur :src="cdImage" mode="aspectFill"></rd-image>
 		<view class="wrapper">
-			<gap-bar></gap-bar>
+			<yb-gap-bar></yb-gap-bar>
 			<view class="top" ref="top">
 				<view class="back" @tap="hide">
-					<music-icon class="back-icon" name="back" size="40" :color="skinColor.iconColor"></music-icon>
+					<music-icon class="back-icon" name="back" size="40" :color="skinColor.color_white"></music-icon>
 				</view>
 				<view class="title">
-					<text class="subtitle music-name" :style="{color: skinColor.iconColor}">{{musicInfo ? musicInfo.name : '暂无歌曲'}}</text>
-					<text class="subtitle singer-name" :style="{color: skinColor.iconColor}">{{musicInfo ? musicInfo.singer : '未知歌手'}}</text>
-				</view>
-				<view class="right">
-					<view class="tr-icon">
-						<music-icon name="collection" size="38" :color="skinColor.iconColor"></music-icon>
-					</view>
+					<text class="subtitle music-name" :style="{color: skinColor.color_white}">{{player ? player.song.title : '暂无歌曲'}}</text>
+					<text class="subtitle singer-name" :style="{color: skinColor.color_white}">{{player ? player.song.singer : '未知歌手'}}</text>
 				</view>
 			</view>
-			<swiper class="swiper" :indicator-dots="true" :indicator-active-color="skinColor.iconColor" :duration="500">
+			<swiper class="swiper" :indicator-dots="true" :indicator-active-color="skinColor.color_white" :duration="500">
 				
 				<!-- cd封面 -->
 				<swiper-item>
 					<view class="swiper-item">
 						<view class="cd-wrapper">
-							<view class="cd" ref="cd">
-								<c-image :style="{transform: 'rotateZ(' + this.cdRotate + 'deg)'}" class="cd-img" borderRadius="500" defaultSrc="@/static/music/music-bg.jpg" :src="musicInfo ? musicInfo.image : '@/static/music/music-bg.jpg'" mode="aspectFill"></c-image>
+							<view class="cd" elevation="5" ref="cd">
+								<rd-image :style="{transform: 'rotateZ(' + this.cdRotate + 'deg)'}" style="flex: 1;" borderRadius="600" defaultSrc="/static/music/music-bg.jpg" :src="cdImage" mode="aspectFill"></rd-image>
+								<view class="circle">
+									<view class="opac"></view>
+								</view>
 							</view>
 						</view>
-						<view class="lyric-lines" ref="lyricLines">
-							<text class="lyric-line-text" :style="{color: lyricNowIndex == index ? '#d43c33' : skinColor.titleColor}">{{lyricNowTitle}}</text>
-						</view>
+						<!-- <view class="lyric-lines" ref="lyricLines">
+							<text class="lyric-line-text" :style="{color: lyricNowIndex == index ? skinColor.color_red : skinColor.color_1}">{{lyricNowTitle}}</text>
+						</view> -->
 					</view>
 				</swiper-item>
 				
 				<!-- 歌词 -->
-				<swiper-item>
+				<!-- <swiper-item>
 					<view class="swiper-item" ref="lyric">
 						<scroll-view v-if="playLyric.length > 0" :scroll-into-view="'lyric-line-' + (lyricNowIndex - 6 <= 0 ? 0 : lyricNowIndex - 6)" scroll-y="true" scroll-with-animation class="lyric-list">
 							<text
 							v-for="(item, index) in playLyric"
 							class="lyric-line-text"
 							:id="'lyric-line-' + index"
-							:style="{color: lyricNowIndex == index ? '#d43c33' : skinColor.titleColor}">{{item.title}}</text>
+							:style="{color: lyricNowIndex == index ? skinColor.color_red : skinColor.color_1}">{{item.title}}</text>
 						</scroll-view>
 						<view class="no-lyric" v-else>
-							<text class="lyric-line-text" :style="{color: lyricNowIndex == index ? '#d43c33' : skinColor.titleColor}">{{musicInfo ? musicInfo.name : '暂无歌曲'}}</text>
+							<text class="lyric-line-text" :style="{color: lyricNowIndex == index ? skinColor.color_red : skinColor.color_1}">{{musicInfo ? musicInfo.name : '暂无歌曲'}}</text>
 						</view>
 					</view>
-				</swiper-item>
+				</swiper-item> -->
 			</swiper>
 			<view class="control" ref="control">
 				<view class="progress-line">
-					<text class="progress-num" :style="{color: skinColor.titleColor}">{{playTime | minutesFormat}}</text>
-					<c-progress class="progress" :disable="musicDuration == 0" :height="9" :itemSize="30" activeColor="#d43c33" :value="musicProgress" @input="updateTime" itemShow></c-progress>
-					<text class="progress-num" :style="{color: skinColor.titleColor}">{{musicDuration | minutesFormat}}</text>
+					<text class="progress-num" :style="{color: skinColor.color_white}">{{currentTime | minutesFormat}}</text>
+					<yb-progress class="progress" :disabled="musicDuration <= 1" :height="9" :itemSize="30" :activeColor="skinColor.color_red" :value="progress" @input="updateTime" itemShow></yb-progress>
+					<text class="progress-num" :style="{color: skinColor.color_white}">{{musicDuration | minutesFormat}}</text>
 				</view>
+				<yb-gap height="40rpx"></yb-gap>
 				<view class="control-line">
 					<view class="control-box" @tap="changeMode">
-						<music-icon name="sequence" size="50" :color="skinColor.iconColor" v-if="playMode == 'loop'"></music-icon>
-						<music-icon name="loop" size="50" :color="skinColor.iconColor" v-if="playMode == 'once'"></music-icon>
-						<music-icon name="random" size="50" :color="skinColor.iconColor" v-if="playMode == 'random'"></music-icon>
+						<music-icon name="sequence" size="50" :color="skinColor.color_white" v-if="playMode == 'round'"></music-icon>
+						<music-icon name="loop" size="50" :color="skinColor.color_white" v-if="playMode == 'loop'"></music-icon>
+						<music-icon name="random" size="50" :color="skinColor.color_white" v-if="playMode == 'random'"></music-icon>
 					</view>
-					<view class="control-box" @tap="changeMusic(-1)">
-						<music-icon name="prev" size="55" :color="skinColor.iconColor"></music-icon>
+					<view class="control-box" @tap="prev">
+						<music-icon name="prev" size="55" :color="skinColor.color_white"></music-icon>
 					</view>
 					<view class="control-box" @tap="playPause">
-						<music-icon name="play" size="70" :color="skinColor.iconColor" v-if="!playStatus"></music-icon>
-						<music-icon name="pause" size="70" :color="skinColor.iconColor" v-if="playStatus"></music-icon>
+						<music-icon name="play" size="70" :color="skinColor.color_white" v-if="!playStatus"></music-icon>
+						<music-icon name="pause" size="70" :color="skinColor.color_white" v-if="playStatus"></music-icon>
 					</view>
-					<view class="control-box" @tap="changeMusic(1)">
-						<music-icon name="next" size="55" :color="skinColor.iconColor"></music-icon>
+					<view class="control-box" @tap="next">
+						<music-icon name="next" size="55" :color="skinColor.color_white"></music-icon>
 					</view>
-					<view class="control-box" @tap="setMusicLyricShow(!lyricShow)">
-						<view class="lyric-box" :style="{'border-color': lyricShow ? '#d43c33' : skinColor.iconColor}">
-							<text class="lyric-text" :style="{color: lyricShow ? '#d43c33' : skinColor.iconColor}">词</text>
-						</view>
+					<view class="control-box" @tap="app.$Router.push({path: '/pages/music/playlist'})">
+						<music-icon name="playlist" size="50" :color="skinColor.color_white"></music-icon>
 					</view>
 				</view>
+				<yb-gap height="40rpx"></yb-gap>
+				<view class="control-line">
+					<view class="control-box">
+					</view>
+					<view class="control-box" @tap="changeMusic(-1)">
+						<rd-icon name="download" size="50" :color="skinColor.color_white"></rd-icon>
+					</view>
+					<view class="control-box">
+						<rd-icon name="love" size="55" :color="skinColor.color_white"></rd-icon>
+					</view>
+					<view class="control-box">
+						<view class="lyric-box" :style="{'border-color': lyricShow ? skinColor.color_red : skinColor.color_white}">
+							<text class="lyric-text" :style="{color: lyricShow ? skinColor.color_red : skinColor.color_white}">词</text>
+						</view>
+					</view>
+					<view class="control-box">
+						<rd-icon name="comment" size="55" :color="skinColor.color_white"></rd-icon>
+					</view>
+					<view class="control-box">
+					</view>
+				</view>
+				<yb-gap></yb-gap>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-	import GapBar from '@/components/gap-bar/gap-bar.nvue'
-	import MusicIcon from '@/components/music-icon/music-icon.nvue'
-	import CImage from '@/components/c-image/c-image.nvue'
-	import CProgress from '@/components/progress/progress.nvue'
-	import { skinMixin } from '@/common/mixin/index.js';
-	import musicMixin from '@/common/mixin/music.js'
-	import lyricMixin from '@/common/mixin/lyric.js';
-	import musiccertifyMixin from '@/common/mixin/musiccertify.js'
+	import appMixin from '@/common/mixin/app.js';
+	// import lyricMixin from '@/common/mixin/lyric.js';
 	const animation = weex.requireModule('animation');
 	export default {
-		mixins: [skinMixin, lyricMixin, musicMixin, musiccertifyMixin],
+		mixins: [appMixin],
 		data () {
 			return {
 				duration: 400,
 				delay: 200,
 				cdRotate: 0,
-				cdStart: 0
+				cdStart: 0,
+				currentTime: 0,
+				playStatus: false,
+				musicDuration: 1,
+				cdImage: '',
 			}
 		},
 		computed: {
-			//播放状态
-			playStatus () {
-				return this.getMusicPlayStatus;
+			player () {
+				return this.$store.getters['player/getPlayer']
 			},
-			//播放模式
+			progress () {
+				return (this.currentTime / this.musicDuration) * 100
+			},
 			playMode () {
-				return this.getMusicPlayMode;
-			},
-			//音乐时长
-			musicDuration () {
-				return this.getMusicPlayDuration;
-			},
-			//播放进度
-			musicProgress () {
-				return (this.playTime / this.musicDuration) * 100
+				return this.$store.getters['player/getPlayMode']
 			}
 		},
 		onLoad () {
-			uni.$emit('musicBtn-down');
+			this.init()
 		},
 		onReady() {
 			this.show();
-		},
-		beforeDestroy () {
-			uni.$emit('musicBtn-open');
 		},
 		filters: {
 			minutesFormat (value) {
@@ -136,36 +142,58 @@
 			}
 		},
 		methods: {
+			init () {
+				if ( this.player ) {
+					this.playStatus = !this.player.instance.paused
+					this.currentTime = this.player.instance.currentTime > 0 ? this.player?.instance?.currentTime : 0
+					this.musicDuration = this.player ? this.player.instance.duration : 1
+					this.cdImage = this.player ? this.player.song.cover : '/static/music/music-bg.jpg'
+					this.player.instance.onTimeUpdate(() => {
+						this.currentTime = this.player ? this.player.instance.currentTime : 0
+					})
+					this.player.instance.onPlay(() => {
+						this.playStatus = true
+						this.currentTime = this.player.instance.currentTime
+						this.musicDuration = this.player.instance.duration
+					})
+					this.player.instance.onPause(() => {
+						this.playStatus = false
+					})
+					this.player.instance.onStop(() => {
+						this.playStatus = false
+					})
+					this.player.instance.onEnded(() => {
+						this.playStatus = false
+					})
+				}
+			},
 			//更新时间
 			updateTime (percent) {
-				uni.$emit('update-time', {
-					time: (percent / 100) * this.musicDuration
-				})
+				this.player.instance.seek(Math.ceil(((percent / 100) * this.musicDuration)));
 			},
 			//改变播放模式
 			changeMode () {
-				switch (this.playMode) {
-				    case 'loop':
-				        this.changeMusicPlayMode('once');
-				        break;
-				    case 'once':
-				        this.changeMusicPlayMode('random');
-				        break;
-				    default:
-				        this.changeMusicPlayMode('loop');
-						break;
-				}
+				this.$store.dispatch('player/switchPlayMode')
 			},
-			// 上一曲/下一曲
-			changeMusic (value) {
-				uni.$emit('change-music', {
-					value: value
+			// 下一曲
+			next () {
+				this.player ? this.$store.dispatch('player/next') : uni.showToast({
+					title: '没有歌曲在播放',
+					icon: 'none'
+				})
+			},
+			// 上一曲
+			prev () {
+				this.player ? this.$store.dispatch('player/prev') : uni.showToast({
+					title: '没有歌曲在播放',
+					icon: 'none'
 				})
 			},
 			//播放和暂停
 			playPause () {
-				uni.$emit('change-status', {
-					status: !this.playStatus
+				this.player ? this.player.instance.paused ? this.player.instance.play() : this.player.instance.pause() : uni.showToast({
+					title: '没有歌曲在播放',
+					icon: 'none'
 				})
 			},
 			show () {
@@ -200,7 +228,7 @@
 				})
 				animation.transition(this.$refs.cd, {
 				    styles: {
-						transform: 'translate(0, 0) scale(1.1)',
+						transform: 'scale(1.1)',
 						opacity: 1
 				    },
 				    duration: this.duration, //ms
@@ -265,7 +293,7 @@
 				})
 				animation.transition(this.$refs.cd, {
 				    styles: {
-						transform: 'translate(-260rpx, 350rpx) scale(0)',
+						transform: 'scale(0)',
 						opacity: 0
 				    },
 				    duration: this.duration, //ms
@@ -274,6 +302,7 @@
 				    delay: 0 //ms
 				}, () => {
 					getApp().globalData.$Router.back();
+					uni.$emit('scircle')
 				})
 			},
 			//旋转cd封面
@@ -289,6 +318,7 @@
 				this.cdTimer = setTimeout(() => {
 					if ( this.cdStart == 1 ) {
 						clearTimeout(this.cdTimer);
+						this.cdTimer = null;
 						return false;
 					}
 					this.startRotate();
@@ -305,6 +335,11 @@
 				});
 			}
 		},
+		beforeDestroy () {
+			this.stopRotate()
+			clearTimeout(this.cdTimer);
+			this.cdTimer = null;
+		},
 		watch: {
 			playStatus (val) {
 				if ( val ) {
@@ -312,7 +347,9 @@
 				} else {
 					this.stopRotate()
 				}
-				
+			},
+			player (val) {
+				this.init()
 			}
 		},
 		onBackPress (event) {
@@ -321,55 +358,47 @@
 				return true;
 			}
 			return false
-		},
-		components: {
-			GapBar,
-			MusicIcon,
-			CImage,
-			CProgress
 		}
 	}
 </script>
 
 <style scoped>
-	.background {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		opacity: 0.1;
-	}
-	.bg-mask {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-image: linear-gradient(to bottom right, rgba(0,0,0,0.2), rgba(0,0,0,0.4));
-	}
-	.wrapper {
+	.player {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		bottom: 0;
 	}
-	.top {
+	.player .background {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.player .wrapper {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.player .top {
 		flex-direction: row;
 		height: 70rpx;
 		position: relative;
 		transform: translateY(-70rpx);
 		opacity: 0;
 	}
-	.back {
+	.player .back {
 		width: 80rpx;
 		align-items: center;
 	}
-	.back-icon {
+	.player .back-icon {
 		transform: rotateZ(-90deg);
 	}
-	.title {
+	.player .title {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -380,7 +409,7 @@
 		justify-content: space-between;
 		padding: 0 100rpx;
 	}
-	.right {
+	.player .right {
 		position: absolute;
 		right: 15rpx;
 		top: 0;
@@ -388,75 +417,87 @@
 		height: 40rpx;
 		align-items: flex-end;
 	}
-	.tr-icon {
+	.player .tr-icon {
 		margin-left: 20rpx;
 	}
-	.subtitle {
+	.player .subtitle {
 		lines: 1;
 		text-overflow: ellipsis;
 	}
-	.music-name {
+	.player .music-name {
 		font-size: 30rpx;
 	}
-	.singer-name {
+	.player .singer-name {
 		font-size: 22rpx;
 	}
-	.swiper {
+	.player .swiper {
 		flex: 1;
 	}
-	.swiper-item {
+	.player .swiper-item {
 		flex: 1;
 	}
-	.cd-wrapper {
+	.player .cd-wrapper {
 		padding: 40rpx;
 		align-items: center;
 		position: relative;
 		flex: 1;
 	}
-	.lyric-lines {
+	.player .lyric-lines {
 		margin: 30rpx 0 100rpx 0;
 		opacity: 0;
 	}
-	.cd {
-		margin-top: 60rpx;
-		width: 500rpx;
-		height: 500rpx;
-		border-radius: 500rpx;
-		border-width: 20rpx;
-		border-style: solid;
-		border-color: rgba(0,0,0,0.3);
+	.player .cd {
+		width: 600rpx;
+		height: 600rpx;
+		border-radius: 600rpx;
 		opacity: 0;
-		transform: translate(-260rpx, 350rpx) scale(0);
+		transform: scale(0);
+		position: relative;
 	}
-	.cd-img {
-		flex: 1;
+	.player .cd .circle {
+		position: absolute;
+		width: 300rpx;
+		height: 300rpx;
+		border-radius: 300rpx;
+		left: 150rpx;
+		top: 150rpx;
+		background-color: #000000;
+		align-items: center;
+		justify-content: center;
 	}
-	.control {
+	.player .cd .circle .opac {
+		width: 150rpx;
+		height: 150rpx;
+		border-radius: 150rpx;
+		background-color: rgba(255,255,255,0.6);
+		border: 10rpx solid #222;
+	}
+	.player .control {
 		padding: 20rpx 40rpx;
-		height: 260rpx;
+		height: 350rpx;
 		transform: translateY(300rpx);
 		opacity: 0;
 	}
-	.progress-line {
+	.player .progress-line {
 		padding: 20rpx 20rpx;
 		flex-direction: row;
 		align-items: center;
 	}
-	.progress {
+	.player .progress {
 		flex: 1;
 	}
-	.progress-num {
+	.player .progress-num {
 		width: 100rpx;
 		font-size: 24rpx;
 		text-align: center;
 	}
-	.control-line {
+	.player .control-line {
 		flex-direction: row;
 		justify-content: space-between;
-		padding: 30rpx 40rpx 60rpx 40rpx;
+		padding: 0 40rpx;
 		align-items: center;
 	}
-	.lyric-box {
+	.player .lyric-box {
 		width: 55rpx;
 		height: 55rpx;
 		border-width: 4.2rpx;
@@ -464,19 +505,19 @@
 		align-items: center;
 		justify-content: center;
 	}
-	.lyric-text {
+	.player .lyric-text {
 		font-size: 30rpx;
 	}
-	.lyric-list {
+	.player .lyric-list {
 		margin: 60rpx 0 90rpx 0;
 		flex: 1;
 	}
-	.lyric-line-text {
+	.player .lyric-line-text {
 		text-align: center;
 		font-size: 30rpx;
 		margin: 10rpx 0;
 	}
-	.no-lyric {
+	.player .no-lyric {
 		flex: 1;
 		align-items: center;
 		justify-content: center;

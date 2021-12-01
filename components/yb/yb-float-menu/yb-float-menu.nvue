@@ -1,0 +1,83 @@
+<template>
+	<view class="yb-float-menu">
+		<view class="control circle">
+			<view class="fork fork-h"></view>
+			<view class="fork fork-v"></view>
+		</view>
+		<view class="menu circle" v-for="(item, index) in menus" :key="index" :style="getTransform(index)">
+			<image src="/static/music/play.png" class="menu-icon" mode="aspectFit"></image>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			menus: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			}
+		},
+		methods: {
+			getTransform (index) {
+				return index == 0 ? {
+					transform: 'translateY(-40rpx)',
+				} : index == 1 ? {
+					'transform-origin': '25rpx 65rpx',
+					transform: 'translateY(-40rpx) rotateZ(45deg)'
+				} : index == 2 ? {
+					'transform-origin': '0 65rpx',
+					transform: 'translateY(-40rpx) rotateZ(65deg)',
+				} :{
+					transform: 'translateY(40rpx)',
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-float-menu {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.control {
+		position: absolute;
+		top: 200rpx;
+		left: 0;
+		background-color: rgba(0,0,0,0.5);
+	}
+	.control .fork {
+		width: 30rpx;
+		height: 4rpx;
+		background-color: #FAFAFA;
+		position: absolute;
+		left: 10rpx;
+		top: 23rpx;
+	}
+	.control .fork-h {
+		transform: rotateZ(45deg);
+	}
+	.control .fork-v {
+		transform: rotateZ(-45deg);
+	}
+	.circle {
+		width: 50rpx;
+		height: 50rpx;
+		border-radius: 50rpx;
+	}
+	.menu {
+		position: absolute;
+		top: 200rpx;
+		left: 0;
+	}
+	.menu .menu-icon {
+		width: 50rpx;
+		height: 50rpx;
+	}
+</style>

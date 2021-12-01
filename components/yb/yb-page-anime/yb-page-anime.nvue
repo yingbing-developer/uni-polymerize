@@ -1,0 +1,147 @@
+<template>
+	<view class="yb-page-anime" ref="ybPageAnime" :style="{transform: transform, 'background-color': bgColor}">
+		<slot></slot>
+	</view>
+</template>
+
+<script>
+	// #ifdef APP-NVUE
+	const animation = weex.requireModule('animation');
+	// #endif
+	export default {
+		props: {
+			bgColor: {
+				type: String,
+				default: '#FAFAFA'
+			},
+			animationType: {
+				type: String,
+				default: 'slide-in-right'
+			},
+			duration: {
+				type: Number,
+				default: 300
+			}
+		},
+		data () {
+			return {
+				transform: '',
+				isBack: false
+			}
+		},
+		created () {
+			this.init()
+			this.onBack()
+		},
+		mounted () {
+			setTimeout(() => {
+				this.pushin()
+			}, 50)
+		},
+		methods: {
+			init () {
+				switch (this.animationType) {
+					case 'slide-in-right':
+						const windowWidth = uni.getSystemInfoSync().windowWidth
+						this.transform = 'translateX(' + windowWidth + 'px)'
+						break
+					case 'slide-in-bottom':
+						const windowHeight = uni.getSystemInfoSync().windowHeight
+						this.transform = 'translateY(' + windowHeight + 'px)'
+						break
+					case 'zoom-out':
+						this.transform = 'scale(0)'
+						break
+					default:
+						this.transform = ''
+				}
+				
+			},
+			pushin () {
+				const transform = this.animationType == 'zoom-out' ? 'scale(1)' : 'translate(0)'
+				// #ifdef APP-NVUE
+				animation.transition(this.$refs.ybPageAnime, {
+				    styles: {
+						transform: transform,
+						opacity: 1
+				    },
+				    duration: this.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				// #endif
+				// #ifndef APP-NVUE
+				this.transform = transform
+				// #endif
+				
+			},
+			popout () {
+				this.isBack = true
+				let animationType = ''
+				switch (this.animationType) {
+					case 'slide-in-right':
+						animationType = 'slide-out-right'
+						break
+					case 'slide-in-bottom':
+						animationType = 'slide-out-bottom'
+						break
+					case 'zoom-out':
+						animationType = 'zoom-in'
+						break
+					default:
+						animationType = 'fade-out'
+				}
+				uni.navigateBack({
+					animationType: animationType,
+					animationDuration: this.duration,
+					delta: 1
+				})
+				// plus.key.removeEventListener("backbutton");
+			},
+			onBack () {
+				// plus.key.addEventListener("backbutton",(e) => {
+				// 	this.popout()
+				// }, false);
+				const pages = getCurrentPages()
+				const page = pages[pages.length - 1]
+				const backs = page.$vm.$options.onBackPress
+				const evnet = (e) => {
+					const bol = backs ? backs[0](e) : false
+					if ( bol ) return bol
+					if ( !this.isBack ) {
+						this.popout()
+						return true;
+					}
+					return false
+				}
+				page.$vm.$options.onBackPress = new Array(0)
+				page.$vm.$options.onBackPress.push(evnet)
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	/* #ifdef APP-NVUE */
+	.yb-page-anime {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		opacity: 0;
+	}
+	/* #endif */
+	
+	/* #ifndef APP-NVUE */
+	.yb-page-anime {
+		width: 100vw;
+		min-height: 100vh;
+		transition: transform .3s;
+		overflow: hidden;
+		opacity: 0;
+	}
+	/* #endif */
+
+</style>

@@ -25,6 +25,14 @@ export default {
 		return minutes + ':' + seconds;
 	},
 	/* *
+	 * 时间转化为秒数
+	 * @param {String} time 时间（HH:mm:ss）
+	 * */
+	time2seconds (time){
+		const seconds = parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1].split('.')[0]) + parseInt(time.split(':')[1].split('.')[1]) / 1000;
+		return seconds; 
+	},
+	/* *
 	 * 移除url地址域名
 	 * @param {String} str http地址
 	 * */
@@ -132,7 +140,7 @@ export default {
 	/**
 	 * 生成随机ID
 	*/
-	randomID() {
+	randomID () {
 		let mydate = new Date();
 		return mydate.getMinutes() + mydate.getSeconds() + mydate.getMilliseconds() + Math.round(Math.random() * 10000);
 	},
@@ -141,7 +149,7 @@ export default {
 	 * 生成随机不重复整数
 	 * @param {Number} len 长度
 	*/
-	randomSoleNumber(len) {
+	randomSoleNumber (len) {
 		let min = 0;
 		let max = len - 1;
 		let arr = [];
@@ -167,6 +175,18 @@ export default {
 		return str;
 	},
 	
+	/**
+	 * 16进制颜色转化为rgb
+	 * @param {String} hex 16进制颜色
+	*/
+	hex2rgb (hex) {
+		let str="rgb("
+		const r = parseInt(hex.slice(1,3),16).toString();   //ff  slice不包括end
+		const g = parseInt(hex.slice(3,5),16).toString();   //00
+		const b = parseInt(hex.slice(5,7),16).toString();   //ff
+		str += r+","+g+","+b+")";
+		return str
+	},
 	
 	// 深度克隆
 	deepClone (obj) {  

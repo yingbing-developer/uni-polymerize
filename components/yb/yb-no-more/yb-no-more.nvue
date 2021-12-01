@@ -1,0 +1,26 @@
+<template>
+	<text class="tip-text" :style="{color: color}">{{title}}</text>
+</template>
+
+<script>
+	export default {
+		props: {
+			title: {
+				type: String,
+				default: '~ ~ 没有更多了 ~ ~'
+			},
+			color: {
+				type: String,
+				default: '#333'
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.tip-text {
+		font-size: 28rpx;
+		text-align: center;
+		padding: 20rpx 0;
+	}
+</style>

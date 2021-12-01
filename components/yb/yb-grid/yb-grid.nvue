@@ -1,0 +1,99 @@
+<template>
+	<view class="yb-grid">
+		<view class="list" v-for="(child, i) in list" :key="i">
+			<view v-for="(item, index) in child" :key="index" ref="item" class="item">
+				<slot v-if="item" :gridItem="{
+					detail: item,
+					index: parseInt(i * column) + parseInt(index)
+				}"></slot>
+				<view :style="{width: width + 'px'}" v-else></view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	const dom = weex.requireModule('dom');
+	export default {
+		props: {
+			data: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			},
+			//列数
+			column: {
+				type: Number,
+				default: 3
+			},
+			//最大显示数量 auto为无限制
+			count: {
+				type: Number | String,
+				default: 'auto'
+			}
+		},
+		data () {
+			return {
+				width: 0//当列数不足时，用于展位的宽度
+			}
+		},
+		computed: {
+			list () {
+				const count = this.count >= 0 ? this.count : this.data.length
+				const data = this.data.slice(0, count);
+				const row = data.length > 0 ? Math.ceil(data.length / this.column) : 0
+				const arr = new Array(row).fill(0)
+				let list = []
+				Object.keys(arr).forEach(key => {
+					const end = ((parseInt(key) + 1) * this.column) < count ? ((parseInt(key) + 1) * this.column) : count
+					let item = data.slice(parseInt(key) * this.column, end)
+					if ( item.length < this.column ) {
+						const sup = new Array(this.column - item.length).fill('')
+						item = item.concat(sup)
+					}
+					list.push(item)
+				})
+				return list
+			}
+		},
+		mounted () {
+			this.getSize()
+		},
+		methods: {
+			getSize () {
+				if ( this.list.length > 0 && this.width == 0 ) {
+					setTimeout(() => {
+						// #ifdef APP-NVUE
+						const element = this.$refs['item'][0];
+						dom.getComponentRect(element,(ret) => {
+						  this.width = ret.size.width
+						});
+						// #endif
+						// #ifndef APP-NVUE
+						const query = uni.createSelectorQuery().in(this);
+						query.select('.item').boundingClientRect(data => {
+							this.width = data.width
+						}).exec();
+						// #endif
+					}, 50)
+				}
+			}
+		},
+		watch: {
+			list (newVal) {
+				this.getSize()
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.list {
+		/* #ifndef APP-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+		justify-content: space-between;
+	}
+</style>

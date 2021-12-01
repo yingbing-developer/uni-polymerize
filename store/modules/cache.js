@@ -1,27 +1,37 @@
-import { IMAGECACHE } from '../config.js'
+import { FILECACHE } from '../config.js'
 
 const state = {
-	imageCache: uni.getStorageSync(IMAGECACHE) || [] //图片临时文件存放
+	cache: uni.getStorageSync(FILECACHE) || [] //图片临时文件存放
 }
 
 const getters = {
-	getImageCache (state) {
-		return state.imageCache
+	getCache (state) {
+		return state.cache
 	}
 }
 
 const mutations = {
-	addImageCache (state, obj) {
-		state.imageCache.push(obj);
-		uni.setStorageSync(IMAGECACHE, state.imageCache)
+	setCache (state, cache) {
+		state.cache = cache
+		uni.setStorageSync(FILECACHE, state.cache)
+	}
+}
+
+const actions = {
+	addCache ({state, commit}, obj) {
+		const caches = [...state.cache]
+		const index = caches.findIndex(cache => cache.id == obj.id)
+		index > -1 ? caches[index] = obj : caches.push(obj)
+		commit('setCache', caches)
 	},
-	removeImageCache (state, key) {
-		const index = state.imageCache.findIndex(item => item.key == key)
-		if ( index > -1 ) state.imageCache.splice(index, 1);
-		uni.setStorageSync(IMAGECACHE, state.imageCache)
+	removeCache ({state, commit}, id) {
+		const caches = [...state.cache]
+		const index = caches.findIndex(cache => cache.id == id)
+		if ( index > -1 ) caches.splice(index, 1);
+		commit('setCache', caches)
 	},
-	clearImageCache (state) {
-		uni.removeStorageSync(IMAGECACHE)
+	clearCache ({commit}) {
+		commit('setCache', [])
 	}
 }
 
@@ -29,5 +39,6 @@ export default {
     namespaced: true,
     state,
     getters,
-    mutations
+    mutations,
+	actions
 }

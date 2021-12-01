@@ -1,0 +1,27 @@
+<template>
+	<view>
+		<music-audio></music-audio>
+	</view>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {}
+		},
+		onLoad() {
+			
+		},
+		onShow () {
+			getApp().globalData.$business.setSkinColor();
+		},
+		methods: {
+		}
+	}
+</script>
+
+<style>
+
+</style>

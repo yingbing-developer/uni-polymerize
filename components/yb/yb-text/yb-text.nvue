@@ -1,0 +1,26 @@
+<template>
+	<view class="yb-text">
+		<template v-for="(node,i) in nodes">
+			<text @click="$emit('clickNode',{node,i})" v-for="(item, index) in node.text" :key='index' :style="node.style" :class="node.class">{{item}}</text>
+		</template>
+	</view>
+</template>
+
+<script>
+	export default {
+		props:{
+			nodes:{
+				type:Array,
+				default () {
+					return new Array
+				}
+			}
+		},
+	}
+</script>
+
+<style>
+.yb-text {
+	flex-flow: row wrap; 
+}
+</style>
