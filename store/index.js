@@ -5,7 +5,7 @@ import search from './modules/search.js'
 import cache from './modules/cache.js'
 import source from './modules/source.js'
 import collection from './modules/collection.js'
-import player from './modules/player.js'
+import audio from './modules/audio.js'
 Vue.use(Vuex)
 const store = new Vuex.Store({
 	modules: {
@@ -14,7 +14,7 @@ const store = new Vuex.Store({
 		cache,
 		source,
 		collection,
-		player
+		audio
 	}
 })
 export default store

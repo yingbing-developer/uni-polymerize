@@ -1,12 +1,13 @@
 import Store from "@/store"
 
-const { getters } = Store
+const { getters, dispatch } = Store
 
 export const Single = function (data) {
 	this.id = (data.singleId || '') + '_' + data.source
 	this.title = data.title//名称
 	this.singleId = data.singleId || '',//歌曲ID
 	this.lyricId = data.lyricId || '',//歌词ID
+	this.commentId = data.commentId || '',//评论ID
 	this.src = data.src ? data.src : getCache(this.id)//播放路径
 	this.lyric = data.lyric || ''//歌词
 	this.cover = data.cover || '/static/music/music-bg.jpg'//封面
@@ -18,14 +19,12 @@ export const Single = function (data) {
 	this.extra = data.extra || {}//附加字段
 	this.type = 'single'//单曲类型
 	this.source = data.source//来源
-	this.isCollection = function () {
-		return isCollection(this.id)
-	}
 }
 
 export const Album = function (data) {
 	this.id = data.albumId + '_' + data.source
 	this.albumId = data.albumId//专辑ID
+	this.commentId = data.commentId || '',//评论ID
 	this.title = data.title//名称
 	this.cover = data.cover || '/static/music/music-bg.jpg'//封面
 	this.desc = data.desc || ''//介绍
@@ -35,9 +34,6 @@ export const Album = function (data) {
 	this.extra = data.extra || {}//附加字段
 	this.type = data.type //type包含 top:<排行榜> banner:<轮播图> album:<歌单> newAlbum: <新碟>
 	this.source = data.source//来源
-	this.isCollection = function () {
-		return isCollection(this.id)
-	}
 }
 
 export const Singer = function (data) {
@@ -51,22 +47,20 @@ export const Singer = function (data) {
 	this.extra = data.extra || {}//附加字段
 	this.type = 'singer' //歌手类型
 	this.source = data.source//来源
-	this.isCollection = function () {
-		return isCollection(this.id)
-	}
-}
-
-
-//是否被收藏
-function isCollection (id) {
-	const collections = getters['collection/getCollection']
-	const index = collections.findIndex(collection => collection.id == id)
-	return index > -1
 }
 
 //获取缓存
 function getCache (id) {
 	const caches = getters['cache/getCache']
 	const index = caches.findIndex(cache => cache.id == id)
-	return index > -1 ? caches[index].url : null
+	if ( index > -1 ) {
+		const url = plus.io.convertLocalFileSystemURL(caches[index].url);
+		const file = plus.android.newObject('java.io.File', url);
+		if ( plus.android.invoke(file, 'exists') ) {
+			return caches[index].url
+		} else {
+			dispatch('cache/removeCache', id)
+		}
+	}
+	return null
 }

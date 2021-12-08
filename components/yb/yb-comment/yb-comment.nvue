@@ -1,0 +1,177 @@
+<template>
+	<view class="yb-comment">
+		<list :render-whole="true">
+			<cell v-for="(item, index) in list">
+				<view class="list" :style="{'border-color': lineColor}">
+					<view class="top">
+						<image class="avatar" lazy-load :src="item.avatar" mode="aspectFill"></image>
+						<view class="info">
+							<text class="title" :style="{color: titleColor}">{{item.title}}</text>
+							<text class="subtitle" :style="{color: titleColor}">{{item.subtitle}}</text>
+						</view>
+					</view>
+					<view class="bottom">
+						<text class="content" @longpress="copyComment(item.content)" :style="{color: contentColor}">{{item.content}}</text>
+						<view class="child" :style="{'background-color': lineColor}" v-if="item.subComment.length > 0">
+							<view class="list" :style="{'border-color': lineColor}" v-for="(child, i) in item.subComment.slice(0, item.isShowMore ? item.subComment.length : 1)" :key="i">
+								<view class="top">
+									<image class="avatar" lazy-load :src="child.avatar" mode="aspectFill"></image>
+									<view class="info">
+										<text class="title" :style="{color: titleColor}">{{child.title}}</text>
+										<text class="subtitle" :style="{color: titleColor}">{{child.subtitle}}</text>
+									</view>
+								</view>
+								<view class="bottom">
+									<text class="content" @longpress="copyComment(child.content)" :style="{color: contentColor}">{{child.content}}</text>
+								</view>
+							</view>
+						</view>
+						<view class="more" v-if="item.subComment.length > 1" @tap="showMore(index)">
+							<text class="more-text" :style="{color: themeColor}">{{ item.isShowMore ? '收起更多回复' : '查看更多回复'}}</text>
+							<view class="arrow" :class="{'arrow-up': item.isShowMore, 'arrow-down': !item.isShowMore}" :style="{'border-color': themeColor}"></view>
+						</view>
+					</view>
+				</view>
+			</cell>
+			<slot name="bottom"></slot>
+		</list>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			comments: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			},
+			themeColor: {
+				type: String,
+				default: '#2ca2f9'
+			},
+			contentColor: {
+				type: String,
+				default: '#333333'
+			},
+			lineColor: {
+				type: String,
+				default: '#eeeeee'
+			},
+			titleColor: {
+				type: String,
+				default: '#999999'
+			}
+		},
+		data () {
+			return {
+				list: []
+			}
+		},
+		created () {
+			this.init()
+		},
+		methods: {
+			init () {
+				this.list = this.comments.map(comment => {
+					return Object.assign({}, comment, {
+						isShowMore: false
+					})
+				})
+			},
+			showMore (index) {
+				this.list[index].isShowMore = !this.list[index].isShowMore
+			},
+			copyComment (text) {
+				uni.setClipboardData({
+				    data: text,
+				    success: () => {
+				        uni.showToast({
+				        	title: '已复制选中评论',
+							icon: 'none'
+				        })
+				    },
+					fail: () => {
+						uni.showToast({
+							title: '复制失败',
+							icon: 'none'
+						})
+					}
+				});
+			}
+		},
+		watch: {
+			comments () {
+				this.init()
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-comment {
+		flex: 1;
+	}
+	.yb-comment .list {
+		padding: 20rpx;
+		border-bottom-width: 1rpx;
+	}
+	.yb-comment .list .child {
+		margin: 20rpx 0;
+	}
+	.yb-comment .list .top {
+		flex-direction: row;
+		align-items: center;
+	}
+	.yb-comment .list .top .avatar {
+		width: 60rpx;
+		height: 60rpx;
+		border-radius: 60rpx;
+		margin-right: 20rpx;
+	}
+	.yb-comment .list .top .info {
+		justify-content: space-between;
+		height: 60rpx;
+	}
+	.yb-comment .list .top .info .title {
+		lines: 1;
+		text-overflow: ellipsis;
+		font-size: 26rpx;
+	}
+	.yb-comment .list .top .info .subtitle {
+		lines: 1;
+		text-overflow: ellipsis;
+		font-size: 20rpx;
+	}
+	.yb-comment .list .bottom {
+		padding-left: 80rpx;
+	}
+	.yb-comment .list .bottom .content {
+		font-size: 28rpx;
+		line-height: 40rpx;
+		margin-top: 10rpx;
+	}
+	.yb-comment .list .bottom .more {
+		flex-direction: row;
+		align-items: center;
+	}
+	.yb-comment .list .bottom .more .more-text {
+		font-size: 20rpx;
+	}
+	.yb-comment .list .bottom .more .arrow {
+		width: 12rpx;
+		height: 12rpx;
+		border-bottom-width: 2rpx;
+		border-right-width: 2rpx;
+		margin-left: 5rpx;
+	}
+	.yb-comment .list .bottom .more .arrow-up {
+		margin-top: 6rpx;
+		transform: rotateZ(-135deg);
+	}
+	.yb-comment .list .bottom .more .arrow-down {
+		margin-top: -6rpx;
+		transform: rotateZ(45deg);
+	}
+</style>

@@ -97,12 +97,8 @@
 					animationDuration: this.duration,
 					delta: 1
 				})
-				// plus.key.removeEventListener("backbutton");
 			},
 			onBack () {
-				// plus.key.addEventListener("backbutton",(e) => {
-				// 	this.popout()
-				// }, false);
 				const pages = getCurrentPages()
 				const page = pages[pages.length - 1]
 				const backs = page.$vm.$options.onBackPress

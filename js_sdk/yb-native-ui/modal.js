@@ -1,6 +1,7 @@
 const windowWidth = uni.getSystemInfoSync().screenWidth
 const windowHeight = uni.getSystemInfoSync().screenHeight
 import createMasks from './mask.js'
+import color from './color.js'
 
 
 
@@ -15,24 +16,25 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 	const top = (windowHeight / 2) - (height / 2)//弹框top定位
 	const left = (windowWidth / 2) - (width / 2)//弹框left定位
 	const footerHeight = uni.upx2px(90)//弹框按钮栏所占高度
-	const footerTop = (windowHeight / 2) + ((height / 2) - footerHeight)//弹框安钮栏top定位
+	const footerTop = height - footerHeight//弹框安钮栏top定位
 	
 	const contentSize = uni.upx2px(24)//内容文字大小
 	const contentHeight = height - titleHeight - footerHeight - (title ? padding : (2 * padding))//内容文字高度
 	
 	const btnSize = uni.upx2px(26)
 	
-	const bgColor = dark ? '#3C3C3C' : '#FFFFFF'
-	const lineColor = dark ? '#191919' : '#EEEEEE'
-	const titleColor = themeColor ? '#2ca2f9' : dark ? '#f4f7f5' : '#333333'
-	const textColor = dark ? '#888888' : '#999999'
+	const mode = dark ? 'dark' : 'light'
+	const bgColor = color[mode].bg
+	const lineColor = color[mode].gap
+	const titleColor = themeColor || color[mode].title
+	const textColor = color[mode].title
 	
-	const mask = createMasks()
-	const popup = new plus.nativeObj.View('popup', {
-		width: '100%',
-		height: '100%',
-		top: '0',
-		left: '0'
+	let mask = createMasks()
+	let popup = new plus.nativeObj.View('popup', {
+		top: top + 'px',
+		left: 0 + 'px',
+		width: width + 'px',
+		height: height + 'px',
 	});
 	let draws = [{
 		tag:'rect',
@@ -42,10 +44,10 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 			radius: radius + 'px'
 		},
 		position: {
-			top: top + 'px',
-			left: left + 'px',
-			width: width + 'px',
-			height: height + 'px',
+			top: 0,
+			left: 0,
+			width: '100%',
+			height: '100%',
 		}
 	},{
 		tag:'rect',
@@ -55,8 +57,8 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 		},
 		position: {
 			top: footerTop + 'px',
-			left: left + 'px',
-			width: width + 'px',
+			left: 0,
+			width: '100%',
 			height: 1 + 'px',
 		}
 	},{
@@ -65,11 +67,12 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 		text: title,
 		textStyles: {
 			color: titleColor,
-			size: titleSize + 'px'
+			size: titleSize + 'px',
+			align: 'middle'
 		},
 		position: {
-			top: top + 'px',
-			left: ((windowWidth / 2) - ((width - padding) / 2)) + 'px',
+			top: 0,
+			left: (padding / 2) + 'px',
 			width: (width - padding) + 'px',
 			height: titleHeight + 'px',
 		}
@@ -80,11 +83,12 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 		textStyles: {
 			color: textColor,
 			size: contentSize + 'px',
+			align: 'middle',
 			whiteSpace: 'normal'
 		},
 		position: {
-			top: (top + (title ? titleHeight : padding)) + 'px',
-			left: ((windowWidth / 2) - ((width - padding) / 2)) + 'px',
+			top: (title ? titleHeight : padding) + 'px',
+			left: (padding / 2) + 'px',
 			width: (width - padding) + 'px',
 			height: contentHeight + 'px',
 		}
@@ -100,7 +104,7 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 				},
 				position: {
 					top: footerTop + 'px',
-					left: ((windowWidth / 2) - 0.5) + 'px',
+					left: ((width / 2) - 0.5) + 'px',
 					width: 1 + 'px',
 					height: footerHeight + 'px',
 				}
@@ -115,7 +119,7 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 				},
 				position: {
 					top: footerTop + 'px',
-					left: (windowWidth / 2) + 'px',
+					left: (width / 2) + 'px',
 					width: (width / 2) + 'px',
 					height: footerHeight + 'px',
 				}
@@ -129,7 +133,7 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 				},
 				position: {
 					top: footerTop + 'px',
-					left: (windowWidth / 2) - (width / 2) + 'px',
+					left: 0,
 					width: (width / 2) + 'px',
 					height: footerHeight + 'px',
 				}
@@ -148,8 +152,8 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 				},
 				position: {
 					top: footerTop + 'px',
-					left: ((windowWidth / 2) - (width / 2)) + 'px',
-					width: width + 'px',
+					left: 0,
+					width: '100%',
 					height: footerHeight + 'px',
 				}
 			}
@@ -166,12 +170,15 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 		complete(false)
 		return true
 	})
-	const complete = function (bol) {
+	const complete = function (confirm, cancel = false) {
 		try{
 			mask.close()
 			popup.close()
+			mask = null
+			popup = null
 			success({
-				confirm: bol
+				confirm: confirm,
+				cancel: cancel
 			})
 			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
 		} catch(e){
@@ -183,8 +190,8 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 			const confirm = {
 				top: footerTop,
 				bottom: footerTop + footerHeight,
-				left: cancelHide ? ((windowWidth / 2) - (width / 2)) : (windowWidth / 2),
-				right: cancelHide ? ((windowWidth / 2) - (width / 2)) + width : (windowWidth / 2) + (width / 2)
+				left: cancelHide ? 0 : (width / 2),
+				right: width
 			}
 			const cancel = cancelHide ? {
 				top: -1,
@@ -194,29 +201,45 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 			} : {
 				top: footerTop,
 				bottom: footerTop + footerHeight,
-				left: (windowWidth / 2) - (width / 2),
-				right: (windowWidth / 2)
-			}
-			const box = {
-				top: top,
-				bottom: top + height,
-				left: left,
-				right: left + width
+				left: 0,
+				right: (width / 2)
 			}
 			if ( e.clientX >= confirm.left && e.clientX <= confirm.right && e.clientY >= confirm.top && e.clientY <= confirm.bottom ) {
 				complete(true)
 			} else if ( e.clientX >= cancel.left && e.clientX <= cancel.right && e.clientY >= cancel.top && e.clientY <= cancel.bottom ) {
-				complete(false)
-			} else if ( e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom ) {
-			} else {
-				complete(false)
+				complete(false, true)
 			}
+		} catch(e){
+			complete(false)
+		}
+	})
+	mask.addEventListener("click", (e) => {
+		try{
+			complete(false)
 		} catch(e){
 			complete(false)
 		}
 	})
 	mask.show()
 	popup.show()
+	let aLeft = 0
+	const show = () => {
+		setTimeout(() => {
+			aLeft += 10
+			if ( aLeft < left ) {
+				popup.setStyle({
+					left: aLeft + 'px'
+				})
+				show()
+			} else {
+				aLeft = left
+				popup.setStyle({
+					left: aLeft + 'px'
+				})
+			}
+		}, 10)
+	}
+	show()
 }
 
 export function alert ({title, content, confirmText, dark, themeColor, success, fail}) {

@@ -1,26 +1,31 @@
 const windowWidth = uni.getSystemInfoSync().screenWidth
 const windowHeight = uni.getSystemInfoSync().screenHeight
 import createMasks from './mask.js'
+import color from './color.js'
 
 
 
-export function panel ({menus, cancelText, dark, success, fail}) {
-	const height = uni.upx2px(450)
+export function panel ({title, subTitle, menus, cancelText, themeColor, dark, success, fail}) {
+	const lines = Math.ceil(menus.length / 4)
+	const titleHeight = uni.upx2px(60) + (subTitle ? uni.upx2px(20) : 0)
 	const footerHeight = uni.upx2px(100)
+	const height = uni.upx2px((lines * 150)) + footerHeight + titleHeight
 	const footerTop = height - footerHeight
 	
-	const textSize = uni.upx2px(26)
+	const titleSize = uni.upx2px(28)
+	const textSize = uni.upx2px(22)
 	
-	const bgColor = dark ? '#3F3F3F' : '#FFFFFF'
-	const lineColor = dark ? '#191919' : '#EEEEEE'
-	const textColor = dark ? '#f4f7f5' : '#333333'
+	const mode = dark ? 'dark' : 'light'
+	const bgColor = color[mode].bg
+	const lineColor = color[mode].gap
+	const titleColor = themeColor || color[mode].title
+	const textColor = color[mode].text_2
 	
-	const mask = createMasks()
-	
-	const panel = new plus.nativeObj.View('panel', {
+	let mask = createMasks()
+	let popup = new plus.nativeObj.View('popup', {
 		width: '100%',
 		height: height + 'px',
-		bottom: '0',
+		bottom: -height + 'px',
 		left: '0'
 	});
 	let draws = [{
@@ -34,6 +39,40 @@ export function panel ({menus, cancelText, dark, success, fail}) {
 			left: 0 + 'px',
 			width: '100%',
 			height: '100%',
+		}
+	},{
+		tag:'font',
+		id:'title',
+		text: title || '操作面板',
+		textStyles: {
+			color: titleColor,
+			size: titleSize + 'px',
+			overflow: 'ellipsis',
+			align: 'middle',
+			verticalAlign: 'middle'
+		},
+		position: {
+			top: 0 + 'px',
+			left: '5%',
+			width: '90%',
+			height: titleHeight + 'px',
+		}
+	},{
+		tag:'font',
+		id:'subTitle',
+		text: subTitle || '',
+		textStyles: {
+			color: textColor,
+			size: textSize + 'px',
+			overflow: 'ellipsis',
+			align: 'middle',
+			verticalAlign: 'middle'
+		},
+		position: {
+			top: (titleSize + 5) + 'px',
+			left: '5%',
+			width: '90%',
+			height: titleHeight + 'px',
 		}
 	},{
 		tag:'rect',
@@ -52,8 +91,8 @@ export function panel ({menus, cancelText, dark, success, fail}) {
 		id: 'cancelText',
 		text: cancelText || '关闭面板',
 		textStyles: {
-			color: textColor,
-			size: textSize + 'px',
+			color: titleColor,
+			size: titleSize + 'px',
 			align: 'middle',
 			verticalAlign: 'middle'
 		},
@@ -64,7 +103,47 @@ export function panel ({menus, cancelText, dark, success, fail}) {
 			height: footerHeight + 'px',
 		}
 	}]
-	panel.draw(draws)
+	const drawMenuIcon = menus.map((menu, key) => {
+		return {
+			tag:'font',
+			id: menu.id,
+			text: menu.icon,
+			textStyles: {
+				family: menu.family,
+				fontSrc: menu.fontSrc,
+				color: menu.color,
+				size: menu.size + 'px',
+				align: 'middle',
+				verticalAlign: 'middle'
+			},
+			position: {
+				top: titleHeight + 'px',
+				left: (key * 25) + '%',
+				width: '25%',
+				height: (height - footerHeight - titleHeight - 10) + 'px',
+			}
+		}
+	})
+	const drawMenuTitle = menus.map((menu, key) => {
+		return {
+			tag:'font',
+			id: menu.id + '_title',
+			text: menu.title,
+			textStyles: {
+				color: titleColor,
+				size: titleSize + 'px',
+				align: 'middle',
+				verticalAlign: 'bottom'
+			},
+			position: {
+				top: titleHeight + 'px',
+				left: (key * 25) + '%',
+				width: '25%',
+				height: (height - footerHeight - titleHeight - 10) + 'px',
+			}
+		}
+	})
+	popup.draw(draws.concat(drawMenuIcon.concat(drawMenuTitle)))
 	
 	const pages = getCurrentPages()
 	const page = pages[pages.length - 1]
@@ -74,57 +153,79 @@ export function panel ({menus, cancelText, dark, success, fail}) {
 		complete(false)
 		return true
 	})
-	const complete = function (bol) {
+	const complete = function (bol, data) {
 		try{
 			mask.close()
-			panel.close()
+			popup.close()
+			mask = null
+			popup = null
 			success({
-				confirm: bol
+				confirm: bol,
+				data: data || null
 			})
 			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
 		} catch(e){
 			fail(e)
 		}
 	}
-	// panel.addEventListener("click", (e) => {
-	// 	try{
-	// 		const confirm = {
-	// 			top: footerTop,
-	// 			bottom: footerTop + footerHeight,
-	// 			left: cancelHide ? ((windowWidth / 2) - (width / 2)) : (windowWidth / 2),
-	// 			right: cancelHide ? ((windowWidth / 2) - (width / 2)) + width : (windowWidth / 2) + (width / 2)
-	// 		}
-	// 		const cancel = cancelHide ? {
-	// 			top: -1,
-	// 			bottom: -1,
-	// 			left: -1,
-	// 			right: -1
-	// 		} : {
-	// 			top: footerTop,
-	// 			bottom: footerTop + footerHeight,
-	// 			left: (windowWidth / 2) - (width / 2),
-	// 			right: (windowWidth / 2)
-	// 		}
-	// 		const box = {
-	// 			top: top,
-	// 			bottom: top + height,
-	// 			left: left,
-	// 			right: left + width
-	// 		}
-	// 		if ( e.clientX >= confirm.left && e.clientX <= confirm.right && e.clientY >= confirm.top && e.clientY <= confirm.bottom ) {
-	// 			complete(true)
-	// 		} else if ( e.clientX >= cancel.left && e.clientX <= cancel.right && e.clientY >= cancel.top && e.clientY <= cancel.bottom ) {
-	// 			complete(false)
-	// 		} else if ( e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom ) {
-	// 		} else {
-	// 			complete(false)
-	// 		}
-	// 	} catch(e){
-	// 		complete(false)
-	// 	}
-	// })
+	popup.addEventListener("click", (e) => {
+		try{
+			const menuItems = Object.keys(menus).map(key => {
+				return {
+					top: titleHeight,
+					bottom: titleHeight + (height - footerHeight - titleHeight - 10),
+					left: key * (windowWidth * 0.25),
+					right: (parseInt(key) + 1) * (windowWidth * 0.25)
+				}
+			})
+			menuItems.forEach((item, key) => {
+				if ( e.clientX >= item.left && e.clientX <= item.right && e.clientY >= item.top && e.clientY <= item.bottom ) {
+					complete(true, {
+						id: menus[key].id,
+						key: key
+					})
+				}
+			})
+			const cancel ={
+				top: footerTop,
+				bottom: footerTop + footerHeight,
+				left: 0,
+				right: windowWidth
+			}
+			if ( e.clientX >= cancel.left && e.clientX <= cancel.right && e.clientY >= cancel.top && e.clientY <= cancel.bottom ) {
+				complete(false)
+			}
+		} catch(e){
+			complete(false)
+		}
+	})
+	mask.addEventListener("click", (e) => {
+		try{
+			complete(false)
+		} catch(e){
+			complete(false)
+		}
+	})
 	mask.show()
-	panel.show()
+	popup.show()
+	let bottom = 0
+	const show = function () {
+		setTimeout(function () {
+			bottom += 10
+			if ( bottom >= height ) {
+				bottom = height
+				popup.setStyle({
+					bottom: (bottom - height) + 'px'
+				})
+			} else {
+				popup.setStyle({
+					bottom: (bottom - height) + 'px'
+				})
+				show()
+			}
+		}, 10)
+	}
+	show()
 }
 
 export default panel

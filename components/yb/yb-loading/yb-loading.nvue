@@ -1,5 +1,5 @@
 <template>
-	<view class="yb-loading">
+	<view class="yb-loading" v-if="!isDestroy">
 		<view ref="loading"
 		:style="{
 			width: size + 'rpx',
@@ -32,11 +32,6 @@
 				default: ''
 			}
 		},
-		data () {
-			return {
-				isDestroy: false
-			}
-		},
 		mounted () {
 			setTimeout(() => {
 				this.start();
@@ -44,31 +39,30 @@
 		},
 		methods: {
 			start () {
-				animation.transition(this.$refs.loading, {
-				    styles: {
-						transform: 'rotateZ(360deg)'
-				    },
-				    duration: 1500, //ms
-				    timingFunction: 'linear',
-				    needLayout:false,
-				    delay: 0 //ms
-				}, (res) => {
+				if ( animation ) {
 					animation.transition(this.$refs.loading, {
 					    styles: {
-							transform: 'rotateZ(0deg)'
+							transform: 'rotateZ(360deg)'
 					    },
-					    duration: 0, //ms
+					    duration: 1500, //ms
 					    timingFunction: 'linear',
 					    needLayout:false,
 					    delay: 0 //ms
 					}, (res) => {
-						!this.isDestroy ? this.start() : null
+						animation.transition(this.$refs.loading, {
+						    styles: {
+								transform: 'rotateZ(0deg)'
+						    },
+						    duration: 0, //ms
+						    timingFunction: 'linear',
+						    needLayout:false,
+						    delay: 0 //ms
+						}, (res) => {
+							this.start()
+						})
 					})
-				})
+				}
 			}
-		},
-		beforeDestroy() {
-			this.isDestroy = true
 		}
 	}
 </script>

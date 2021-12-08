@@ -1,5 +1,5 @@
+let stopInterval = false
 let touchtime = 0
-let touchtimer = null
 
 const windowWidth = uni.getSystemInfoSync().screenWidth
 const windowHeight = uni.getSystemInfoSync().screenHeight
@@ -15,11 +15,18 @@ function create ({ size, left, top, text, border, touch, func, dark }) {
 	if ( text ) {
 		drawText(btn, text, dark || false)
 	}
+	const setInterval = function () {
+		setTimeout(() => {
+			touchtime += 50
+			if ( !stopInterval ) {
+				setInterval()
+			}
+		}, 50)
+	}
 	if ( touch ) {
 		btn.addEventListener("touchstart", (e) => {
-			touchtimer = setInterval(() => {
-				touchtime += 50
-			}, 50)
+			stopInterval = false
+			setInterval()
 		});
 		btn.addEventListener("touchmove", (e) => {
 			top = e.pageY - (size / 2)
@@ -31,14 +38,13 @@ function create ({ size, left, top, text, border, touch, func, dark }) {
 			btn.setStyle({top: top + 'px', left: left + 'px'})
 		});
 		btn.addEventListener("touchend", (e) => {
-			clearInterval(touchtimer)
+			stopInterval = true
 			if ( touchtime < 200 && func ) {
 				e.top = top
 				e.left = left
 				func(e)
 			}
 			touchtime = 0
-			touchtimer = null
 		});
 	} else {
 		if ( func ) {

@@ -123,6 +123,8 @@
 				})
 			},
 			hide (bol) {
+				clearTimeout(this.timer);
+				this.time = null
 				animation.transition(this.$refs.mask, {
 				    styles: {
 						opacity: 0
@@ -158,6 +160,7 @@
 			cursorAnimation () {
 				this.cursorOpac = this.cursorOpac > 0 ? 0 : 1;
 				clearTimeout(this.timer);
+				this.time = null
 				this.timer = setTimeout(() => {
 					if ( this.isShow ) {
 						this.cursorAnimation();

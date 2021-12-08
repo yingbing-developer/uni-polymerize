@@ -317,9 +317,6 @@
 					}
 				});
 			}
-		},
-		beforeDestroy() {
-			clearTimeout(this.timer);
 		}
 	}
 </script>

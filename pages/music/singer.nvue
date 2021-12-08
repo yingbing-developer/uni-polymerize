@@ -34,7 +34,6 @@
 				</view>
 			</template>
 		</yb-swiper-list>
-		<music-panel :data="panelData" :visible.sync="panelShow"></music-panel>
 	</yb-page-anime>
 </template>
 
@@ -128,13 +127,6 @@
 					return list.length > 0
 				})
 				
-			},
-			showMore () {
-				this.panelData = {
-					title: '不能说秘密《主题曲》',
-					label: '周杰伦'
-				}
-				this.panelShow = true
 			}
 		}
 	}

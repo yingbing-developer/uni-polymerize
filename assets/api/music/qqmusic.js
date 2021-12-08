@@ -9,6 +9,8 @@ import {
 	Singer
 } from '@/assets/constructor/music.js'
 
+import Comment from '@/assets/constructor/comment.js'
+
 import Sign from '@/assets/other/qqSign.js'
 
 const {
@@ -17,7 +19,8 @@ const {
 	ERR_FALSE
 } = Config
 const {
-	time2seconds
+	time2seconds,
+	dateFormat
 } = Utils;
 
 const source = 'qqmusic';
@@ -111,10 +114,14 @@ export default {
 						const item = new Single({
 							singleId: song.songmid,
 							lyricId: song.songid,
+							commentId: song.songid,
 							title: song.songname,
 							cover: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${song.albummid}.jpg?max_age=2592000`,
 							singer: singer,
 							payplay: song.pay.payplay == 1,
+							extra: {
+								bizType: 1
+							},
 							source: source
 						})
 						list.push(item)
@@ -125,6 +132,8 @@ export default {
 						data: {
 							list: list,
 							zhida: zhida,
+							isLastPage: list.length < 20,
+							currentPage: data.page[source],
 							source: source
 						}
 					})
@@ -135,6 +144,8 @@ export default {
 					data: {
 						list: [],
 						zhida: null,
+						isLastPage: false,
+						currentPage: data.page[source] - 1,
 						source: source
 					}
 				})
@@ -288,9 +299,13 @@ export default {
 					group.forEach(top => {
 						const item = new Album({
 							albumId: top.jump_info.url,
+							commentId: top.id,
 							title: top.title,
 							cover: top.pic_info.url,
 							type: 'banner',
+							extra: {
+								bizType: 2
+							},
 							source: source
 						})
 						list.push(item)
@@ -361,10 +376,14 @@ export default {
 						const item = new Single({
 							singleId: song.songInfo.mid,
 							lyricId: song.songInfo.id,
+							commentId: song.songInfo.id,
 							title: song.songInfo.title,
 							cover: `https://y.qq.com/music/photo_new/T002R300x300M000${song.songInfo.album.pmid}.jpg?max_age=2592000`,
 							singer: singer,
 							payplay: song.songInfo.pay.pay_play == 1,
+							extra: {
+								bizType: 1
+							},
 							source: source
 						})
 						list.push(item)
@@ -424,12 +443,14 @@ export default {
 						item.toplist.forEach(top => {
 							const item = new Album({
 								albumId: top.topId,
+								commentId: top.topId,
 								title: top.musichallTitle,
 								cover: top.frontPicUrl,
 								desc: top.intro?.replace(/<br>/g, '\n') || '',
 								extra: {
 									period: top.period,
-									recType: top.recType
+									recType: top.recType,
+									bizType: 4
 								},
 								type: 'top',
 								source: source
@@ -504,10 +525,14 @@ export default {
 						const item = new Single({
 							singleId: song.mid,
 							lyricId: song.id,
+							commentId: song.id,
 							title: song.title,
 							cover: `https://y.qq.com/music/photo_new/T002R300x300M000${song.album.pmid}.jpg?max_age=2592000`,
 							singer: singer,
 							payplay: song.pay.pay_play == 1,
+							extra: {
+								bizType: 1
+							},
 							source: source
 						})
 						list.push(item)
@@ -577,10 +602,15 @@ export default {
 						const item = new Single({
 							singleId: song.mid,
 							lyricId: song.id,
+							commentId: song.id,
 							title: song.title,
 							cover: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${song.album.mid}.jpg?max_age=2592000`,
 							desc: song.desc,
 							singer: singer,
+							payplay: song.pay.pay_play == 1,
+							extra: {
+								bizType: 1
+							},
 							source: source
 						})
 						list.push(item)
@@ -693,10 +723,14 @@ export default {
 						})
 						const item = new Album({
 							albumId: album.mid,
+							commentId: album.id,
 							title: album.name,
 							cover: `https://y.qq.com/music/photo_new/T002R300x300M000${album.photo.pic_mid}.jpg?max_age=2592000`,
 							creator: singer,
 							type: 'newAlbum',
+							extra: {
+								bizType: 2
+							},
 							source: source
 						})
 						list.push(item)
@@ -706,6 +740,8 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						isLastPage: list.length < 40,
+						currentPage: data.page,
 						source: source
 					}
 				})
@@ -715,6 +751,8 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						isLastPage: false,
+						currentPage: data.page - 1,
 						source: source
 					}
 				})
@@ -770,10 +808,14 @@ export default {
 						const item = new Single({
 							singleId: song.mid,
 							lyricId: song.id,
+							commentId: song.id,
 							title: song.title,
 							cover: `https://y.qq.com/music/photo_new/T002R300x300M000${song.album.pmid}.jpg?max_age=2592000`,
 							singer: singer,
 							payplay: song.pay.pay_play == 1,
+							extra: {
+								bizType: 1
+							},
 							source: source
 						})
 						list.push(item)
@@ -973,10 +1015,14 @@ export default {
 						const item = new Single({
 							singleId: song.songInfo.mid,
 							lyricId: song.songInfo.id,
+							commentId: song.songInfo.id,
 							title: song.songInfo.title,
 							cover: `https://y.qq.com/music/photo_new/T002R300x300M000${song.songInfo.album.pmid}.jpg?max_age=2592000`,
 							singer: singer,
 							payplay: song.songInfo.pay.pay_play == 1,
+							extra: {
+								bizType: 1
+							},
 							source: source
 						})
 						list.push(item)
@@ -1095,11 +1141,15 @@ export default {
 					group.forEach(top => {
 						const item = new Album({
 							albumId: top.dissid,
+							commentId: top.dissid,
 							title: top.dissname,
 							cover: top.imgurl,
 							num: top.listennum,
 							creator: top.creator.name,
 							type: 'album',
+							extra: {
+								bizType: 3
+							},
 							source: source
 						})
 						list.push(item)
@@ -1170,12 +1220,16 @@ export default {
 					group.forEach(top => {
 						const item = new Album({
 							albumId: top.basic.tid,
+							commentId: top.basic.tid,
 							title: top.basic.title,
 							cover: top.basic.cover.small_url,
 							desc: top.basic.desc,
 							num: top.basic.play_cnt,
 							creator: top.basic.creator.nick,
 							type: 'album',
+							extra: {
+								bizType: 3
+							},
 							source: source
 						})
 						list.push(item)
@@ -1185,6 +1239,8 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						isLastPage: true,
+						currentPage: data.page,
 						source: source
 					}
 				})
@@ -1194,6 +1250,8 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						isLastPage: false,
+						currentPage: data.page - 1,
 						source: source
 					}
 				})
@@ -1234,10 +1292,14 @@ export default {
 						const item = new Single({
 							singleId: song.mid,
 							lyricId: song.id,
+							commentId: song.id,
 							title: song.title,
 							cover: `https://y.qq.com/music/photo_new/T002R300x300M000${song.album.pmid}.jpg?max_age=2592000`,
 							singer: singer,
 							payplay: song.pay.pay_play == 1,
+							extra: {
+								bizType: 1
+							},
 							source: source
 						})
 						list.push(item)
@@ -1381,6 +1443,99 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						lyric: [],
+						source: source
+					}
+				})
+			})
+		})
+	},
+	/**
+	 * 获取歌单
+	 * @param {Object} data = {参数} 
+	 * @param {String} id = {new or hot} 
+	 * @param {Number} limit = {请求数量} 
+	 * @param {String} cat = {分类} 
+	 **/
+	getComment(data) {
+		const dataValue = {
+			"comm": {
+				"ct": 24
+			},
+			"comments": {
+				"module":"music.globalComment.CommentReadServer",
+				"method":"GetNewCommentList",
+				"param":{
+					"BizType": data.extra.bizType,
+					"BizId": data.id.toString(),
+					"LastCommentSeqNo": data.extra.seqNo || '',
+					"PageSize": 25,
+					"PageNum": data.page - 1,
+					"FromCommentId":"",
+					"WithHot": 0,
+				}
+			}
+		}
+		const sign = Sign(dataValue)
+		const dataSync = Object.assign({
+			'_': Math.random() * Math.pow(10, 17),
+			sign: sign
+		}, commonParams, {
+			data: dataValue
+		})
+		return new Promise((resolve) => {
+			http.get(href + '/cgi-bin/musics.fcg', {
+				params: dataSync,
+				headers: {
+					referer: href,
+					host: href.replace('https://', ''),
+				}
+			}).then((res) => {
+				let list = []
+				if (res.data.code == 0) {
+					const group = res.data.comments.data.CommentList.Comments
+					group.forEach(comment => {
+						const subComments = comment.SubComments || []
+						let subComment = []
+						subComments.forEach(sub => {
+							subComment.push(
+								new Comment({
+									id: sub.SeqNo,
+									avatar: sub.Avatar,
+									title: sub.Nick,
+									subtitle: dateFormat(sub.PubTime * 1000),
+									content: sub.Content
+								})
+							)
+						})
+						const item = new Comment({
+							id: comment.SeqNo,
+							avatar: comment.Avatar,
+							title: comment.Nick,
+							subtitle: dateFormat(comment.PubTime * 1000),
+							subComment: subComment,
+							content: comment.Content,
+							source: source
+						})
+						list.push(item)
+					})
+				}
+				resolve({
+					code: ERR_OK,
+					data: {
+						list: list,
+						isLastPage: list.length < 25,
+						currentPage: data.page,
+						source: source
+					}
+				})
+	
+			}).catch((err) => {
+				resolve({
+					code: ERR_FALSE,
+					data: {
+						list: [],
+						isLastPage: false,
+						currentPage: data.page - 1,
 						source: source
 					}
 				})

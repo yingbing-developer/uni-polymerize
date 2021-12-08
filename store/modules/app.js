@@ -32,7 +32,7 @@ const mutations = {
 		uni.setStorageSync(ADULTPWD, pwd)
 	},
 	//改变皮肤模式
-	changeSkin (state, skin) {
+	setSkin (state, skin) {
 		state.skin = skin;
 		uni.setStorageSync(SKIN, skin)
 	}
@@ -40,8 +40,8 @@ const mutations = {
 
 const actions = {
 	//改变皮肤模式
-	changeSkinSync ({commit}, skin) {
-		commit('changeSkin', skin)
+	changeSkin ({commit}, skin) {
+		commit('setSkin', skin)
 		getApp().globalData.$business.setSkinColor()
 	}
 }

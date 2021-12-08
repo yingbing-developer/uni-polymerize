@@ -17,7 +17,7 @@
 				<yb-gap ref="listTop" height="30rpx"></yb-gap>
 			</cell>
 			<cell v-for="(item, index) in list">
-				<view class="item padding-gap" @tap="app.$Router.push({
+				<view class="cell-item_1 padding-gap" @tap="app.$Router.push({
 					path: '/pages/music/detail',
 					query: {
 						params: encodeURIComponent(JSON.stringify(item))
@@ -28,15 +28,12 @@
 						<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
 						<text class="label" :style="{color: skinColor.color_3}">{{item.creator}}</text>
 					</view>
-					<view class="actions">
-						<rd-icon name="love" size="40" :color="skinColor.color_3"></rd-icon>
-					</view>
 				</view>
 			</cell>
 			<cell v-if="isLastPage && list.length > 0">
 				<yb-no-more :color="skinColor.color_3"></yb-no-more>
 			</cell>
-			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup"></yb-pullup>
+			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage"></yb-pullup>
 		</list>
 		<yb-filter-menu
 		:visible.sync="dropShow"
@@ -78,31 +75,29 @@
 			this.getType().then(status => {
 				this.typeId = this.type[0].child[0].value
 				this.type[0].child[0].isChecked = true
-				this.getList().then(list => {
+				this.getList().then(data => {
 					this.loading = false
-					this.list = list
-					this.isLastPage ? this.$refs.pullup.finish() : this.$refs.pullup.success()
+					this.list = data.list
+					this.isLastPage = data.isLastPage
 				})
 			})
 		},
 		methods: {
 			pulldown () {
-				setTimeout(() => {
-					this.currentPage = 1
-					this.getList().then(list => {
-						this.list = list
-						this.$refs.pulldown.success()
-					})
-				}, 500)
+				this.currentPage = 1
+				this.getList().then(data => {
+					this.list = data.list
+					this.$refs.pulldown.success()
+				})
 			},
 			pullup () {
-				setTimeout(() => {
-					this.currentPage++;
-					this.getList().then(list => {
-						this.list = this.list.concat(list)
-						this.isLastPage ? this.$refs.pullup.finish() : this.$refs.pullup.success()
-					})
-				}, 500)
+				this.currentPage++;
+				this.getList().then(data => {
+					this.list = this.list.concat(data.list)
+					data.isLastPage ? this.$refs.pullup.finish() : this.$refs.pullup.success()
+					this.isLastPage = data.isLastPage
+					this.currentPage = data.currentPage
+				})
 			},
 			async getList () {
 				return await getApp().globalData.$api.music.getDiscList({
@@ -110,10 +105,11 @@
 					typeId: this.typeId,
 					source: this.source
 				}).then((res) => {
-					this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
-					return res.data.list
-				}).catch(() => {
-					return []
+					return {
+						list: res.data.list,
+						isLastPage: res.data.isLastPage,
+						currentPage: res.data.currentPage
+					}
 				})
 			},
 			async getType () {
@@ -148,11 +144,14 @@
 				this.currentPage = 1
 				this.loading = true
 				this.list = []
-				this.getList().then(list => {
-					this.loading = false
-					this.list = list
-					this.scrollTop()
-				})
+				setTimeout(() => {
+					this.getList().then(data => {
+						this.loading = false
+						this.list = data.list
+						this.isLastPage = data.isLastPage
+						this.scrollTop()
+					})
+				}, 500)
 			},
 			scrollTop () {
 				dom.scrollToElement(this.$refs.listTop, {animated: false});
@@ -162,29 +161,7 @@
 </script>
 
 <style scoped>
-	.item {
-		flex-direction: row;
-		align-items: center;
-		padding-bottom: 30rpx;
-	}
-	.item .cover {
-		width: 150rpx;
-		height: 150rpx;
-	}
-	.item .info {
-		flex: 1;
-		height: 120rpx;
-		justify-content: space-between;
-		margin-left: 30rpx;
-	}
-	.item .info .title {
-		lines: 2;
-		text-overflow: ellipsis;
-	}
-	.item .info .title, .item .info .label {
-		font-size: 28rpx;
-	}
-	
+	@import url("@/assets/css/app.css");
 	.nav-right {
 		flex: 1;
 		flex-direction: row;

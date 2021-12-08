@@ -69,7 +69,7 @@
 						
 						<!-- 推荐歌单 -->
 						<rd-type title="推荐歌单"></rd-type>
-						<view class="cellItem padding-gap" v-for="(item, index) in module.hotDisc.slice(0, 3)" :key="index" @tap="goDetail(item)">
+						<view class="cell-item_1 padding-gap" v-for="(item, index) in module.hotDisc.slice(0, 3)" :key="index" @tap="goDetail(item)">
 							<rd-image lazyLoad border-radius="12" class="cover" :src="item.cover"></rd-image>
 							<view class="info">
 								<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
@@ -125,16 +125,11 @@
 		onShow () {
 			getApp().globalData.$business.setSkinColor();
 		},
-		onReady() {
-			
-		},
 		methods: {
 			pulldown () {
-				setTimeout(() => {
-					this.getRecome().then(status => {
-						status ? this.$refs.pulldown.success() : this.$refs.pulldown.fail()
-					})
-				}, 500)
+				this.getRecome().then(status => {
+					status ? this.$refs.pulldown.success() : this.$refs.pulldown.fail()
+				})
 			},
 			async getRecome () {
 				return await getApp().globalData.$api.music.getRecom().then((ress) => {
@@ -188,6 +183,7 @@
 </script>
 
 <style scoped>
+	@import url("@/assets/css/app.css");
 	.ad-swiper {
 		height: 200rpx;
 	}
@@ -256,27 +252,6 @@
 		text-overflow: ellipsis;
 		text-align: center;
 		margin: 10rpx 0;
-	}
-	
-	.cellItem {
-		flex-direction: row;
-		align-items: center;
-		padding-bottom: 30rpx;
-	}
-	.cellItem .cover {
-		width: 150rpx;
-		height: 150rpx;
-	}
-	.cellItem .info {
-		flex: 1;
-		height: 100rpx;
-		justify-content: space-between;
-		margin-left: 30rpx;
-	}
-	.cellItem .info .title, .cellItem .info .label {
-		font-size: 28rpx;
-		text-overflow: ellipsis;
-		lines: 1;
 	}
 	
 	.newAlbum {

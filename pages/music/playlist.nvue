@@ -3,7 +3,7 @@
 		<view class="mask" ref="mask" @tap="hide"></view>
 		<view class="popup" ref="popup" @touchmove.stop.prevent="" :style="{'background-color': skinColor.color_bg_1 }">
 			<view class="top" :style="{'border-color': skinColor.color_gap_1}">
-				<text class="title" :style="{color: skinColor.color_2}">{{player ? '正在播放：' + player.song.title : '播放列表'}}</text>
+				<text class="title" :style="{color: skinColor.color_2}">播放列表</text>
 				<view class="top-right">
 					<view class="tr-icon" @tap="routePush('/pages/music/online')">
 						<c-icon name="network" size="38" :color="skinColor.color_1"></c-icon>
@@ -16,23 +16,27 @@
 					</view>
 				</view>
 			</view>
-			<scroll-view :scroll-into-view="scrollId" class="scroll" scroll-y="true" v-if="playList.length > 0">
-				<view class="list" :id="'song_' + id" v-for="(item, index) in playList" :key="index">
-					<text class="list-name">{{item.title}}</text>
+			<scroll-view scroll-with-animation class="scroll" scroll-y="true" v-if="playList.length > 0" :render-whole="true">
+				<view class="list" v-for="(item, index) in playList" :key="item.id" @tap="play(item)">
+					<view>
+						<rd-icon v-if="currentId == item.id" name="music-fill" :color="skinColor.color_red"></rd-icon>
+						<rd-icon v-else name="music" :color="skinColor.color_1"></rd-icon>
+					</view>
+					<text class="list-name" :style="{color: currentId == item.id ? skinColor.color_red : skinColor.color_1}">{{item.title}}</text>
 					<view class="list-right">
-						<view class="list-icon">
-							<!-- <rd-icon name="pause" size="37" color="#d43c33"></rd-icon> -->
-							<rd-icon name="play" size="30" color="#d43c33"></rd-icon>
+						<view class="list-icon" @tap="toCollection(item)">
+							<rd-icon v-if="isCollection(item.id)" name="love-fill" size="30" :color="skinColor.color_red"></rd-icon>
+							<rd-icon v-else name="love" size="30" :color="skinColor.color_red"></rd-icon>
 						</view>
-						<view class="list-icon">
-							<rd-icon name="dustbin-fill" size="30" color="#d43c33"></rd-icon>
+						<view class="list-icon" @tap="remove(item)">
+							<rd-icon name="dustbin-fill" size="30" :color="skinColor.color_red"></rd-icon>
 						</view>
 					</view>	
 				</view>
 			</scroll-view>
-			<yb-no-data class="scroll" title="没有导入的歌曲哦!" v-else></yb-no-data>
+			<yb-no-data class="scroll" title="播放列表为空!" v-else></yb-no-data>
 			<view class="clear">
-				<yb-button class="clear-btn" size="24" :themeColor="skinColor.color_1" :frontColor="skinColor.color_1" type="plain" round title="清除全部歌曲"></yb-button>
+				<yb-button @tap="clear" class="clear-btn" size="24" :themeColor="skinColor.color_1" :frontColor="skinColor.color_1" type="plain" round title="清除全部歌曲"></yb-button>
 			</view>
 		</view>
 	</view>
@@ -49,25 +53,24 @@
 					opac: 0.4,
 					duration: 400
 				},
-				height: 1000,
-				scrollId: ''
+				height: 1000
 			}
 		},
 		onReady() {
 			this.show();
 		},
 		computed: {
-			player () {
-				return this.$store.getters['player/getPlayer']
+			song () {
+				return this.$store.getters['audio/getCurrentSong']
+			},
+			currentId () {
+				return this.song ? this.song.id : ''
+			},
+			playStatus () {
+				return this.$store.getters['audio/getPlayStatus']
 			},
 			playList () {
-				return this.$store.getters['player/getPlayList']
-			},
-			playMode () {
-				return this.$store.getters['player/getPlayMode']
-			},
-			modeName () {
-				return this.playMode == 'round' ? '顺序播放' : this.playMode == 'loop' ? '单曲循环' : '随机播放';
+				return this.$store.getters['audio/getPlayList']
 			}
 		},
 		methods: {
@@ -90,8 +93,6 @@
 				    timingFunction: 'ease',
 				    needLayout:false,
 				    delay: 0 //ms
-				}, () => {
-					this.player ? this.scrollId = 'scroll_' + this.player.song.id : null
 				})
 			},
 			hide () {
@@ -117,9 +118,26 @@
 					getApp().globalData.$Router.back();
 				})
 			},
-			//改变播放模式
-			changeMode () {
-				this.$store.dispatch('player/switchPlayMode')
+			play (song) {
+				if ( song.id != this.currentId ) {
+					this.$store.dispatch('audio/create', song.id)
+				}
+				getApp().globalData.$Router.back()
+			},
+			remove (item) {
+				this.$store.dispatch('audio/removeSong', item.id)
+			},
+			clear () {
+				getApp().globalData.$nativeUI.confirm({
+					title: '警告提示',
+					content: '真的要清空播放列表吗？',
+					dark: this.skinMode == 'night',
+					success: (res) => {
+						if ( res.confirm ) {
+							this.$store.dispatch('audio/clearSong')
+						}
+					}
+				})
 			}
 		},
 		onBackPress (event) {
@@ -186,6 +204,7 @@
 	.list-name {
 		flex: 1;
 		font-size: 28rpx;
+		margin-left: 10rpx;
 		lines: 1;
 		text-overflow: ellipsis;
 	}

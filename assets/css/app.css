@@ -1,0 +1,25 @@
+.cell-item_1 {
+	flex-direction: row;
+	align-items: center;
+	padding-bottom: 30rpx;
+}
+.cell-item_1 .cover {
+	width: 150rpx;
+	height: 150rpx;
+}
+.cell-item_1 .info {
+	flex: 1;
+	height: 120rpx;
+	justify-content: space-between;
+	margin-left: 30rpx;
+}
+.cell-item_1 .info .title {
+	lines: 2;
+}
+.cell-item_1 .info .label {
+	lines: 1;
+}
+.cell-item_1 .info .title, .cell-item_1 .info .label {
+	font-size: 28rpx;
+	text-overflow: ellipsis;
+}

@@ -15,7 +15,7 @@
 						<yb-gap height="30rpx"></yb-gap>
 					</cell>
 					<cell v-for="(item, index) in list[swiperSlot.index].child">
-						<view class="item padding-gap" @tap="app.$Router.push({
+						<view class="cell-item_1 padding-gap" @tap="app.$Router.push({
 							path: '/pages/music/detail',
 							query: {
 								params: encodeURIComponent(JSON.stringify(item))
@@ -25,9 +25,6 @@
 							<view class="info">
 								<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
 								<text class="label" :style="{color: skinColor.color_3}">{{item.creator}}</text>
-							</view>
-							<view class="actions">
-								<rd-icon class="more opac-actived" name="more-vertical" :color="skinColor.color_3" @click="showMore"></rd-icon>
 							</view>
 						</view>
 					</cell>
@@ -158,29 +155,10 @@
 </script>
 
 <style scoped>
+	@import url("@/assets/css/app.css");
 	.loading {
 		flex: 1;
 		align-items: center;
 		justify-content: center;
-	}
-	.item {
-		flex-direction: row;
-		align-items: center;
-		padding-bottom: 30rpx;
-	}
-	.item .cover {
-		width: 150rpx;
-		height: 150rpx;
-	}
-	.item .info {
-		flex: 1;
-		height: 100rpx;
-		justify-content: space-between;
-		margin-left: 30rpx;
-	}
-	.item .info .title, .item .info .label {
-		font-size: 28rpx;
-		text-overflow: ellipsis;
-		lines: 1;
 	}
 </style>

@@ -4,10 +4,9 @@ export default {
 			uni.navigateTo({
 				url: `/modules/catalog?type=${type}`,
 				complete: (res) => {
-					uni.$on('catalog-btn', (data) => {
+					uni.$once('catalog-btn', (data) => {
 						resolve(data)
 						uni.navigateBack({delta: 1});
-						uni.$off('catalog-btn');
 					})
 				}
 			});
@@ -20,10 +19,9 @@ export default {
 			uni.navigateTo({
 				url: `/modules/security?type=${type}&title=${title}`,
 				complete: (res) => {
-					uni.$on('security-btn', (data) => {
+					uni.$once('security-btn', (data) => {
 						resolve(data)
 						uni.navigateBack({delta: 1});
-						uni.$off('security-btn');
 					})
 				}
 			});

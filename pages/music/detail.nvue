@@ -7,9 +7,6 @@
 				<view class="info" :style="{'justify-content': params.desc ? 'flex-start' : 'center'}">
 					<rd-image lazyLoad borderRadius="12" class="cover" :src="params.cover" mode="aspectFill"></rd-image>
 					<view class="info-right" v-if="params.desc">
-						<!-- <text class="title" :style="{color: '#fff'}">英文舒适向英文舒适向英文舒适向英文舒适向</text> -->
-						<!-- <text class="author" :style="{color: '#fff'}">再来一本浓茶</text> -->
-						<!-- <text class="desc" :style="{color: '#fff'}"></text> -->
 						<rich-text class="desc" :nodes="topDesc"></rich-text>
 						<view style="align-items: flex-start;">
 							<text class="more opac-actived" :style="{color: skinColor.color_blue}" @tap="infoShow = true">[更多]</text>
@@ -17,14 +14,14 @@
 					</view>
 				</view>
 				<view class="play-line">
-					<yb-button class="play" size="20" type="plain" round :themeColor="skinColor.color_red" title="播放全部" />
+					<yb-button @tap="playAlbum(list)" class="play" size="20" type="plain" round :themeColor="skinColor.color_red" title="播放全部" />
 				</view>
 			</view>
 			<view :style="{'background-color': skinColor.color_bg_1}" v-if="list.length > 0">
 				<view class="item"
 				:style="{'border-color': skinColor.color_gap_1}"
 				v-for="(item, index) in list" :key="index"
-				@tap="play(item)">
+				@tap="playSong(item)">
 					<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>
 					<image v-if="index == 0" class="trophy" src="/static/music/trophy_1.png" mode="aspectFill"></image>
 					<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
@@ -34,7 +31,7 @@
 						<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
 						<text class="label" :style="{color: skinColor.color_3}">{{item.singer}}</text>
 					</view>
-					<rd-icon class="more opac-actived" name="more-vertical" :color="skinColor.color_3" @click="showMore"></rd-icon>
+					<rd-icon enableClick @click="musicPanel(item)" class="more opac-actived" name="more-vertical" :color="skinColor.color_3"></rd-icon>
 				</view>
 			</view>
 		</scroll-view>
@@ -45,7 +42,11 @@
 		<yb-nav-bar ref="navbar" class="nav-bar" :title="title" :bg-color="navBg" front-color="#fff">
 			<template slot="right">
 				<view class="nav-right">
-					<rd-icon name="love" size="40" color="#fff"></rd-icon>
+					<view class="collection" @click="toCollection(params)" v-if="this.params.type == 'singer' || this.params.type == 'album' || this.params.type == 'newAlbum' || this.params.type == 'top'">
+						<rd-icon v-if="isCollection(params.id)" name="love-fill" size="40" :color="skinColor.color_red"></rd-icon>
+						<rd-icon v-else name="love" size="40" :color="skinColor.color_white"></rd-icon>
+					</view>
+					<rd-icon v-if="params.commentId" enableClick @click="showComment(params)" name="comment" size="40" :color="skinColor.color_white"></rd-icon>
 				</view>
 			</template>
 		</yb-nav-bar>
@@ -157,16 +158,6 @@
 		methods: {
 			onScroll (e) {
 				this.navOpac = (e.detail.scrollTop / 150) > 1 ? 1 : (e.detail.scrollTop / 150)
-				// const trans = e.detail.scrollTop / 4
-				// animation.transition(this.$refs.top, {
-				//     styles: {
-				// 		transform: 'translateY(' + (trans < 0 ? 0 : trans > uni.upx2px(490) ? 490 : trans) + 'px)'
-				//     },
-				//     duration: 0, //ms
-				//     timingFunction: 'ease',
-				//     needLayout:false,
-				//     delay: 0 //ms
-				// })
 			},
 			showMore () {
 				this.panelData = {
@@ -265,6 +256,11 @@
 		justify-content: flex-end;
 		align-items: center;
 	}
+	.collection {
+		flex-direction: row;
+		align-items: center;
+		margin-right: 10rpx;
+	}
 	.top {
 		height: 490rpx;
 	}
@@ -288,20 +284,8 @@
 		flex: 1;
 		margin-left: 20rpx;
 	}
-	.top .info .title {
-		font-size: 32rpx;
-		lines: 2;
-		height: 75rpx;
-		font-weight: bold;
-	}
-	.top .info .author, .top .info .desc {
-		font-size: 26rpx;
-	}
-	.top .info .author {
-		lines: 1;
-		margin: 15rpx 0;
-	}
 	.top .info .desc {
+		font-size: 26rpx;
 		lines: 6;
 		text-overflow: ellipsis;
 	}

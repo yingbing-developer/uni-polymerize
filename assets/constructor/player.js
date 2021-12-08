@@ -8,22 +8,19 @@ export default class Player {
 		this.lyricId = song.lyricId || ''
 		this.src = song.src || ''
 		this.lyric = song.lyric || ''
-		this.song = song
 		this.instance = null
+		this.source = song.source
 	}
 	async init() {
 		let arr = []
 		this.instance = uni.createInnerAudioContext()
-		// this.instance.title = this.song.title;
-		// this.instance.singer = this.song.singer;
-		// this.instance.coverImgUrl = this.song.cover;
-		this.singleId && !this.src ? arr.push(Api[this.song.source].getPlayUrl({
+		this.singleId && !this.src ? arr.push(Api[this.source].getPlayUrl({
 			id: this.singleId,
-			source: this.song.source
+			source: this.source
 		})) : this.instance.src = this.src;
-		this.lyricId && !this.lyric ? arr.push(Api[this.song.source].getLyric({
+		this.lyricId && !this.lyric ? arr.push(Api[this.source].getLyric({
 			id: this.lyricId,
-			source: this.song.source
+			source: this.source
 		})) : null
 		return arr.length > 0 ? await Promise.all(arr).then((ress) => {
 			ress.forEach((res, key) => {
@@ -45,9 +42,5 @@ export default class Player {
 		this.instance.stop()
 		this.instance.destroy()
 		this.instance = null
-		// this.instance.title = null
-		// this.instance.singer = null
-		// this.instance.coverImgUrl = null
-		// this.instance.src = null
 	}
 }

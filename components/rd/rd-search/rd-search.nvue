@@ -57,6 +57,10 @@
 	export default {
 		mixins: [appMixin],
 		props: {
+			value: {
+				type: String,
+				default: ''
+			},
 			keywords: {
 				type: Array,
 				default () {
@@ -79,6 +83,9 @@
 				keyword: ''
 			}
 		},
+		created () {
+			this.keyword = this.value
+		},
 		computed: {
 			recordsSync () {
 				const records = JSON.parse(JSON.stringify(this.records))
@@ -98,7 +105,10 @@
 		},
 		watch: {
 			keyword (newVal) {
-				this.$emit('change', newVal)
+				this.$emit('input', newVal)
+			},
+			value (newVal) {
+				this.keyword = newVal
 			}
 		}
 	}

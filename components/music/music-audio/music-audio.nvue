@@ -1,13 +1,25 @@
+<template>
+	<music-lyric v-if="lyricShow"></music-lyric>
+</template>
 <script>
-	import Player from '@/assets/constructor/player.js'
 	import appMixin from '@/common/mixin/app.js'
 	let ob = null
-	let player = null
 	export default {
 		mixins: [appMixin],
+		computed: {
+			lyricShow () {
+				return this.$store.getters['audio/getLyricShow']
+			}
+		},
 		beforeCreate() {
-			uni.$on('initPlayer', (data) => {
-				this.initPlayer(data.song)
+			uni.$on('scircle', data => {
+				ob.show()
+			})
+			uni.$on('goPlayer', data => {
+				ob.hide()
+				getApp().globalData.$Router.push({
+					path: '/pages/music/player'
+				})
 			})
 		},
 		created () {
@@ -19,63 +31,26 @@
 				touch: true,
 				dark: this.skinMode == 'night',
 				func: (e) => {
-					ob.hide()
 					// getApp().globalData.$dom.control({
 					// 	x: e.left,
 					// 	y: e.top
 					// }).then(() => {
 					// 	ob.show()
 					// })
+					ob.hide()
 					getApp().globalData.$Router.push({
 						path: '/pages/music/player'
-					})
-					uni.$once('scircle', data => {
-						ob.show()
 					})
 				}
 			})
 			ob.show();
 		},
-		methods: {
-			initPlayer (song) {
-				this.$store.dispatch('player/addSong', [song])
-				this.$store.dispatch('player/create', song.id)
-				// player = this.$store.getters['player/getPlayer']
-				// player.init().then(status => {
-				// 	if ( status ) {
-				// 		player.instance.onEnded(() => {
-				// 			this.$store.dispatch('player/next')
-				// 		})
-				// 		player.instance.onCanplay(() => {
-				// 			player.instance.play()
-				// 		})
-				// 		player.instance.onError(() => {
-				// 			this.error(player.song.id)
-				// 			this.$store.dispatch('player/destroy')
-				// 		})
-				// 	} else {
-				// 		this.error(player.song.id)
-				// 		this.$store.dispatch('player/destroy')
-				// 	}
-				// })
-			},
-			error (id) {
-				getApp().globalData.$nativeUI.alert({
-					title: '错误提示',
-					content: '歌曲播放失败！换首歌曲播放吧',
-					dark: this.skinMode == 'night',
-					success: (res) => {
-						this.$store.dispatch('player/removeSong', id)
-					}
-				})
-			}
-		},
 		beforeDestroy () {
-			uni.$off('initPlayer')
-			if ( player ) {
-				player.instance ? player.destroy() : null
-				player = null
-			}
+			ob.close()
+			ob = null
+			this.$store.dispatch('audio/destroy')
+			uni.$off('scircle')
+			uni.$off('goPlayer')
 		},
 		watch: {
 			skinMode (newVal) {

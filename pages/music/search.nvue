@@ -1,32 +1,39 @@
 <template>
 	<yb-page-anime :bgColor="skinColor.color_bg_1">
-		<rd-search placeholder="搜索歌曲/歌手" :keywords="keywords" :records="records" @change="change" @clearRecord="clearRecord" @removeRecord="removeRecord">
-			<list class="result" v-if="keyword" :style="{'background-color': skinColor.color_bg_1}">
-				<cell><view ref="listTop"></view></cell>
-				<yb-list-no-data title="暂无搜索数据" v-if="results.length == 0 && !loading" />
-				<yb-list-loading size="80" :color="skinColor.color_3" title="搜索中" v-if="loading" />
-				<cell v-for="(item, index) in results">
-					<view class="item" :style="{'border-color': skinColor.color_gap_1}" @tap="itemClick(item)">
-						<view class="item-left">
-							<rd-icon name="person" size="34" :color="skinColor.color_1" v-if="item.type == 'singer'"></rd-icon>
-							<rd-icon name="music" size="34" :color="skinColor.color_1" v-else></rd-icon>
-							<view style="flex: 1;">
-								<text class="label" :style="{color: skinColor.color_1}">{{item.title}}</text>
-								<text class="label sub" :style="{color: skinColor.color_3}" v-if="item.type == 'single'">{{item.singer}}</text>
-								<text class="label sub" :style="{color: skinColor.color_3}" v-else>专辑数量：{{item.albumSize}}</text>
+		<rd-search placeholder="搜索歌曲/歌手" :keywords="keywords" :records="records" :value="keyword" @input="change" @clearRecord="clearRecord" @removeRecord="removeRecord">
+			<view class="result" v-if="keyword" :style="{'background-color': skinColor.color_bg_1}">
+				<list class="list" v-if="results.length > 0 && !loading" :render-whole="true">
+					<cell><view ref="listTop"></view></cell>
+					<cell v-for="(item, index) in results">
+						<view class="item" :style="{'border-color': skinColor.color_gap_1}" @tap="itemClick(item)">
+							<view class="item-left">
+								<rd-icon name="person" size="34" :color="skinColor.color_1" v-if="item.type == 'singer'"></rd-icon>
+								<rd-icon name="music" size="34" :color="skinColor.color_1" v-else></rd-icon>
+								<view style="flex: 1;">
+									<text class="label" :style="{color: skinColor.color_1}">{{item.title}}</text>
+									<text class="label sub" :style="{color: skinColor.color_3}" v-if="item.type == 'single'">{{item.singer}}</text>
+									<text class="label sub" :style="{color: skinColor.color_3}" v-else>专辑数量：{{item.albumSize}}</text>
+								</view>
+							</view>
+							<view class="item-right">
+								<rd-icon v-if="item.type == 'single'" enableClick @click="musicPanel(item, true)" class="icon opac-actived" name="more-horizontal" size="32" :color="skinColor.color_3"></rd-icon>
+								<view v-else @tap="toCollection(item)">
+									<rd-icon v-if="isCollection(item.id)" class="icon" name="love-fill" size="32" :color="skinColor.color_red"></rd-icon>
+									<rd-icon v-else class="icon" name="love" size="32" :color="skinColor.color_3"></rd-icon>
+								</view>
 							</view>
 						</view>
-						<view class="item-right">
-							<rd-icon enableClick class="icon opac-actived" name="more-horizontal" size="32" :color="skinColor.color_3"></rd-icon>
-						</view>
-					</view>
-				</cell>
-				<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup"></yb-pullup>
-				<cell v-if="isLastPage && results.length > 0">
-					<yb-no-more :color="skinColor.color_3"></yb-no-more>
-				</cell>
-				
-			</list>
+					</cell>
+					<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup"></yb-pullup>
+					<cell v-if="isLastPage && results.length > 0">
+						<yb-no-more :color="skinColor.color_3"></yb-no-more>
+					</cell>
+				</list>
+				<view class="loading" v-else>
+					<yb-no-data title="暂无搜索数据" v-if="results.length == 0 && !loading" />
+					<yb-loading size="80" :color="skinColor.color_3" title="搜索中" v-if="loading" />
+				</view>
+			</view>
 		</rd-search>
 	</yb-page-anime>
 </template>
@@ -65,6 +72,7 @@
 				}
 			}
 			this.getHotKeyword()
+			this.keyword = getApp().globalData.$Route.query.keyword || ''
 		},
 		methods: {
 			getHotKeyword () {
@@ -148,8 +156,9 @@
 			},
 			clearRecord () {
 				getApp().globalData.$nativeUI.confirm({
+					title: '提示',
 					content: '是否清空所有搜索历史',
-					themeColor: this.skinColor.color_theme_2,
+					themeColor: this.skinColor.color_theme_1,
 					dark: this.skinMode == 'night',
 					success: (e) => {
 						if ( e.confirm ) {
@@ -162,7 +171,7 @@
 				if ( params.type == 'singer' ) {
 					this.goDetail(params)
 				} else {
-					this.play(params)
+					this.playSong(params)
 				}
 			},
 			goDetail (params) {
@@ -184,6 +193,18 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
+	}
+	.result .loading {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		align-items: center;
+		justify-content: center;
+	}
+	.result .list {
+		flex: 1;
 	}
 	.result .item {
 		padding: 20rpx 55rpx;

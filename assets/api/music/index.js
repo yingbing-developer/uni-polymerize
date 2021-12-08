@@ -125,5 +125,9 @@ export default {
 	//获取音乐歌词
 	getLyric (data) {
 		return api[data.source].getLyric()
+	},
+	//获取评论
+	getComment (data) {
+		return api[data.source].getComment(data)
 	}
 }

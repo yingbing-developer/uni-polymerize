@@ -6,3 +6,4 @@ export const SEARCHHISTORY = 'UNI_READER_SEARCH_HISTORY'//搜索历史
 export const COLLECTION = 'UNI_READER_COLLECTION'//收藏列表
 export const SOURCECLOSE = 'UNI_READER_SOURCE_CLOSE'//来源关闭
 export const PLAYMODE = 'UNI_READER_PLAY_MODE'//音乐播放模式 <round | 顺序播放> <loop | 单曲循环> <random | 随机播放>
+export const LYRICSHOW = 'UNI_READER_LYRIC_SHOW'//是否显示全局歌词

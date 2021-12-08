@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view style="flex: 1;">
 		<music-audio></music-audio>
 	</view>
 </template>
@@ -9,7 +9,8 @@
 	export default {
 		mixins: [appMixin],
 		data () {
-			return {}
+			return {
+			}
 		},
 		onLoad() {
 			

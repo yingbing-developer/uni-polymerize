@@ -4,10 +4,11 @@ import http from '@/plugins/request/index.js'
 import Config from '@/assets/js/config.js'
 import Utils from '@/assets/js/util.js'
 import { Single, Album, Singer } from '@/assets/constructor/music.js'
+import Comment from '@/assets/constructor/comment.js'
 import Asrsea from '@/assets/other/asrsea.js'
 
 const { MUSICURL, ERR_OK, ERR_FALSE } = Config
-const { time2seconds } = Utils;
+const { time2seconds, dateFormat } = Utils;
 
 const source = '163music';
 const href = MUSICURL[source].href;
@@ -34,6 +35,8 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						isLastPage: ress[0].data.list.length < 20,
+						currentPage: data.page[source],
 						source: source
 					}
 				})
@@ -67,6 +70,7 @@ export default {
 						})
 						const item = new Single({
 							singleId: song.id,
+							commentId: 'R_SO_4_' + song.id,
 							lyricId: song.id,
 							title: song.name,
 							cover: song.al.picUrl,
@@ -271,6 +275,7 @@ export default {
 							})
 							const single = new Single({
 								singleId: song.id,
+								commentId: 'R_SO_4_' + song.id,
 								lyricId: song.id,
 								title: song.name,
 								cover: song.al.picUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
@@ -320,6 +325,7 @@ export default {
 					res.data.list.forEach(top => {
 						const item = new Album({
 							albumId: top.id,
+							commentId: 'A_PL_0_' + top.id,
 							title: top.name,
 							cover: top.coverImgUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
 							desc: top.description?.replace(/<br>/g, '') || '',
@@ -396,6 +402,7 @@ export default {
 						})
 						const item = new Single({
 							singleId: song.id,
+							commentId: 'R_SO_4_' + song.id,
 							lyricId: song.id,
 							title: song.name,
 							cover: song.album.picUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
@@ -484,6 +491,7 @@ export default {
 						})
 						const item = new Album({
 							albumId: album.id,
+							commentId: 'R_AL_3_' + album.id,
 							title: album.name,
 							cover: album.picUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
 							creator: singer,
@@ -497,6 +505,8 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						isLastPage: list.length < 40,
+						currentPage: data.page,
 						source: source
 					}
 				})
@@ -505,6 +515,8 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						isLastPage: false,
+						currentPage: data.page - 1,
 						source: source
 					}
 				})
@@ -539,6 +551,7 @@ export default {
 						const item = new Single({
 							singleId: song.id,
 							lyricId: song.id,
+							commentId: 'R_SO_4_' + song.id,
 							title: song.name,
 							cover: song.al.picUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
 							singer: singer,
@@ -712,6 +725,7 @@ export default {
 						const item = new Single({
 							singleId: song.id,
 							lyricId: song.id,
+							commentId: 'R_SO_4_' + song.id,
 							title: song.name,
 							cover: song.al.picUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
 							singer: singer,
@@ -838,6 +852,7 @@ export default {
 					res.data.playlists.forEach(top => {
 						const item = new Album({
 							albumId: top.id,
+							commentId: 'A_PL_0_' + top.id,
 							title: top.name,
 							cover: top.coverImgUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
 							desc: top.description,
@@ -853,6 +868,8 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						isLastPage: list.length < data.limit,
+						currentPage: data.page,
 						source: source
 					}
 				})
@@ -861,6 +878,8 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						isLastPage: false,
+						currentPage: data.page - 1,
 						source: source
 					}
 				})
@@ -895,6 +914,7 @@ export default {
 						const item = new Single({
 							singleId: song.id,
 							lyricId: song.id,
+							commentId: 'R_SO_4_' + song.id,
 							title: song.al.name,
 							cover: song.al.picUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
 							singer: singer,
@@ -998,6 +1018,73 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						lyric: [],
+						source: source
+					}
+				})
+			})
+		})
+	},
+	/**
+	 * 获取评论列表
+	 * @param {Object} data = {id: 歌单id} 
+	 **/
+	getComment (data) {
+		const dataValue = Asrsea({"rid":data.id,"threadId":data.id,"pageNo": data.page,"pageSize":"20","cursor":"1638966725671","offset": (data.page - 1 ) * 20,"orderType":"1","csrf_token":""}, "1yhgKF2pMaAlYNcX")
+		return new Promise((resolve) => {
+			http.post('https://music.163.com/weapi/comment/resource/comments/get?csrf_token=', {
+				params: {
+					params: dataValue,
+					encSecKey: "a27eb3deda2cf5a473ffb868f29cf1b33693e0fa234d739e998d7481537b5482e21e190943cde4ba814253ad3ff0ee3a80842ecf45c1b091b9077908f2a394ef713991f35f2721663c55ee53a6cf0647776bf825823ac116cde4dee9c47f06c935c59b96bfb99041de4e32d109c650fb3dd24c15eab5d3ce194a6f1e47ae10db"
+				},
+				headers: {
+					referer: 'https://y.music.163.com',
+					'Content-Type': 'application/x-www-form-urlencoded'
+				}
+			}).then((res) => {
+				let list = []
+				if ( res.data.code == 200 ) {
+					res.data.data.comments.forEach(comment => {
+						const subComments = comment.beReplied || []
+						let subComment = []
+						subComments.forEach(sub => {
+							subComment.push(
+								new Comment({
+									id: sub.beRepliedCommentId,
+									avatar: sub.user.avatarUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
+									title: sub.user.nickname,
+									subtitle: dateFormat(comment.time),
+									content: sub.content
+								})
+							)
+						})
+						const item = new Comment({
+							id: comment.commentId,
+							avatar: comment.user.avatarUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
+							title: comment.user.nickname,
+							subtitle: dateFormat(comment.time),
+							subComment: subComment,
+							content: comment.content,
+							source: source
+						})
+						list.push(item)
+					})
+				}
+				resolve({
+					code: ERR_OK,
+					data: {
+						list: list,
+						isLastPage: list.length < 20,
+						currentPage: data.page,
+						source: source
+					}
+				})
+			}).catch((err) => {
+				resolve({
+					code: ERR_FALSE,
+					data: {
+						list: [],
+						isLastPage: false,
+						currentPage: data.page - 1,
 						source: source
 					}
 				})
