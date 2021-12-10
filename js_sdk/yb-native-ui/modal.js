@@ -176,13 +176,13 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 			popup.close()
 			mask = null
 			popup = null
-			success({
+			success ? success({
 				confirm: confirm,
 				cancel: cancel
-			})
+			}) : null
 			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
 		} catch(e){
-			fail(e)
+			fail ? fail(e) : null
 		}
 	}
 	popup.addEventListener("click", (e) => {

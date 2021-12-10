@@ -1,4 +1,5 @@
 import { FILECACHE } from '../config.js'
+import Cache from '@/assets/constructor/cache.js'
 
 const state = {
 	cache: uni.getStorageSync(FILECACHE) || [] //图片临时文件存放
@@ -20,14 +21,22 @@ const mutations = {
 const actions = {
 	addCache ({state, commit}, obj) {
 		const caches = [...state.cache]
-		const index = caches.findIndex(cache => cache.id == obj.id)
-		index > -1 ? caches[index] = obj : caches.push(obj)
+		const newCache = new Cache(obj)
+		const index = caches.findIndex(cache => cache.id == newCache.id)
+		index > -1 ? caches[index] = newCache : caches.push(newCache)
 		commit('setCache', caches)
 	},
 	removeCache ({state, commit}, id) {
 		const caches = [...state.cache]
-		const index = caches.findIndex(cache => cache.id == id)
-		if ( index > -1 ) caches.splice(index, 1);
+		const index = caches.findIndex(cache => cache.parentId == id)
+		if ( index > -1 ) {
+			const src = plus.io.convertLocalFileSystemURL(caches[index].src);
+			const file = plus.android.newObject('java.io.File', src);
+			if ( plus.android.invoke(file, 'exists') ) {
+				plus.android.invoke(file, 'delete')
+			}
+			caches.splice(index, 1);
+		}
 		commit('setCache', caches)
 	},
 	clearCache ({commit}) {

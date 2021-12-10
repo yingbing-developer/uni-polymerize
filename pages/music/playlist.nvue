@@ -35,7 +35,7 @@
 				</view>
 			</scroll-view>
 			<yb-no-data class="scroll" title="播放列表为空!" v-else></yb-no-data>
-			<view class="clear">
+			<view class="clear" v-if="playList.length > 0">
 				<yb-button @tap="clear" class="clear-btn" size="24" :themeColor="skinColor.color_1" :frontColor="skinColor.color_1" type="plain" round title="清除全部歌曲"></yb-button>
 			</view>
 		</view>

@@ -159,13 +159,13 @@ export function panel ({title, subTitle, menus, cancelText, themeColor, dark, su
 			popup.close()
 			mask = null
 			popup = null
-			success({
+			success ? success({
 				confirm: bol,
 				data: data || null
-			})
+			}) : null
 			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
 		} catch(e){
-			fail(e)
+			fail ? fail(e) : null
 		}
 	}
 	popup.addEventListener("click", (e) => {

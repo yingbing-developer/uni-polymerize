@@ -163,13 +163,42 @@ const appMixin = {
 		isCollection (id) {
 			return id ? this.$store.getters['collection/getCollection'].findIndex(collection => collection.id == id) > -1 : false
 		},
-		showComment (data) {
-			getApp().globalData.$Router.push({
-				path: '/modules/comment',
-				query: {
-					data: encodeURIComponent(JSON.stringify(data))
+		isCache (id) {
+			return id ? this.$store.getters['cache/getCache'].findIndex(cache => cache.parentId == id) > -1 : false
+		},
+		download (params) {
+			if ( params ) {
+				const tasks = this.$store.getters['downer/getTask']
+				const index = tasks.findIndex(task => task.parentId == params.id)
+				if ( index == -1 ) {
+					this.$store.dispatch('downer/createTask', params)
+				} else {
+					this.app.$nativeUI.alert({
+						content: '正在下载，请等待下载完成',
+						dark: this.skinMode == 'night'
+					})
 				}
-			})
+			} else {
+				this.app.$nativeUI.alert({
+					content: '创建下载任务失败',
+					dark: this.skinMode == 'night'
+				})
+			}
+		},
+		showComment (params) {
+			if ( params ) {
+				this.app.$Router.push({
+					path: '/modules/comment',
+					query: {
+						params: encodeURIComponent(JSON.stringify(params))
+					}
+				})
+			} else {
+				this.app.$nativeUI.alert({
+					content: '查询评论失败',
+					dark: this.skinMode == 'night'
+				})
+			}
 		},
 		changeSkin () {
 			this.$store.dispatch('app/changeSkin', this.skinMode == 'default' ? 'night' : 'default')

@@ -5,6 +5,7 @@ import search from './modules/search.js'
 import cache from './modules/cache.js'
 import source from './modules/source.js'
 import collection from './modules/collection.js'
+import downer from './modules/downer.js'
 import audio from './modules/audio.js'
 Vue.use(Vuex)
 const store = new Vuex.Store({
@@ -14,6 +15,7 @@ const store = new Vuex.Store({
 		cache,
 		source,
 		collection,
+		downer,
 		audio
 	}
 })

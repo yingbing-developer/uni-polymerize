@@ -1,5 +1,5 @@
 <template>
-	<view class="yb-nav-bar" :style="{'background-color': bgColor}">
+	<view class="yb-nav-bar" :style="{'background-color': bgColor}" @touchmove.stop.prevent="">
 		<yb-gap-bar ref="statusbar" v-if="gapShow"></yb-gap-bar>
 		<view class="nav">
 			<slot>

@@ -4,7 +4,7 @@ export default {
 	color_theme_1: '#3C3C3C',
 	color_theme_2: '#2C2C2C',
 	color_bg_1: '#131313',
-	color_bg_2: '#3F3F3F',
+	color_bg_2: '#272822',
 	color_actived_1: '#FAFAFA',
 	color_1: '#f4f7f5',
 	color_2: '#8a8a8a',
@@ -12,7 +12,6 @@ export default {
 	color_4: '#777777',
 	color_5: '#737373',
 	color_gap_1: '#3F3F3F',
-	color_gap_2: '#393E41',
 	color_read_text: '#95A3A6',
 	color_read_bg: '#393E41'
 }

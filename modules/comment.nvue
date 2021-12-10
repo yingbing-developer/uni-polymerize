@@ -6,7 +6,7 @@
 			:comments="comments"
 			:contentColor="skinColor.color_1"
 			:titleColor="skinColor.color_2"
-			:lineColor="skinColor.color_gap_2"
+			:lineColor="skinColor.color_gap_1"
 			:themeColor="skinColor.color_blue"
 			v-if="comments.length > 0">
 			<template slot="bottom">
@@ -40,8 +40,8 @@
 		},
 		onLoad () {
 			this.show = true
-			this.params = JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.data))
-			if ( this.params.commentId ) {
+			this.params = JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.params))
+			if ( this.params?.commentId ) {
 				this.getComment().then(data => {
 					this.isLastPage = data.isLastPage
 					this.loading = false

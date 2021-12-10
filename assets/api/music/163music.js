@@ -3,8 +3,10 @@
 import http from '@/plugins/request/index.js'
 import Config from '@/assets/js/config.js'
 import Utils from '@/assets/js/util.js'
-import { Single, Album, Singer } from '@/assets/constructor/music.js'
 import Comment from '@/assets/constructor/comment.js'
+import Song from '@/assets/constructor/song.js'
+import Album from '@/assets/constructor/album.js'
+import Singer from '@/assets/constructor/singer.js'
 import Asrsea from '@/assets/other/asrsea.js'
 
 const { MUSICURL, ERR_OK, ERR_FALSE } = Config
@@ -68,8 +70,8 @@ export default {
 						song.ar.forEach((sin, k) => {
 							singer += sin.name + (k < song.ar.length - 1 ? ' ' : '')
 						})
-						const item = new Single({
-							singleId: song.id,
+						const item = new Song({
+							songId: song.id,
 							commentId: 'R_SO_4_' + song.id,
 							lyricId: song.id,
 							title: song.name,
@@ -273,8 +275,8 @@ export default {
 							song.ar.forEach((sin, k) => {
 								singer += sin.name + (k < song.ar.length ? ' ' : '')
 							})
-							const single = new Single({
-								singleId: song.id,
+							const single = new Song({
+								songId: song.id,
 								commentId: 'R_SO_4_' + song.id,
 								lyricId: song.id,
 								title: song.name,
@@ -400,8 +402,8 @@ export default {
 						song.artists.forEach((sin, k) => {
 							singer += sin.name + (k < song.artists.length ? ' ' : '')
 						})
-						const item = new Single({
-							singleId: song.id,
+						const item = new Song({
+							songId: song.id,
 							commentId: 'R_SO_4_' + song.id,
 							lyricId: song.id,
 							title: song.name,
@@ -548,8 +550,8 @@ export default {
 						song.ar.forEach((sin, k) => {
 							singer += sin.name + (k < song.ar.length ? ' ' : '')
 						})
-						const item = new Single({
-							singleId: song.id,
+						const item = new Song({
+							songId: song.id,
 							lyricId: song.id,
 							commentId: 'R_SO_4_' + song.id,
 							title: song.name,
@@ -722,8 +724,8 @@ export default {
 						song.ar.forEach((sin, k) => {
 							singer += sin.name + (k < song.ar.length ? ' ' : '')
 						})
-						const item = new Single({
-							singleId: song.id,
+						const item = new Song({
+							songId: song.id,
 							lyricId: song.id,
 							commentId: 'R_SO_4_' + song.id,
 							title: song.name,
@@ -856,7 +858,7 @@ export default {
 							title: top.name,
 							cover: top.coverImgUrl + '?imageView&thumbnail=360y360&quality=75&tostatic=0',
 							desc: top.description,
-							num: top.playCount,
+							playnum: top.playCount,
 							creator: top.creator.nickname,
 							type: 'album',
 							source: source
@@ -911,8 +913,8 @@ export default {
 						song.ar.forEach((sin, k) => {
 							singer += sin.name + (k < song.ar.length ? ' ' : '')
 						})
-						const item = new Single({
-							singleId: song.id,
+						const item = new Song({
+							songId: song.id,
 							lyricId: song.id,
 							commentId: 'R_SO_4_' + song.id,
 							title: song.al.name,

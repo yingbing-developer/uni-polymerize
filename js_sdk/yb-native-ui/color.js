@@ -7,7 +7,7 @@ export default {
 		text_2: '#999999'
 	},
 	'dark': {
-		bg: '#3F3F3F',
+		bg: '#222222',
 		title: '#f4f7f5',
 		gap: '#191919',
 		text: '#8a8a8a',

@@ -79,7 +79,8 @@
 					<view class="control-box">
 					</view>
 					<view class="control-box">
-						<rd-icon name="download" size="50" :color="skinColor.color_white"></rd-icon>
+						<rd-icon v-if="isCache(song ? song.id : null)" enableClick @click="toShare" name="share-rect" size="50" :color="skinColor.color_white"></rd-icon>
+						<rd-icon v-else enableClick @click="toDownload" name="download" size="50" :color="skinColor.color_white"></rd-icon>
 					</view>
 					<view class="control-box">
 						<rd-icon enableClick @click="toCollection(song)" v-if="isCollection(song ? song.id : '')" name="love-fill" size="55" :color="skinColor.color_red"></rd-icon>
@@ -183,6 +184,20 @@
 			//切换歌词显示
 			switchLyricShow () {
 				this.$store.dispatch('audio/switchLyricShow')
+			},
+			toDownload () {
+				if ( this.song ) {
+					const song = {...this.song}
+					song.src = this.player.src
+					this.download(song)
+				}
+			},
+			toShare () {
+				if ( this.song ) {
+					const caches = this.$store.getters['cache/getCache']
+					const index = caches.findIndex(cache => cache.parentId == this.song.id)
+					index > -1 ? this.app.$business.share(caches[index].src) : null
+				}
 			},
 			show () {
 				animation.transition(this.$refs.top, {

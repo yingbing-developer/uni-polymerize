@@ -15,7 +15,6 @@
 
 <script>
 	import appMixin from '@/common/mixin/app.js'
-	import Cache from '@/assets/constructor/cache.js'
 	import {
 		base64ToPath
 	} from '@/js_sdk/mmmm-image-tools/index.js'
@@ -141,12 +140,12 @@
 			async selectCache () {
 				const caches = this.$store.getters['cache/getCache'];
 				const id = this.src + (this.enableBlur ? '_blur' : this.enableReferer ? '_base' : '')
-				const index = caches.findIndex(cache => cache.id == id)
+				const index = caches.findIndex(cache => cache.parentId == id)
 				if ( index > -1 ) {
-					const url = plus.io.convertLocalFileSystemURL(caches[index].url);
+					const url = plus.io.convertLocalFileSystemURL(caches[index].src);
 					const file = plus.android.newObject('java.io.File', url);
 					if ( plus.android.invoke(file, 'exists') ) {
-						this.url = caches[index].url
+						this.url = caches[index].src
 						return
 					} else {
 						this.$store.dispatch('cache/removeCache', id)
@@ -169,10 +168,11 @@
 					if ( base64 ) {
 						base64ToPath(base64)
 							.then(path => {
-								this.$store.dispatch('cache/addCache', new Cache({
+								this.$store.dispatch('cache/addCache', {
 									id: this.src + '_blur',
-									url: path
-								}))
+									src: path,
+									type: 'image'
+								})
 								resolve(path)
 							})
 							.catch(error => {
@@ -190,10 +190,11 @@
 					if (base64) {
 						base64ToPath(base64)
 							.then(path => {
-								this.$store.dispatch('cache/addCache', new Cache({
+								this.$store.dispatch('cache/addCache', {
 									id: this.src + '_blur',
-									url: path
-								}))
+									src: path,
+									type: 'image'
+								})
 								resolve(path)
 							})
 							.catch(error => {

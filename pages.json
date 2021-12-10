@@ -207,7 +207,7 @@
 		"color": "#666666",
 		"selectedColor": "#2ca2f9",
 		"borderStyle": "black",
-		"backgroundColor": "#FAFAFA",
+		"backgroundColor": "#131313",
 		"list": [{
 			"pagePath": "pages/book/index",
 			"iconPath": "static/tabbar/book_default.png",

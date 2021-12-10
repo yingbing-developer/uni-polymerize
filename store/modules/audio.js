@@ -62,7 +62,7 @@ const mutations = {
 	},
 	//设置当前播放时间
 	setCurrentTime (state, time) {
-		state.currentTime = time
+		state.currentTime = time || 0
 	},
 	//设置当前歌曲长度
 	setDuration (state, time) {
@@ -180,11 +180,9 @@ const actions = {
 		commit('setCurrentSong', currentSong)
 		state.player.init().then(status => {
 			if ( status ) {
+				state.player.instance.play()
 				state.player.instance.onEnded(() => {
 					dispatch('next')
-				})
-				state.player.instance.onCanplay(() => {
-					state.player.instance.play()
 				})
 				state.player.instance.onError(() => {
 					NativeUI.alert({

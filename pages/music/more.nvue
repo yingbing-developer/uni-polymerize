@@ -44,7 +44,7 @@
 									<view class="bottom">
 										<view class="num">
 											<rd-icon name="play-outline" :color="skinColor.color_white"></rd-icon>
-											<text class="num-text" :style="{color: skinColor.color_white}">{{gridItem.detail.num / 10000}}万</text>
+											<text class="num-text" :style="{color: skinColor.color_white}">{{gridItem.detail.playnum / 10000}}万</text>
 										</view>
 									</view>
 									<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
