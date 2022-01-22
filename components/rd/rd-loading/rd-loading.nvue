@@ -1,0 +1,39 @@
+<template>
+	<view class="rd-loading" :style="{top: top}">
+		<yb-loading :size="size" :color="color" :title="title" />
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			size: {
+				type: Number | String,
+				default: 40
+			},
+			color: {
+				type: String,
+				default: '#333'
+			},
+			title: {
+				type: String,
+				default: ''
+			},
+			top: {
+				type: Number | String,
+				default: 0
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.rd-loading {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

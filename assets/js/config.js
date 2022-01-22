@@ -3,20 +3,29 @@ export default {
 	BOOKURL: {
 		'baoshuu': {
 			title: '手机宝书',
-			href: 'http://m.baoshuu.com'
-		},
-		'bamxs': {
-			title: '八毛小说',
-			href: 'http://m.bamxs.com',
-			isAdult: true//是否属于青壮年内容
+			href: 'http://m.baoshuu.com',
+			search: true,//是否有搜索功能
+			hotKey: false,//是否有热门搜索关键词功能
+			recome: true,//是否有热门推荐功能
+			isAdult: false//是否属于青壮年内容
 		},
 		'xquge': {
 			title: '笔趣阁',
-			href: 'https://www.xquge.com'
+			href: 'https://www.xquge.com',
+			isAdult: false//是否属于青壮年内容
 		},
 		'linovel': {
 			title: '轻之文库',
-			href: 'https://www.linovel.net/'
+			href: 'https://www.linovel.net',
+			search: true,//是否有搜索功能
+			hotKey: false,//是否有热门搜索关键词功能
+			recome: true,//是否有热门推荐功能
+			isAdult: false//是否属于青壮年内容
+		},
+		'xyushu5': {
+			title: '新御书屋',
+			href: 'https://www.xyushu5.com',
+			isAdult: true
 		}
 	},
 	
@@ -24,38 +33,57 @@ export default {
 	COMICURL: {
 		'mangabz': {
 			title: 'mangaBz',
-			href: 'http://www.mangabz.com'
+			href: 'http://www.mangabz.com',
+			search: true,//是否有搜索功能
+			hotKey: false,//是否有热门搜索关键词功能
+			recome: true,//是否有热门推荐功能
+			isAdult: false//是否属于青壮年内容
 		},
-		// '18comic': {
-		// 	title: '禁漫天堂',
-		// 	href: 'https://18comic2.art'
-		// },
 		'sixmh': {
 			title: '6漫画',
-			href: 'http://m.sixmh7.com'
+			href: 'http://m.sixmh7.com',
+			search: true,//是否有搜索功能
+			hotKey: true,//是否有热门搜索关键词功能
+			recome: true,//是否有热门推荐功能
+			isAdult: false//是否属于青壮年内容
 		},
 		'dmzj': {
 			title: '动漫之家',
-			href: 'https://www.dmzj.com'
+			href: 'https://www.dmzj.com',
+			search: true,//是否有搜索功能
+			hotKey: true,//是否有热门搜索关键词功能
+			recome: true,//是否有热门推荐功能
+			isAdult: false//是否属于青壮年内容
 		},
-		'loli': {
+		'cosplayporn': {
 			title: '写真网',
 			href: 'https://cosplayporn.cc',
+			search: true,//是否有搜索功能
+			hotKey: false,//是否有热门搜索关键词功能
+			recome: true,//是否有热门推荐功能
 			isAdult: true//是否属于青壮年内容
 		},
 		'wnacg': {
 			title: '绅士漫画',
 			href: 'https://hentaicomic.org',
+			search: true,//是否有搜索功能
+			hotKey: false,//是否有热门搜索关键词功能
+			recome: true,//是否有热门推荐功能
 			isAdult: true//是否属于青壮年内容
 		},
 		'nightpic': {
 			title: '深夜图鉴',
 			href: 'https://nightpics1.xyz',
+			search: false,//是否有搜索功能
+			recome: true,//是否有热门推荐功能
 			isAdult: true//是否属于青壮年内容
 		},
-		'suyingyy': {
-			title: '速影TV',
-			href: 'https://www.suyingyy.com/arttype/5.html',
+		'rosi': {
+			title: 'ROSI写真网',
+			href: ['http://www.xnnxz.com', 'http://www.ggudd.com', 'http://www.910ys.com'],
+			search: true,//是否有搜索功能
+			hotKey: false,//是否有热门搜索关键词功能
+			recome: false,//是否有热门推荐功能
 			isAdult: true//是否属于青壮年内容
 		}
 	},
@@ -67,10 +95,6 @@ export default {
 			search: true,//是否有搜索功能
 			hotKey: true,//是否有热门搜索关键词功能
 			recome: true,//是否有热门推荐功能
-			banner: true,//是否有banner功能
-			album: true,//是否有歌单功能
-			singer: true,//是否有歌手功能
-			top: true,//是否有排行榜功能
 			newSong: true//是否有新歌首发功能
 		},
 		'qqmusic': {
@@ -79,10 +103,6 @@ export default {
 			search: true,//是否有搜索功能
 			hotKey: true,//是否有热门搜索关键词功能
 			recome: true,//是否有热门推荐功能
-			banner: true,//是否有banner功能
-			album: true,//是否有歌单功能
-			singer: true,//是否有歌手功能
-			top: true,//是否有排行榜功能
 			newSong: true//是否有新歌首发功能
 		}
 	},

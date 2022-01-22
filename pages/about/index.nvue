@@ -1,20 +1,43 @@
 <template>
-	<view class="about" :style="{'background-color': skinColor.color_bg_1}">
-		<nav-bar title="关于软件" :backColor="skinColor.color_4" :bgColor="skinColor.color_theme_1" :titleColor="skinColor.color_4"></nav-bar>
-		<view class="aboute-banner" :style="{'background-color': skinColor.color_theme_1}">
-			<text class="app-name" :style="{color: skinColor.color_4}">好用阅读器</text>
-			<text class="app-author" :style="{color: skinColor.color_4}">yingbing</text>
-			<text class="app-version" :style="{color: skinColor.color_4}">版本：V{{version}}</text>
-		</view>
-		<list>
-			<cell v-for="item in list">
-				<view class="about-list" :class="skinMode + '-actived'" @tap="copyTo(item.link)">
-					<text class="about-list-title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-					<text class="about-list-link" :style="{color: skinColor.color_2}">{{item.link}}</text>
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
+		<yb-nav-bar :bgColor="skinColor.color_bg_1" :frontColor="skinColor.color_1" title="关于软件"></yb-nav-bar>
+		<scroll-view scroll-y="true" style="flex: 1;">
+			<view class="banner" :style="{'background-color': skinColor.color_bg_2}">
+				<image class="cover" src="/static/logo.png" mode="widthFix"></image>
+				<view class="info">
+					<text class="title" :style="{color: skinColor.color_1}">{{name}}</text>
+					<text class="label" :style="{color: skinColor.color_2}">haoyong-polymerize</text>
 				</view>
-			</cell>
-		</list>
-	</view>
+			</view>
+			<view class="list padding-gap"
+			:class="skinMode + '-actived'"
+			v-for="(item, index) in appInfo" :key="index"
+			:style="{'border-color': skinColor.color_gap_1}"
+			@tap="onTap(item)">
+				<text class="label" :style="{color: skinColor.color_1}">{{item.label}}</text>
+				<text class="value" :style="{color: skinColor.color_3}">{{item.value}}</text>
+			</view>
+			<yb-gap :color="skinColor.color_gap_1"></yb-gap>
+			<view
+			class="list padding-gap"
+			:class="skinMode + '-actived'"
+			v-for="(item, index) in link" :key="index"
+			:style="{'border-color': skinColor.color_gap_1}">
+				<view class="left">
+					<text class="label" :style="{color: skinColor.color_1}">{{item.label}}</text>
+					<text class="value" :style="{color: skinColor.color_3}">{{item.value}}</text>
+				</view>
+				<rd-icon class="opac-actived" enableClick @click="copyTo(item.value)" name="copy-rect-fill" size="30" :color="skinColor.color_3"></rd-icon>
+			</view>
+		</scroll-view>
+		<yb-security
+		ref="security"
+		:visible.sync="securityShow"
+		title="安全密码"
+		:tip="tip"
+		:dark="skinMode == 'night'"
+		@confirm="onPwdConfirm"></yb-security>
+	</yb-page-anime>
 </template>
 
 <script>
@@ -23,25 +46,59 @@
 		mixins:[appMixin],
 		data () {
 			return {
-				list: [{
-					title: '主页',
-					link: 'https://github.com/yingbing-developer/uni-reader'
-				},{
-					title: '原作仓库',
-					link: 'https://github.com/yingbing-developer/uni-book'
-				},{
-					title: '源代码',
-					link: 'https://github.com/yingbing-developer/uni-reader'
-				},{
-					title: '意见反馈',
-					link: 'https://github.com/yingbing-developer/uni-reader/issues'
-				}]
+				name: '',
+				version: '',
+				versionCode: 100,
+				description: '',
+				author: '',
+				clickTime: 0,
+				securityShow: false,
+				tip: ''
 			}
 		},
 		computed: {
-			version () {
-				return plus.runtime.version;
+			appInfo () {
+				return [{
+					label: '应用名称',
+					value: this.name
+				},{
+					label: 'appid',
+					value: 'haoyong-polymerize'
+				},{
+					label: '创建者',
+					value: this.author || 'yingbing'
+				},{
+					label: '应用介绍',
+					value: this.description
+				},{
+					label: '应用版本',
+					value: this.version
+				},{
+					label: '应用版本号',
+					value: this.versionCode
+				}];
+			},
+			link () {
+				return [{
+					label: '项目主页',
+					value: 'https://github.com/yingbing-developer/uni-polymerize'
+				},{
+					label: '代码仓库',
+					value: 'https://github.com/yingbing-developer/uni-polymerize'
+				},{
+					label: '意见反馈',
+					value: 'https://github.com/yingbing-developer/uni-polymerize/issues'
+				}];
 			}
+		},
+		onLoad() {
+			plus.runtime.getProperty( plus.runtime.appid, ( wgtinfo ) => {
+				this.version = wgtinfo.version
+				this.versionCode = wgtinfo.versionCode
+				this.name = wgtinfo.name
+				this.description = wgtinfo.description
+				this.author = wgtinfo.author
+			});
 		},
 		methods: {
 			copyTo (href) {
@@ -60,37 +117,91 @@
 						})
 					}
 				});
+			},
+			onTap (params) {
+				if ( params.label == '应用版本' ) {
+					if ( !this.$store.getters['app/getAdult'] ) {
+						if ( this.timer ) {
+							clearTimeout(this.timer)
+							this.timer = null
+						}
+						this.clickTime++
+						if ( this.clickTime >= 6 ) {
+							this.clickTime = 0;
+							let pwd = this.$store.getters['app/getAdultPwd']
+							if ( pwd ) {
+								this.tip = '请输入密码'
+								this.securityShow = true
+							} else {
+								this.openAdult()
+							}
+						} else {
+							this.timer = setTimeout(() => {
+								this.clickTime = 0;
+								clearTimeout(this.timer)
+								this.timer = null
+							}, 300)
+						}
+					}
+				}
+			},
+			openAdult () {
+				this.$store.commit('app/setAdult', true)
+				uni.showToast({
+					title: '青壮年模式开启',
+					icon: 'none'
+				})
+			},
+			onPwdConfirm (pwd) {
+				let oldPwd = this.$store.getters['app/getAdultPwd']
+				if ( oldPwd == pwd ) {
+					this.securityShow = false
+					this.openAdult()
+				} else {
+					this.$refs.security.reset()
+					this.tip = '密码输入错误'
+				}
 			}
 		}
 	}
 </script>
 
 <style>
-	.aboute-banner {
-		justify-content: center;
+	.banner {
+		flex-direction: row;
 		align-items: center;
+		justify-content: center;
 		height: 400rpx;
 	}
-	.app-name {
-		font-size: 45rpx;
-		font-weight: bold;
+	.banner .cover {
+		width: 100rpx;
+		margin-right: 20rpx;
 	}
-	.app-author {
-		font-size: 25rpx;
-		margin-top: 20rpx;
+	.banner .info .title {
+		font-size: 37rpx;
+		font-style: italic;
 	}
-	.app-version {
+	.banner .info .label {
+		font-size: 20rpx;
+		font-style: italic;
 		margin-top: 10rpx;
-		font-size: 25rpx;
 	}
-	.about-list {
-		padding: 60rpx 40rpx 10rpx 40rpx;
+	.list {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		height: 100rpx;
+		border-bottom-width: 1rpx;
 	}
-	.about-list-title {
-		font-size: 35rpx;
+	.list .label {
+		font-size: 28rpx;
 	}
-	.about-list-link {
-		font-size: 25rpx;
-		margin-top: 10rpx;
+	.list .value {
+		font-size: 24rpx;
+	}
+	.list .left .value {
+		margin-top: 5rpx;
+		lines: 1;
+		text-overflow: ellipsis;
 	}
 </style>

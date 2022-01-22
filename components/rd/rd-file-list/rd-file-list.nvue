@@ -1,0 +1,636 @@
+<template>
+	<view class="rd-file-list">
+		<list>
+			<cell>
+				<view ref="listTop" @tap="backParent()" class="list" :style="{'border-bottom-color': skinColor.color_gap_1}">
+					<view class="list-icon">
+						<rd-icon name="folder-open-fill" size="75" color="#FFCA28"></rd-icon>
+					</view>
+					<view class="list-right-back">
+						<text class="list-title" :style="{'color': skinColor.color_1}">..</text>
+					</view>
+				</view>
+			</cell>
+			<cell v-for="(item, index) in list">
+				<view @tap="clickFolder(item.path)" class="list" :style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': checkes.findIndex(check => check.path == item.path) > -1 ? skinColor.color_gap_1 : ''}">
+					<view class="list-icon" @tap.stop="check(item)">
+						<rd-icon name="folder-open-fill" size="75" color="#FFCA28" v-if="item.type == 'folder'"></rd-icon>
+						<rd-icon name="music-circle-fill" size="60" :color="skinColor.color_green" v-else-if="audioType.indexOf(item.type) > -1 "></rd-icon>
+						<rd-icon name="compress" size="60" :color="skinColor.color_green" v-else-if="compressType.indexOf(item.type) > -1 "></rd-icon>
+						<rd-icon name="file-fill" size="60" color="#FFCA28" v-else></rd-icon>
+					</view>
+					<view class="list-right">
+						<view class="lr-top">
+							<text class="list-title" :style="{'color': skinColor.color_1}">{{item.name}}</text>
+							<rd-icon enableClick @click="showPanel(index)" class="opac-actived" v-if="item.type != 'folder'" name="more-horizontal" size="30" :color="skinColor.color_1"></rd-icon>
+						</view>
+						<view class="lr-bottom">
+							<text class="list-text" :style="{'color': skinColor.color_2}">{{item.time}}</text>
+							<text class="list-text" :style="{'color': skinColor.color_2}" v-if="item.type != 'folder'">{{item.size}}</text>
+						</view>
+					</view>
+				</view>
+			</cell>
+		</list>
+		<view class="bottom" v-if="checkes.length > 0">
+			<text class="length" :style="{color: skinColor.color_1}">已选择{{checkes.length}}个文件</text>
+			<rd-icon enableClick @click="itemsMenuShow = true" class="opac-actived" name="more-vertical" :color="skinColor.color_1"></rd-icon>
+		</view>
+		<yb-popup direction="bottom" :height="widowHeight" :visible.sync="itemMenuShow">
+			<view class="panel" :style="{'background-color': skinColor.color_bg_2}" @touchmove.stop.prevent="">
+				<text class="name" :style="{color: skinColor.color_1, 'background-color': skinColor.color_gap_1}">{{paneInfo.name}}</text>
+				<view class="tools">
+					<view class="tool" :class="skinMode + '-actived'" @tap="open(paneInfo)">
+						<rd-icon name="folder-open" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">打开</text>
+					</view>
+					<view class="tool" :class="skinMode + '-actived'" @tap="deleteFile(paneInfo.path)">
+						<rd-icon name="dustbin" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">删除</text>
+					</view>
+					<view class="tool" :class="skinMode + '-actived'" @tap="app.$business.share(paneInfo.path)">
+						<rd-icon name="share-rect" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">分享</text>
+					</view>
+					<view class="tool" :class="skinMode + '-actived'" @tap="itemMenuMoreShow = !itemMenuMoreShow">
+						<rd-icon name="more-horizontal" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">{{itemMenuMoreShow ? '关闭' : '更多'}}</text>
+					</view>
+				</view>
+				<scroll-view scroll-y="true" v-if="itemMenuMoreShow" :style="{height: itemMenus.length > 4 ? '300rpx' : 'auto'}">
+					<text class="menu-line" :class="skinMode + '-actived'"
+					:style="{color: skinColor.color_1, 'border-color': skinColor.color_gap_1}"
+					v-for="(menu, i) in itemMenus" :key="i"
+					@tap="menu.success(paneInfo)">{{menu.label}}</text>
+				</scroll-view>
+			</view>
+		</yb-popup>
+		<yb-popup direction="bottom" :height="widowHeight" :visible.sync="itemsMenuShow">
+			<view class="panel" :style="{'background-color': skinColor.color_bg_2}" @touchmove.stop.prevent="">
+				<scroll-view scroll-y="true" :style="{height: checkes.length > 6 ? '410rpx' : 'auto'}">
+					<text class="name" :style="{color: skinColor.color_1, 'background-color': skinColor.color_gap_1}" v-for="(item, index) in checkes" :key="index">{{item.name}}</text>
+				</scroll-view>
+				<view class="tools">
+					<view class="tool" :class="skinMode + '-actived'" @tap="selectAll">
+						<rd-icon class="tool-icon" name="check-all" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">{{checkes.length < fileLength ? '全选' : '全不选'}}</text>
+					</view>
+					<view class="tool" :class="skinMode + '-actived'" @tap="openFiles">
+						<rd-icon class="tool-icon" name="folder-open" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">打开</text>
+					</view>
+					<view class="tool" :class="skinMode + '-actived'" @tap="deleteFiles">
+						<rd-icon class="tool-icon" name="dustbin" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">删除</text>
+					</view>
+					<view class="tool" :class="skinMode + '-actived'" @tap="itemsMenuMoreShow = !itemsMenuMoreShow">
+						<rd-icon name="more-horizontal" size="50" :color="skinColor.color_1"></rd-icon>
+						<text class="tool-name" :style="{color: skinColor.color_1}">{{itemMenuMoreShow ? '关闭' : '更多'}}</text>
+					</view>
+				</view>
+				<scroll-view scroll-y="true" v-if="itemsMenuMoreShow" :style="{height: itemsMenus.length > 4 ? '300rpx' : 'auto'}">
+					<text class="menu-line" :class="skinMode + '-actived'"
+					:style="{color: skinColor.color_1, 'border-color': skinColor.color_gap_1}"
+					v-for="(menu, i) in itemsMenus" :key="i"
+					@tap="menu.success(checkes)">{{menu.label}}</text>
+				</scroll-view>
+			</view>
+		</yb-popup>
+	</view>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js'
+	const environment = plus.android.importClass("android.os.Environment");
+	const dom = weex.requireModule('dom');
+	let pages;
+	let page;
+	let backs;
+	export default {
+		mixins: [appMixin],
+		props: {
+			suffix: {
+				type: String,
+				default: ''
+			},
+			path: {
+				type: String,
+				default: ''
+			},
+			pageSize: {
+				type: Number | String,
+				default: 20
+			},
+			itemMenus: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			},
+			itemsMenus: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			}
+		},
+		data () {
+			return {
+				nowPath: '',
+				list: [],
+				fileList: [],
+				checkes: [],
+				fileLength: 0,
+				//扩展存储卡路径
+				SDpaths: [],
+				itemMenuShow: false,
+				itemMenuMoreShow: false,
+				paneInfo: '',
+				widowHeight: 0,
+				itemsMenuShow: false,
+				itemsMenuMoreShow: false
+			}
+		},
+		computed: {
+			compressType () {
+				return 'zip,rar,7z'
+			},
+			audioType () {
+				return 'flac,m4a,ogg,ape,amr,wma,wav,mp3,aac'
+			}
+		},
+		created () {
+			this.widowHeight = uni.getSystemInfoSync().windowHeight
+			if( environment.getExternalStorageState() !== environment.MEDIA_MOUNTED ) {
+				uni.showToast({
+					title: '没有找到SD卡',
+					icon: 'none'
+				})
+			} else {
+				//获取扩展存储卡
+				let GetSDPath = plus.android.importClass('com.itstudy.io.GetExtSDCardPathList');
+				if ( GetSDPath ) {
+					let getSDPath = new GetSDPath();
+					let pathStr = getSDPath.getSDPath();
+					this.SDpaths = JSON.parse(JSON.parse(JSON.stringify(pathStr))) || [];
+				}
+				setTimeout(() => {
+					this.getFileSystem(plus.android.newObject('java.io.File', this.path));
+				}, 300)
+			}
+		},
+		methods: {
+			//全选文件 /取消全选
+			selectAll () {
+				if ( this.checkes.length < this.fileLength ) {
+					this.checkes = [];
+					let len = this.list.length;
+					for ( let i = 0; i < len; i++ ) {
+						if ( this.list[i].type != 'folder' ) {
+							this.checkes.push(this.list[i])
+						}
+					}
+				} else {
+					this.checkes = [];
+					this.itemsMenuShow = false
+				}
+				
+			},
+			//选择文件
+			check (params) {
+				//如果为文件夹则不能选择
+				if ( params.type == 'folder') {
+					return;
+				}
+				let index = this.checkes.findIndex(item => item.path == params.path)
+				index > -1 ? this.checkes.splice(index, 1) : this.checkes.push(params)
+			},
+			//返回上级目录
+			backParent () {
+				let fd = plus.android.newObject('java.io.File', this.nowPath);
+				if ( fd != null && plus.android.invoke(fd, 'exists') ) {
+					let parent = plus.android.invoke(fd, 'getParent');
+					if ( parent ) {
+						this.getFileSystem(plus.android.newObject('java.io.File', parent));
+					} else {
+						uni.showToast({
+							icon: 'none',
+							title: '没有上级文件夹了'
+						})
+					}
+				} else {
+					this.getFileSystem();
+				}
+			},
+			//点击文件夹或文件访问
+			clickFolder (path) {
+				let index = this.list.findIndex(item => item.path == path)
+				//如果是文件夹则访问文件列表
+				if ( this.list[index].type == 'folder' ) {
+					this.getFileSystem(plus.android.newObject('java.io.File', path));
+					//如果是txt文件则进行阅读
+				} else if ( this.list[index].type != 'folder' ) {
+					this.open(this.list[index])
+				}
+			},
+			//展示操作面板
+			showPanel (index) {
+				this.itemMenuShow = true
+				this.paneInfo = this.list[index]
+			},
+			//打开文件
+			open(params) {
+				this.itemMenuShow = false
+				let file = plus.android.newObject('java.io.File', params.path)
+				if ( plus.android.invoke(file, 'exists') ) {
+					this.$emit('itemClick', params)
+				} else {
+					getApp().globalData.$nativeUI.alert({
+						content: '文件路径失效',
+						success: (res) => {
+							let index = this.list.findIndex(item => item.path == params.path)
+							if ( index > -1 ) {
+								this.list.splice(index, 1)
+								this.fileLength--
+							}
+						}
+					})
+				}
+			},
+			//删除操作
+			deleteFile (path) {
+				getApp().globalData.$nativeUI.confirm({
+					title: '提示',
+					content: '真的要删除该文件吗',
+					dark: this.skinMode == 'night',
+					success: (res) => {
+						if ( res.confirm ) {
+							this.itemMenuShow = false
+							let file = plus.android.newObject('java.io.File', path)
+							let isDeleted = plus.android.invoke(file, 'delete');
+							if ( isDeleted ) {
+								uni.showToast({
+									title: '删除成功',
+									icon: 'none'
+								})
+								let index = this.list.findIndex(item => item.path == path)
+								if ( index > -1 ) {
+									this.list.splice(index, 1)
+									this.fileLength--
+								}
+								let checkIndex = this.checkes.findIndex(item => item.path == path)
+								checkIndex > -1 ? this.checkes.splice(index, 1) : null
+							} else {
+								uni.showToast({
+									title: '删除失败',
+									icon: 'none'
+								})
+							}
+						}
+					}
+				})
+			},
+			//打开多个文件
+			openFiles () {
+				if ( this.checkes.length > 0 ) {
+					this.$emit('itemsClick', this.checkes)
+					this.checkes = []
+					this.itemsMenuShow = false
+				} else {
+					uni.showToast({
+						title: '请选择文件',
+						icon: 'none'
+					})
+				}
+			},
+			//删除多个文件
+			deleteFiles () {
+				if ( this.checkes.length > 0 ) {
+					getApp().globalData.$nativeUI.confirm({
+						title: '提示',
+						content: '确认删除选选中的' + this.checkes.length + '个文件吗',
+						dark: this.skinMode == 'night',
+						success: (res) => {
+							if ( res.confirm ) {
+								uni.showLoading({
+									title: '删除中'
+								})
+								let suc = 0;
+								let err = 0;
+								this.checkes.forEach(check => {
+									let fd = plus.android.newObject('java.io.File', check.path);
+									if (fd != null && plus.android.invoke(fd, 'exists')){
+										let isDeleted = plus.android.invoke(fd, 'delete');
+										//删除成功
+										if ( isDeleted ) {
+											suc++
+											let index = this.list.findIndex(item => item.path == check.path)
+											if ( index > -1 ) {
+												this.list.splice(index, 1)
+												this.fileLength--
+											}
+										} else {
+											//删除失败
+											err++
+										}
+										
+									} else {
+										//文件不存在
+										err++
+										let index = this.list.findIndex(item => item.path == check.path)
+										if ( index > -1 ) {
+											this.list.splice(index, 1)
+											this.fileLength--
+										}
+									}
+								})
+								if ( suc > 0 && err == 0 ) {
+									uni.showToast({
+										title: '文件全部删除成功',
+										icon: 'none'
+									})
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: suc + '个文件删除成功, ' + err + '个文件删除失败'
+									})
+								}
+								this.checkes = []
+							}
+						}
+					})
+				}
+			},
+			//前往内部存储根目录
+			goInternalRoot () {
+				this.getFileSystem();
+			},
+			//前往扩展卡根目录
+			goExtenalRoot (path) {
+				this.getFileSystem(plus.android.invoke(path));
+			},
+			//根据文件对象获取文件列表 获取文件列表 原生方法
+			// getFileSystem (ff) {
+			// 	let fd = ff && ff != null && plus.android.invoke(ff, 'exists') ? ff : environment.getExternalStorageDirectory();
+			// 	this.$emit('updatePath', plus.android.invoke(fd, 'getPath'));
+				
+			// 	let GetFileList = plus.android.importClass('com.itstudy.io.GetFileList');
+			// 	let GetDirectoryList = plus.android.importClass('com.itstudy.io.GetDirectoryList');
+			// 	if ( GetFileList && GetDirectoryList ) {
+			// 		let getFile = new GetFileList();
+			// 		let getDirectory = new GetDirectoryList();
+			// 		let fileStr = getFile.getFiles(plus.android.invoke(fd, 'getPath'), this.suffix);
+			// 		let directoryStr = getDirectory.getDirectories(plus.android.invoke(fd, 'getPath'));
+			// 		let folder = JSON.parse(JSON.parse(JSON.stringify(directoryStr)));
+			// 		let file = JSON.parse(JSON.parse(JSON.stringify(fileStr)));
+			// 		file.sort((a, b) => {
+			// 			return b.createTime - a.createTime;
+			// 		})
+			// 		this.fileLength = file.length;
+			// 		this.list = folder.concat(file);
+			// 		this.scrollTop();
+			// 		this.checkes = [];
+			// 	}
+			// },
+			//根据文件对象获取文件列表 获取文件列表 native.js方法
+			getFileSystem (ff) {
+				clearTimeout(this.fileTimer);
+				this.fileTimer = null
+				let fd = ff && ff != null && plus.android.invoke(ff, 'exists') ? ff : environment.getExternalStorageDirectory();
+				this.nowPath = plus.android.invoke(fd, 'getPath')
+				this.$emit('pathChange', this.nowPath);
+				let list = plus.android.invoke(fd, 'listFiles');
+				let fileList = [];
+				let len = list ? list.length : 0;
+				let folder = [];
+				for(let i=0; i<len; i++){
+				    // 过滤隐藏文件  
+				    if ( !plus.android.invoke(list[i], 'isHidden') ){
+						if ( plus.android.invoke(list[i], 'isDirectory') ){
+							let name = plus.android.invoke(list[i], 'getName');
+							let time = plus.android.invoke(list[i], 'lastModified');
+							folder.push({
+								name: name,
+								type: 'folder',
+								size: '0B',
+								time: getApp().globalData.$utils.dateFormat(time),
+								createTime: time,
+								path: plus.android.invoke(list[i], 'getPath')
+							})
+						} else {
+							if ( this.suffix ) {
+								if ( this.suffix.indexOf(getApp().globalData.$utils.suffix(plus.android.invoke(list[i],"getName"))) > -1 ) {
+									fileList.push(list[i]);
+								}
+							} else {
+								fileList.push(list[i]);
+							}
+						}
+				    }
+				}
+				this.list = folder;
+				this.fileList = [...fileList];
+				this.scrollTop();
+				this.checkes = [];
+				this.fileLength = 0;
+				this.loadmoreFile(0);
+			},
+			loadmoreFile (i) {
+				let file = [];
+				for ( let j = i * this.pageSize; j < (i + 1) * this.pageSize; j++ ) {
+					if ( !this.fileList[j] ) break;
+					let path = plus.android.invoke(this.fileList[j],"getPath");
+					let name = plus.android.invoke(this.fileList[j],"getName");
+					let time = plus.android.invoke(this.fileList[j],"lastModified");
+					file.push({
+						name: name,
+						type: getApp().globalData.$utils.suffix(name),
+						size: this.readFileSize(this.fileList[j]),
+						time: getApp().globalData.$utils.dateFormat(time),
+						createTime: time,
+						path: path
+					})
+				}
+				file.sort((a, b) => {
+					return b.createTime - a.createTime;
+				})
+				this.fileLength += file.length;
+				this.list = this.list.concat(file);
+				if ( i < Math.ceil(this.fileList.length / this.pageSize) - 1) {
+					this.fileTimer = setTimeout(() => {
+						this.loadmoreFile(i + 1);
+						clearTimeout(this.fileTimer)
+						this.fileTimer = null
+					}, 1000)
+				} else {
+					clearTimeout(this.fileTimer)
+					this.fileTimer = null
+				}
+			},
+			//返回顶部
+			scrollTop () {
+				dom.scrollToElement(this.$refs.listTop, {animated: false});
+			},
+			readFileSize (file) {
+			    let fileSize = plus.android.newObject("java.io.FileInputStream", file);
+				let available = plus.android.invoke(fileSize, 'available');
+				let size = available != 'null' ? available : 0;
+				let fileSizeString;
+				if(size == 0){
+					fileSizeString = "0B";
+				}else if(size < 1024){
+					fileSizeString = size + "B";
+				}else if(size < 1048576){
+					fileSizeString = (size/1024).toFixed(2) + "KB";
+				}else if (size < 1073741824){
+					fileSizeString = (size/1048576).toFixed(2) + "MB";
+				}else{
+					fileSizeString = (size/1073741824).toFixed(2) + "GB";
+				}
+				return fileSizeString;
+			}
+		},
+		beforeDestroy () {
+			clearTimeout(this.fileTimer)
+			this.fileTimer = null
+			page ? page.$vm.$options.onBackPress = backs : null
+		},
+		watch: {
+			itemMenuShow (newVal) {
+				if ( newVal ) {
+					this.itemMenuMoreShow = false
+					pages = getCurrentPages()
+					page = pages[pages.length - 1]
+					backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
+					page.$vm.$options.onBackPress = new Array(0)
+					page.$vm.$options.onBackPress.push((e) => {
+						if ( this.itemMenuShow ) {
+							this.itemMenuShow = false
+							return true
+						}
+						return false
+					})
+				} else {
+					page ? page.$vm.$options.onBackPress = backs : null
+					this.paneInfo = ''
+				}
+			},
+			itemsMenuShow (newVal) {
+				if ( newVal ) {
+					this.itemsMenuMoreShow = false
+					pages = getCurrentPages()
+					page = pages[pages.length - 1]
+					backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
+					page.$vm.$options.onBackPress = new Array(0)
+					page.$vm.$options.onBackPress.push((e) => {
+						if ( this.itemsMenuShow ) {
+							this.itemsMenuShow = false
+							return true
+						}
+						return false
+					})
+				} else {
+					page ? page.$vm.$options.onBackPress = backs : null
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.rd-file-list {
+		flex: 1;
+	}
+	.list {
+		height: 108rpx;
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+		padding-left: 15rpx;
+		padding-right: 15rpx;
+		padding-top: 15rpx;
+		padding-bottom: 15rpx;
+		flex-direction: row;
+	}
+	.list-icon {
+		justify-content: center;
+		align-items: center;
+		margin-right: 15rpx;
+		width: 75rpx;
+	}
+	.file-icon {
+		width: 75rpx;
+		height: 75rpx;
+	}
+	.list-right {
+		flex: 1;
+		justify-content: space-between;
+	}
+	.list-right-back {
+		flex-direction: row;
+		align-items: center;
+	}
+	.list-title {
+		flex: 1;
+		font-size: 30rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+		margin-right: 10rpx;
+	}
+	.lr-top {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.lr-bottom {
+		flex-direction: row;
+		justify-content: space-between;
+	}
+	.list-text {
+		font-size: 24rpx;
+	}
+	.panel {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	.panel .name {
+		text-align: center;
+		padding: 20rpx;
+		font-size: 25rpx;
+	}
+	.panel .tools {
+		flex-direction: row;
+		align-items: center;
+	}
+	.panel .tools .tool {
+		flex: 1;
+		padding: 20rpx 0;
+		justify-content: center;
+		align-items: center;
+	}
+	.panel .tools .tool .tool-icon {
+		width: 50rpx;
+		height: 50rpx;
+	}
+	.panel .tools .tool .tool-name {
+		font-size: 24rpx;
+		margin-top: 10rpx;
+		lines: 1;
+	}
+	.panel .menu-line {
+		text-align: center;
+		font-size: 28rpx;
+		border-top-width: 2rpx;
+		padding: 20rpx 0;
+	}
+	.bottom {
+		padding: 20rpx;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.bottom .length {
+		font-size: 20rpx;
+	}
+</style>

@@ -1,0 +1,196 @@
+<template>
+	<yb-popup :position="position" :popout="popout" direction="right" :width="width" :visible="visible" @hide="hide">
+		<view class="rd-catalog" :style="{'background-color': skinColor.color_bg_1}" @touchmove.stop.prevent="">
+			<yb-gap :height="windowHeight - windowWidth" v-if="topGapShow"></yb-gap>
+			<yb-nav-bar class="nav-bar" :title="'共' + catalog.length + unit" :bg-color="skinColor.color_bg_1" :front-color="skinColor.color_1"></yb-nav-bar>
+			<list ref="list" :render-whole="true" @loadmore="pullup" v-if="catalog.length > 0">
+				<header>
+					<view class="header padding-gap" :style="{'background-color': skinColor.color_gap_2}">
+						<text class="text" :style="{color: skinColor.color_3}">{{title}}</text>
+					</view>
+				</header>
+				<cell v-for="(item, index) in catalog.slice(0, max)">
+					<template v-if="item.chapter">
+						<view class="list padding-gap" :style="{'border-color': skinColor.color_gap_2}" @tap="onTap(item)">
+							<text class="text" :style="{color: skinColor.color_1}">{{item.title}}</text>
+							<rd-icon class="opac-actived icon" enableClick @click="onDelete(item)" name="dustbin" :color="skinColor.color_2" size="30" v-if="enableEdit"></rd-icon>
+							<rd-icon name="lock" class="icon" :color="skinColor.color_orange" size="30" v-if="item.payread"></rd-icon>
+							<rd-icon name="arrow-right" class="icon" :color="skinColor.color_2" size="30" v-if="!item.payread && !enableEdit"></rd-icon>
+						</view>
+					</template>
+					<template v-else>
+						<view class="column padding-gap" :style="{'border-color': skinColor.color_gap_2}">
+							<rd-image class="cover" :src="item.cover" mode="aspectFill" v-if="item.cover"></rd-image>
+							<view class="right">
+								<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+								<text class="hint" :style="{color: skinColor.color_3}" v-if="item.hint">{{item.hint}}</text>
+								<text class="desc" :style="{color: skinColor.color_2}" v-if="item.desc">{{item.desc}}</text>
+							</view>
+						</view>
+					</template>
+				</cell>
+			</list>
+			<rd-no-data :title="unit + '列表为空!'" v-else></rd-no-data>
+		</view>
+	</yb-popup>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		props: {
+			visible: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: ''
+			},
+			unit: {
+				type: String,
+				default: ''
+			},
+			catalog: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			},
+			//开启编辑功能
+			enableEdit: {
+				type: Boolean,
+				default: false
+			},
+			position: {
+				type: String,
+				default: 'fixed'
+			},
+			width: {
+				type: String | Number,
+				default: '750rpx'
+			},
+			topGapShow: {
+				type: Boolean,
+				default: false
+			}
+		},
+		data () {
+			return {
+				page: 1,
+				size: 200,
+				popout: 'auto',
+				windowWidth: 0,
+				windowHeight: 0,
+			}
+		},
+		computed: {
+			max () {
+				return this.page * this.size
+			},
+			isLastPage () {
+				return this.max >= this.catalog.length
+			}
+		},
+		created () {
+			this.windowWidth = uni.getSystemInfoSync().windowWidth
+			this.windowHeight = uni.getSystemInfoSync().windowHeight
+		},
+		methods: {
+			hide () {
+				this.$emit('update:visible', false)
+			},
+			onTap (params) {
+				if ( params.payread ) {
+					this.app.$nativeUI.alert({
+						title: '友情提示',
+						content: '该章节需要付费或VIP才能阅读',
+						dark: this.skinMode == 'night',
+						themeColor: this.skinColor.color_blue
+					})
+					return
+				}
+				this.$emit('itemClick', params)
+				this.popout = 'fade'
+				this.$emit('update:visible', false)
+				setTimeout(() => {
+					this.popout = 'auto'
+				}, 50)
+			},
+			onDelete (params) {
+				this.$emit('itemDelete', params)
+			},
+			pullup () {
+				this.page++
+				if ( !this.isLastPage ) {
+					setTimeout(() => {
+						this.$refs.list.resetLoadmore()
+					}, 100)
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.rd-catalog {
+		flex: 1;
+	}
+	.rd-catalog .header {
+		height: 50rpx;
+		flex-direction: row;
+		align-items: center;
+	}
+	.rd-catalog .header .text {
+		font-size: 22rpx;
+	}
+	.rd-catalog .list {
+		height: 88rpx;
+		flex-direction: row;
+		align-items: center;
+		border-bottom-width: 1rpx;
+	}
+	.rd-catalog .list .text {
+		font-size: 24rpx;
+		flex: 1;
+		text-overflow: ellipsis;
+		lines: 2;
+	}
+	.rd-catalog .list .icon {
+		margin-left: 10rpx;
+	}
+	.rd-catalog .column {
+		flex-direction: row;
+		align-items: flex-start;
+		margin: 10rpx 0;
+	}
+	.rd-catalog .column .cover {
+		width: 100rpx;
+		height: 165rpx;
+		margin-right: 20rpx;
+	}
+	.rd-catalog .column .right {
+		flex: 1;
+	}
+	.rd-catalog .column .title {
+		font-size: 24rpx;
+		flex: 1;
+		text-overflow: ellipsis;
+		lines: 1;
+	}
+	.rd-catalog .column .hint {
+		font-size: 20rpx;
+		margin-top: 10rpx;
+		flex: 1;
+		text-overflow: ellipsis;
+		lines: 1;
+	}
+	.rd-catalog .column .desc {
+		font-size: 22rpx;
+		margin-top: 10rpx;
+		flex: 1;
+		text-overflow: ellipsis;
+		lines: 4;
+	}
+</style>

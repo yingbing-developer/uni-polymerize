@@ -3,29 +3,37 @@ const { TIMEOUT } = Config
 
 //xhr封装
 function xhrRequest (type = 'GET', url, options) {
-	let xhrHttp = new plus.net.XMLHttpRequest();
 	return new Promise((resolve,reject) => {
-		xhrHttp.onreadystatechange = function () {
-			console.log(xhrHttp.readyState);
-			if ( xhrHttp.readyState == 4 ) {
-				if ( xhrHttp.status == 200 ) {
-					resolve({code: xhrHttp.status, data: xhrHttp.responseText})
-				} else {
-					plus.nativeUI.toast("网络错误！", {verticalAlign: 'bottom'});
-					reject({code: xhrHttp.status, data: ''});
+		let xhrHttp = new plus.net.XMLHttpRequest();
+		try {
+			xhrHttp.onreadystatechange = function () {
+				// console.log(xhrHttp.readyState);
+				if ( xhrHttp.readyState == 4 ) {
+					if ( xhrHttp.status == 200 ) {
+						resolve({code: xhrHttp.status, data: xhrHttp.responseText})
+					} else {
+						// plus.nativeUI.toast("网络错误！", {verticalAlign: 'bottom'});
+						reject({code: xhrHttp.status, data: ''});
+					}
+					xhrHttp.abort()
+					xhrHttp = null
 				}
 			}
+			xhrHttp.open(type, url);
+			if ( options.mimeType ) {
+				xhrHttp.overrideMimeType(options.mimeType);
+			}
+			xhrHttp.responseType = options.responseType || 'json';
+			for ( let i in options.headers || {} ) {
+				xhrHttp.setRequestHeader(i, options.headers[i]);
+			}
+			xhrHttp.timeout = TIMEOUT;
+			xhrHttp.send(options.params || {});
+		} catch (e) {
+			xhrHttp.abort()
+			xhrHttp = null
+			reject({code: xhrHttp.status, data: ''});
 		}
-		xhrHttp.open(type, url);
-		if ( options.mimeType ) {
-			xhrHttp.overrideMimeType(options.mimeType);
-		}
-		xhrHttp.responseType = options.responseType || 'json';
-		for ( let i in options.headers || {} ) {
-			xhrHttp.setRequestHeader(i, options.headers[i]);
-		}
-		xhrHttp.timeout = TIMEOUT;
-		xhrHttp.send(options.params || {});
 	})
 }
 

@@ -13,14 +13,14 @@ const getters = {
 }
 
 const actions = {
-	createTask ({state, rootState, dispatch}, params) {
+	createTask ({state, dispatch}, params) {
 		const Downer = require('@/assets/constructor/downer.js').default
 		state.task.push(new Downer(params))
 		const index = state.task.findIndex(task => task.parentId == params.id)
 		state.task[index].init()
 	},
 	removeTask ({state}, id) {
-		const index = state.task.findIndex(task => task.parentId == id)
+		const index = state.task.findIndex(task => task.id == id)
 		if ( index > -1 ) {
 			state.task[index].destroy()
 			state.task.splice(index, 1)

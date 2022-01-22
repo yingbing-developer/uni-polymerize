@@ -1,0 +1,54 @@
+<template>
+	<yb-action-sheet
+	:title="title"
+	:itemList="itemList"
+	:visible="visible"
+	:frontColor="skinColor.color_1"
+	:bgColor="skinColor.color_bg_2"
+	:gapColor="skinColor.color_gap_1"
+	@confirm="confirm"
+	@cancel="cancel"></yb-action-sheet>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {
+				title: '',
+				itemList: [],
+				visible: false
+			}
+		},
+		onLoad (data) {
+			this.title = decodeURIComponent(data.title)
+			this.itemList = JSON.parse(decodeURIComponent(data.itemList))
+			this.visible = true
+		},
+		methods: {
+			confirm (data) {
+				uni.$emit('action-sheet', {
+					confirm: true,
+					data: data
+				})
+			},
+			cancel () {
+				uni.$emit('action-sheet', {
+					confirm: false
+				})
+			}
+		},
+		onBackPress (event) {
+			if ( event.from == 'backbutton' ) {
+				this.visible = false
+				return true
+			}
+			return false
+		}
+	}
+</script>
+
+<style>
+
+</style>

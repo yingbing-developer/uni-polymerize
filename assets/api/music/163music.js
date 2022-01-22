@@ -8,18 +8,22 @@ import Song from '@/assets/constructor/song.js'
 import Album from '@/assets/constructor/album.js'
 import Singer from '@/assets/constructor/singer.js'
 import Asrsea from '@/assets/other/asrsea.js'
+import { getHref } from '@/assets/api/global.js'
 
 const { MUSICURL, ERR_OK, ERR_FALSE } = Config
 const { time2seconds, dateFormat } = Utils;
 
-const source = '163music';
-const href = MUSICURL[source].href;
+const source = '163music'
 
 export default {
-	/**
-	 * 搜索
-	 * @param {Object} data = {keyword: '搜索关键词', page: '搜索页数'} 
-	 **/
+/**
+* @event {Function()} search 
+* @author yingbing
+* @description 搜索
+* @param {String} keyword = [搜索关键词] 
+* @param {Number} page = [搜索页数] 
+* @return {Object}
+**/
 	search (data) {
 		let arr = [this.searchSong(data)]
 		if ( data.page[source] <= 1 ) {
@@ -45,12 +49,17 @@ export default {
 			})
 		})
 	},
-	
-	/**
-	 * 搜索音乐列表
-	 * @param {Object} data = {keyword: '搜索关键词', page: '搜索页数'} 
-	 **/
+	 
+/**
+* @event {Function()} searchSong 
+* @author yingbing
+* @description 搜索音乐列表
+* @param {String} keyword = [搜索关键词] 
+* @param {Number} page = [搜索页数] 
+* @return {Object}
+**/
 	searchSong (data) {
+		const href = getHref(source)
 		const dataValue = Asrsea({"s":data.keyword,"limit":20,"offset":(data.page[source] - 1) * 20,"type":1,"strategy":5,"queryCorrect":true}, "xNQjoijbLvYRFhCF")
 		return new Promise((resolve) => {
 			http.post('https://interface.music.163.com/weapi/search/get', {
@@ -103,11 +112,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 多重匹配
-	 * @param {Object} data = {keyword: '搜索关键词'} 
-	 **/
+/**
+* @event {Function()} multimatch 
+* @author yingbing
+* @description 多重匹配
+* @param {String} keyword = [搜索关键词] 
+* @return {Object}
+**/
 	 multimatch (data) {
+		 const href = getHref(source)
 		 const dataSync = {
 		 	keywords: data.keyword
 		 }
@@ -148,11 +161,14 @@ export default {
 		 })
 	 },
 	
-	/**
-	 * 获取热门搜索关键词
-	 *
-	 **/
+/**
+* @event {Function()} getHotKeyword 
+* @author yingbing
+* @description 获取热门搜索关键词
+* @return {Object}
+**/
 	getHotKeyword () {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/search/hot').then((res) => {
 				let list = []
@@ -180,10 +196,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取热门推荐
-	 *
-	 **/
+/**
+* @event {Function()} getRecom 
+* @author yingbing
+* @description 获取热门推荐
+* @return {Object}
+**/
 	getRecom () {
 		return new Promise((resolve) => {
 			let newArr = [];
@@ -196,29 +214,21 @@ export default {
 				hotDisc: [],
 				newSong: []
 			}
-			if ( MUSICURL[source].banner ) {
-				newArr.push(this.getBannerList());
-			}
-			if ( MUSICURL[source].singer ) {
-				newArr.push(this.getHotSinger());
-			}
-			if ( MUSICURL[source].top ) {
-				newArr.push(this.getToplist());
-			}
-			if ( MUSICURL[source].album ) {
-				newArr.push(this.getHotDiscList());
-			}
+			newArr.push(this.getBannerList());
+			newArr.push(this.getHotSinger());
+			newArr.push(this.getToplist());
+			newArr.push(this.getHotDiscList());
 			Promise.all(newArr).then((ress) => {
-				ress.forEach((res, key) => {
+				ress.forEach(res => {
 					if ( res.code == ERR_OK ) {
-						switch (key) {
-							case 0:
+						switch (res.data.module) {
+							case 'BANNER':
 								recome.banners = res.data.list
 								break;
-							case 1:
+							case 'HOT_SINGER':
 								recome.hotSinger = res.data.list
 								break;
-							case 2:
+							case 'TOP':
 								recome.topList = res.data.list
 								break;
 							default:
@@ -245,11 +255,14 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取轮播图列表
-	 *
-	 **/
+/**
+* @event {Function()} getBannerList 
+* @author yingbing
+* @description 获取轮播图列表
+* @return {Object}
+**/
 	getBannerList () {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/banner', {
 				params: {
@@ -300,6 +313,7 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						module: 'BANNER',
 						source: source
 					}
 				})
@@ -308,6 +322,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'BANNER',
 						source: source
 					}
 				})
@@ -315,11 +330,14 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取排行榜
-	 *
-	 **/
+/**
+* @event {Function()} getToplist 
+* @author yingbing
+* @description 获取排行榜
+* @return {Object}
+**/
 	getToplist () {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/toplist').then((res) => {
 				let list = []
@@ -341,6 +359,7 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						module: 'TOP',
 						source: source
 					}
 				})
@@ -349,6 +368,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'TOP',
 						source: source
 					}
 				})
@@ -356,10 +376,13 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取排行榜详情
-	 * @param {Object} data = {id: 排行榜id} 
-	 **/
+/**
+* @event {Function()} getTopDetail 
+* @author yingbing
+* @description 获取排行榜详情
+* @param {String} id = [排行榜id] 
+* @return {Object}
+**/
 	getTopDetail (data) {
 		return new Promise((resolve) => {
 			this.getDiscDetail({
@@ -384,11 +407,14 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取最新歌曲
-	 * 
-	 **/
+/**
+* @event {Function()} getNewSongList 
+* @author yingbing
+* @description 获取最新歌曲
+* @return {Object}
+**/
 	getNewSongList () {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/top/song', {
 				params: {
@@ -434,10 +460,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取新碟类型
-	 *
-	 **/
+/**
+* @event {Function()} getNewAlbumType 
+* @author yingbing
+* @description 获取新碟类型
+* @return {Object}
+**/
 	getNewAlbumType() {
 		return new Promise((resolve) => {
 			const list = [{
@@ -471,11 +499,16 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取上架新碟
-	 * 
-	 **/
+/**
+* @event {Function()} getNewAlbumList 
+* @author yingbing
+* @description 获取上架新碟
+* @param {String} typeId = [分类id] 
+* @param {Number} page = [请求当前页] 
+* @return {Object}
+**/
 	getNewAlbumList (data) {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/album/new', {
 				params: {
@@ -526,10 +559,13 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取专辑详情
-	 * @param {Object} data = {id: 专辑id} 
-	 **/
+/**
+* @event {Function()} getAlbumDetail 
+* @author yingbing
+* @description 获取专辑详情
+* @param {String} id = [专辑id] 
+* @return {Object}
+**/
 	getAlbumDetail (data) {
 		const dataValue = Asrsea({}, "GGUrx9xMnkNBwqd7")
 		return new Promise((resolve) => {
@@ -582,10 +618,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌手类型
-	 *
-	 **/
+/**
+* @event {Function()} getSingerType 
+* @author yingbing
+* @description 获取歌手类型
+* @return {Object}
+**/
 	getSingerType() {
 		return new Promise((resolve) => {
 			const list = [{
@@ -619,11 +657,14 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取热门歌手
-	 *
-	 **/
+/**
+* @event {Function()} getHotSinger 
+* @author yingbing
+* @description 获取热门歌手
+* @return {Object}
+**/
 	getHotSinger () {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/top/artists', {
 				params: {
@@ -646,6 +687,7 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						module: 'HOT_SINGER',
 						source: source
 					}
 				})
@@ -654,6 +696,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'HOT_SINGER',
 						source: source
 					}
 				})
@@ -661,11 +704,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌手
-	 * @param {Object} data = {area: 地区} 
-	 **/
+/**
+* @event {Function()} getSinger 
+* @author yingbing
+* @description 获取歌手
+* @param {String} area = [地区] 
+* @return {Object}
+**/
 	getSinger (data) {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/artist/list', {
 				params: {
@@ -706,11 +753,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌手详情
-	 * @param {Object} data = {area: 地区} 
-	 **/
+/**
+* @event {Function()} getSingerDetail 
+* @author yingbing
+* @description 获取歌手详情
+* @param {String} id = [歌手id] 
+* @return {Object}
+**/
 	getSingerDetail (data) {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/artists', {
 				params: {
@@ -757,11 +808,14 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌单分类
-	 *
-	 **/
+/**
+* @event {Function()} getDiscType 
+* @author yingbing
+* @description 获取歌单分类
+* @return {Object}
+**/
 	getDiscType (data) {
+		const href = getHref(source)
 		return new Promise((resolve) => {
 			http.get(href + '/playlist/catlist').then((res) => {
 				let list = []
@@ -800,10 +854,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取热门歌单
-	 *
-	 **/
+/**
+* @event {Function()} getHotDiscList 
+* @author yingbing
+* @description 获取热门歌单
+* @return {Object}
+**/
 	getHotDiscList () {
 		return new Promise((resolve) => {
 			this.getDiscList({
@@ -816,6 +872,7 @@ export default {
 					code: res.code,
 					data: {
 						list: res.data.list,
+						module: 'HOT_DISC',
 						source: source
 					}
 				})
@@ -824,6 +881,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'HOT_DISC',
 						source: source
 					}
 				})
@@ -831,14 +889,18 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌单
-	 * @param {Object} data = {参数} 
-	 * @param {String} order = {new or hot} 
-	 * @param {Number} limit = {请求数量} 
-	 * @param {String} cat = {分类} 
-	 **/
+/**
+* @event {Function()} getDiscList 
+* @author yingbing
+* @description 获取歌单
+* @param {String} order = [排序] 
+* @param {String} typeId = [分类id] 
+* @param {Number} limit = [每页请求数量] 
+* @param {Number} page = [请求当前页] 
+* @return {Object}
+**/
 	getDiscList (data) {
+		const href = getHref(source)
 		const limit = data.limit || 50
 		return new Promise((resolve) => {
 			http.get(href + '/top/playlist', {
@@ -889,10 +951,13 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌单详情
-	 * @param {Object} data = {id: 歌单id} 
-	 **/
+/**
+* @event {Function()} getDiscDetail 
+* @author yingbing
+* @description 获取歌单详情
+* @param {String} id = [歌单id] 
+* @return {Object}
+**/
 	getDiscDetail (data) {
 		const dataValue = Asrsea({"id": data.id,"n":1000,"shareUserId":0}, "avNrNiiiQqgFTkg3")
 		return new Promise((resolve) => {
@@ -945,11 +1010,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取播放链接
-	 * @param {Object} data = {id: '音乐ID'} 
-	 **/
+/**
+* @event {Function()} getPlayUrl 
+* @author yingbing
+* @description 获取播放链接
+* @param {String} id = [音乐id] 
+* @return {Object}
+**/
 	getPlayUrl (data) {
+		const href = getHref(source)
 		const dataSync = {
 			id: data.id
 		}
@@ -982,11 +1051,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌词
-	 * @param {Object} data = {id: '歌词ID'} 
-	 **/
+/**
+* @event {Function()} getLyric 
+* @author yingbing
+* @description 获取歌词
+* @param {String} id = [歌词id] 
+* @return {Object}
+**/
 	getLyric (data) {
+		const href = getHref(source)
 		const dataSync = {
 			id: data.id
 		}
@@ -1026,10 +1099,15 @@ export default {
 			})
 		})
 	},
-	/**
-	 * 获取评论列表
-	 * @param {Object} data = {id: 歌单id} 
-	 **/
+	
+/**
+* @event {Function()} getComment 
+* @author yingbing
+* @description 获取评论列表
+* @param {String} id = [评论id] 
+* @param {Number} page = [请求当前页] 
+* @return {Object}
+**/
 	getComment (data) {
 		const dataValue = Asrsea({"rid":data.id,"threadId":data.id,"pageNo": data.page,"pageSize":"20","cursor":"1638966725671","offset": (data.page - 1 ) * 20,"orderType":"1","csrf_token":""}, "1yhgKF2pMaAlYNcX")
 		return new Promise((resolve) => {

@@ -1,0 +1,39 @@
+<template>
+	<view class="rd-no-data" :style="{top: top}">
+		<yb-no-data :title="title" :src="src" :color="color"></yb-no-data>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			title: {
+				type: String,
+				default: '暂无数据'
+			},
+			src: {
+				type: String,
+				default: '/static/no-data.png'
+			},
+			top: {
+				type: Number | String,
+				default: 0
+			},
+			color: {
+				type: String,
+				default: '#666666'
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.rd-no-data {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

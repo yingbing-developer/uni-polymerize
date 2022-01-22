@@ -1,5 +1,7 @@
+//单曲
+
 export default class Song {
-	constructor({title, songId, lyricId, commentId, src, lyric, cover, singer, desc, payplay, playnum, extra, source }) {
+	constructor({title, songId, lyricId, commentId, src, lyric, cover, singer, desc, payplay, playnum, style, tag, extra, source }) {
 		this.id = (songId || '') + '_' + source
 	  	this.title = title//名称
 	  	this.songId = songId || '',//歌曲ID
@@ -12,6 +14,8 @@ export default class Song {
 	  	this.desc = desc || ''//介绍
 	  	this.payplay = payplay || false//是否需要支付播放
 	  	this.playnum = playnum || 0//播放次数
+		this.style = style || ''//风格
+		this.tag = tag || []//标签
 	  	this.extra = extra || {}//附加字段
 	  	this.type = 'song'//单曲类型
 	  	this.source = source//来源

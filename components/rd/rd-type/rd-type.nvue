@@ -1,5 +1,5 @@
 <template>
-	<view class="rd-type">
+	<view class="rd-type" :style="{'margin-top': gap, 'margin-bottom': gap}">
 		<view class="hr" :style="{'background-color': skinColor.color_3}"></view>
 		<text class="type-title" :style="{color: skinColor.color_3}"> {{title}} </text>
 		<view class="hr" :style="{'background-color': skinColor.color_3}"></view>
@@ -14,6 +14,10 @@
 			title: {
 				type: String,
 				default: ''
+			},
+			gap: {
+				type: Number | String,
+				default: '60rpx'
 			}
 		}
 	}
@@ -27,11 +31,10 @@
 	}
 	.rd-type .hr {
 		width: 150rpx;
-		height: 1rpx;
+		height: 2rpx;
 	}
 	.type-title {
 		text-align: center;
-		padding: 60rpx 0;
 		font-size: 30rpx;
 	}
 </style>

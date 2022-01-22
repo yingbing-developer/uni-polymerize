@@ -1,10 +1,11 @@
 <template>
-	<view class="music" :style="{'background-color': skinColor.color_bg_1}">
-		<template v-if="!loading">
-			<list class="list">
-				<yb-pulldown ref="pulldown" :color="skinColor.color_1" @pulldown="pulldown"></yb-pulldown>
+	<yb-page-anime ref="ybPageAnime" tabbar :bgColor="skinColor.color_bg_1">
+		<list class="list">
+			<yb-pulldown ref="pulldown" :color="skinColor.color_1" @pulldown="pulldown"></yb-pulldown>
+			<template v-if="!error">
 				<cell>
 					<swiper
+					v-if="banners.length > 0"
 					:style="{'height': (statusBarHeight + 150) + 'px'}"
 					class="ad-swiper"
 					circular
@@ -33,8 +34,8 @@
 				
 				<!-- 音乐模块 -->
 				<cell v-for="(module, i) in modules" :key="i">
-					<template v-if="module.hotTop.length > 0 || module.hotSinger.length > 0">
-						<view class="padding-gap" v-if="module.hotSinger.length > 0">
+					<template>
+						<view class="padding-gap">
 							<rd-title :title="module.title" moreText="更多"
 							@more="app.$Router.push({
 								path: '/pages/music/more',
@@ -42,7 +43,7 @@
 									module: encodeURIComponent(JSON.stringify(module))
 								}
 							})"></rd-title>
-							<yb-grid :data="module.hotSinger" :count="4" :column="4">
+							<yb-grid :data="module.hotSinger" :count="4" :column="4" v-if="module.hotSinger.length > 0">
 								<template v-slot="{gridItem}">
 									<view class="singer" @tap="goDetail(gridItem.detail)">
 										<rd-image lazyLoad border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
@@ -68,14 +69,16 @@
 						</view>
 						
 						<!-- 推荐歌单 -->
-						<rd-type title="推荐歌单"></rd-type>
-						<view class="cell-item_1 padding-gap" v-for="(item, index) in module.hotDisc.slice(0, 3)" :key="index" @tap="goDetail(item)">
-							<rd-image lazyLoad border-radius="12" class="cover" :src="item.cover"></rd-image>
-							<view class="info">
-								<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-								<text class="label" :style="{color: skinColor.color_3}">{{item.creator}}</text>
+						<template v-if=" module.hotDisc.length > 0">
+							<rd-type title="推荐歌单"></rd-type>
+							<view class="cell-item_1 padding-gap" v-for="(item, index) in module.hotDisc.slice(0, 3)" :key="index" @tap="goDetail(item)">
+								<rd-image lazyLoad border-radius="12" class="cover" :src="item.cover"></rd-image>
+								<view class="info">
+									<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+									<text class="label" :style="{color: skinColor.color_3}">{{item.creator}}</text>
+								</view>
 							</view>
-						</view>
+						</template>
 						<view class="newAlbum" :style="{'border-color': skinColor.color_gap_1}" v-if="MUSICURL[module.source].newSong">
 							<view class="newAlbum-center"
 							@tap="app.$Router.push({
@@ -93,10 +96,17 @@
 						</view>
 					</template>
 				</cell>
-			</list>
-		</template>
-		<yb-list-loading :color="skinColor.color_3" v-else size="70" title="加载中"></yb-list-loading>
-	</view>
+			</template>
+			<template v-else>
+				<cell>
+					<view :style="{position: 'relative', height: windowHeight + 'px'}">
+						<rd-no-data :color="skinColor.color_3" v-if="error" title="还没有查找到数据"></rd-no-data>
+					</view>
+				</cell>
+			</template>
+		</list>
+		<yb-list-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></yb-list-loading>
+	</yb-page-anime>
 </template>
 
 <script>
@@ -106,9 +116,11 @@
 		data () {
 			return {
 				statusBarHeight: 0,
+				windowHeight: 0,
 				modules: [],//音乐模块展示
 				banners: [],
 				loading: true,
+				error: false
 			}
 		},
 		computed: {
@@ -118,8 +130,10 @@
 		},
 		onLoad () {
 			this.statusBarHeight = uni.getSystemInfoSync().statusBarHeight
+			this.windowHeight = uni.getSystemInfoSync().windowWidth
 			this.getRecome().then(status => {
-				status ? this.loading = false : null
+				this.loading = false
+				!status ? this.error = true : null
 			})
 		},
 		onShow () {
@@ -128,7 +142,13 @@
 		methods: {
 			pulldown () {
 				this.getRecome().then(status => {
-					status ? this.$refs.pulldown.success() : this.$refs.pulldown.fail()
+					if ( status ) {
+						this.$refs.pulldown.success()
+						this.error = false
+					} else {
+						this.$refs.pulldown.fail()
+						this.error = true
+					}
 				})
 			},
 			async getRecome () {
@@ -141,12 +161,16 @@
 							module.banners.forEach(banner => {
 								banners.push(banner)
 							})
-							const hotTop = module.topList.filter(top => top.title.length < 6)
-							module.hotTop = hotTop.slice(0, 7)
-							module.hotTop.push({
-								title: '更多',
-								source: res.data.source
-							})
+							if ( module.topList.length > 0 ) {
+								const hotTop = module.topList.filter(top => top.title.length < 6)
+								module.hotTop = hotTop.slice(0, 7)
+								module.hotTop.push({
+									title: '更多',
+									source: res.data.source
+								})
+							} else {
+								module.hotTop = []
+							}
 							modules.push(module)
 						}
 					})

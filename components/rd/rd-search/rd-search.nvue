@@ -1,20 +1,20 @@
 <template>
 	<view class="search" :style="{'background-color': skinColor.color_bg_1}">
 		<yb-gap-bar></yb-gap-bar>
-		<view class="search-box">
-			<rd-icon enableClick class="back opac-actived" name="arrow-left" size="50" :color="skinColor.color_1" @click="app.$Router.back()"></rd-icon>
+		<view class="search-box padding-gap">
 			<view class="search-left" :style="{'background-color': skinColor.color_gap_1}">
 				<rd-icon name="search" :color="skinColor.color_1" size="35"></rd-icon>
 				<input class="input" type="text" :placeholder="placeholder" v-model="keyword" :style="{'color': skinColor.color_1}" />
 				<rd-icon v-if="keyword" enableClick class="opac-actived" name="fork-circle-fill" :color="skinColor.color_3" size="35" @click="changeKeyword('')"></rd-icon>
 			</view>
+			<text class="cancel opac-actived" @tap="app.$Router.back()" :style="{color: skinColor.color_1}">取消</text>
 		</view>
 		<view class="wrapper">
 			<list>
-				<cell>
-					<yb-gap></yb-gap>
-				</cell>
 				<template v-if="keywords.length > 0">
+					<cell>
+						<yb-gap></yb-gap>
+					</cell>
 					<rd-header title="热门搜索"></rd-header>
 					<cell>
 						<view class="title padding-gap">
@@ -29,23 +29,27 @@
 						</view>
 					</cell>
 				</template>
-				<rd-header title="搜索历史"></rd-header>
-				<cell v-if="recordsSync.length > 0">
-					<yb-gap></yb-gap>
-					<view class="title padding-gap">
-						<text class="title-text" :style="{'color': skinColor.color_3}">搜索历史</text>
-						<rd-icon enableClick class="opac-actived" name="dustbin" size="30" :color="skinColor.color_3" @click="clearRecord"></rd-icon>
-					</view>
-					<view class="records padding-gap">
-						<view class="record"
-						:style="{'border-color': skinColor.color_gap_1}"
-						v-for="(item, index) in recordsSync" :key="index"
-						@tap="changeKeyword(item.title)">
-							<text class="record-text" :style="{'color': skinColor.color_2}">{{item.title}}</text>
-							<rd-icon enableClick class="opac-actived" size="38" name="fork" :color="skinColor.color_2" @click="removeRecord(item)"></rd-icon>
+				<template v-if="recordsSync.length > 0">
+					<cell>
+						<yb-gap></yb-gap>
+					</cell>
+					<rd-header title="搜索历史"></rd-header>
+					<cell>
+						<view class="title padding-gap">
+							<text class="title-text" :style="{'color': skinColor.color_3}">搜索历史</text>
+							<rd-icon enableClick class="opac-actived" name="dustbin" size="30" :color="skinColor.color_3" @click="clearRecord"></rd-icon>
 						</view>
-					</view>
-				</cell>
+						<view class="records padding-gap">
+							<view class="record"
+							:style="{'border-color': skinColor.color_gap_1}"
+							v-for="(item, index) in recordsSync" :key="index"
+							@tap="changeKeyword(item.title)">
+								<text class="record-text" :style="{'color': skinColor.color_2}">{{item.title}}</text>
+								<rd-icon enableClick class="opac-actived" size="38" name="fork" :color="skinColor.color_2" @click="removeRecord(item)"></rd-icon>
+							</view>
+						</view>
+					</cell>
+				</template>
 			</list>
 			<slot></slot>
 		</view>
@@ -137,8 +141,8 @@
 		font-size: 28rpx;
 		margin-left: 20rpx;
 	}
-	.search-box .back {
-		margin-right: 10rpx;
+	.search-box .cancel {
+		font-size: 28rpx;
 	}
 	
 	.wrapper {

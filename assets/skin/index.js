@@ -9,7 +9,9 @@ const colors = {
 	color_blue: '#2ca2f9',
 	color_white: '#FAFAFA',
 	color_black: '#191919',
-	color_orange: '#ff962f'
+	color_orange: '#ff962f',
+	color_yellow: '#FFCA28',
+	color_cyan: '#16c2c2'
 }
 
 Object.keys(colors).forEach(key => {

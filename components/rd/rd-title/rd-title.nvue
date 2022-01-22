@@ -1,6 +1,6 @@
 <template>
 	<view class="title">
-		<text class="title-name" :style="{color: skinColor.color_1}">{{title}}</text>
+		<text class="title-name" :style="{color: skinColor.color_1, 'font-size': titleSize + 'rpx'}">{{title}}</text>
 		<view class="more opac-actived" @tap="more" v-if="moreShow">
 			<text class="more-text" :style="{color: skinColor.color_2}">{{moreText}}</text>
 			<rd-icon name="arrow-right" :color="skinColor.color_2"></rd-icon>
@@ -16,6 +16,10 @@
 			title: {
 				type: String,
 				default: ''
+			},
+			titleSize: {
+				type: String | Number,
+				default: 32
 			},
 			moreShow: {
 				type: Boolean,
@@ -43,7 +47,6 @@
 	}
 	.title .title-name {
 		font-weight: bold;
-		font-size: 32rpx;
 	}
 	.title .more {
 		flex-direction: row;

@@ -1,7 +1,7 @@
 import { COLLECTION } from '../config.js'
 
 const state = {
-	collection: uni.getStorageSync(COLLECTION) || [] //图片临时文件存放
+	collection: uni.getStorageSync(COLLECTION) || [] //收藏列表
 }
 
 const getters = {
@@ -18,10 +18,10 @@ const mutations = {
 }
 
 const actions = {
-	addCollection ({state, commit}, obj) {
+	addCollection ({state, commit}, params) {
 		const list = [...state.collection]
-		const index = list.findIndex(item => item.id == obj.id)
-		index > -1 ? list[index] = obj : list.push(obj)
+		const index = list.findIndex(item => item.id == params.id)
+		index > -1 ? list[index] = params : list.push(params)
 		commit('setCollection', list)
 	},
 	removeCollection ({state, commit}, id) {

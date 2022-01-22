@@ -64,18 +64,46 @@
 				})
 			},
 			async getComment () {
-				return await getApp().globalData.$api.music.getComment({
-					id: this.params.commentId,
-					page: this.currentPage,
-					source: this.params.source,
-					extra: this.params.extra
-				}).then((res) => {
-					return {
-						list: res.data.list,
-						currentPage: res.data.currentPage,
-						isLastPage: res.data.isLastPage
-					}
-				})
+				if ( Object.keys(this.MUSICURL).indexOf(this.params.source) > -1 ) {
+					return await getApp().globalData.$api.music.getComment({
+						id: this.params.commentId,
+						page: this.currentPage,
+						source: this.params.source,
+						extra: this.params.extra
+					}).then((res) => {
+						return {
+							list: res.data.list,
+							currentPage: res.data.currentPage,
+							isLastPage: res.data.isLastPage
+						}
+					})
+				} else if ( Object.keys(this.BOOKURL).indexOf(this.params.source) > -1 ) {
+					return await getApp().globalData.$api.book.getComment({
+						id: this.params.commentId,
+						page: this.currentPage,
+						source: this.params.source,
+						extra: this.params.extra
+					}).then((res) => {
+						return {
+							list: res.data.list,
+							currentPage: res.data.currentPage,
+							isLastPage: res.data.isLastPage
+						}
+					})
+				} else {
+					return await getApp().globalData.$api.comic.getComment({
+						id: this.params.commentId,
+						page: this.currentPage,
+						source: this.params.source,
+						extra: this.params.extra
+					}).then((res) => {
+						return {
+							list: res.data.list,
+							currentPage: res.data.currentPage,
+							isLastPage: res.data.isLastPage
+						}
+					})
+				}
 			},
 			hide () {
 				getApp().globalData.$Router.back()

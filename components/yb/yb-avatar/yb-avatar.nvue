@@ -1,0 +1,74 @@
+<template>
+	<view class="yb-avatar" @tap="ontap" :style="{
+		width: size + 'rpx',
+		height: size + 'rpx',
+		'border-radius': size + 'rpx',
+		'background-color': '#fff'
+	}">
+		<view class="circle_1" :style="{
+			width: (size / 3) + 'rpx',
+			height: (size / 3) + 'rpx',
+			'border-radius': (size / 3) + 'rpx',
+			'background-color': '#eee',
+			top: ((size / 2) - (size / 4)) + 'rpx',
+			left: ((size / 2) - (size / 6)) + 'rpx'
+		}"></view>
+		<view class="circle_2" :style="{
+			width: (size / 1.5) + 'rpx',
+			height: (size / 1.5) + 'rpx',
+			'border-radius': (size / 1.5) + 'rpx',
+			'background-color': '#eee',
+			bottom: -(size / 3) + 'rpx',
+			left: ((size / 2) - (size / 3)) + 'rpx'
+		}"></view>
+		<image class="cover" :lazy-load="lazyLoad" :src="src" mode="aspectFill"></image>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			size: {
+				type: String | Number,
+				default: 100
+			},
+			src: {
+				type: String,
+				default: ''
+			},
+			lazyLoad: {
+				type: Boolean,
+				default: false
+			},
+			enablePreview: {
+				type: Boolean,
+				default: false
+			}
+		},
+		methods: {
+			ontap () {
+				if ( this.enablePreview ) {
+					uni.previewImage({
+						urls: [this.src]
+					})
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-avatar {
+		position: relative;
+	}
+	.yb-avatar .circle_1, .yb-avatar .circle_2 {
+		position: absolute;
+	}
+	.yb-avatar .cover {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+</style>

@@ -165,7 +165,7 @@ export default {
 	 * 去除html字符串的无关内容
 	 * @param {Number} html html字符串
 	*/
-	replaceStr (html) {
+	replaceHTML (html) {
 		let str = JSON.stringify(html);//将html转化为字符
 		str = str.replace(/\\n/g,'');//去除\n
 		str = str.replace(/\\r/g,'');//去除\r
@@ -186,6 +186,26 @@ export default {
 		const b = parseInt(hex.slice(5,7),16).toString();   //ff
 		str += r+","+g+","+b+")";
 		return str
+	},
+	
+	/**
+	 * byte转化为文件大小
+	 * @param {Number} byte 位
+	*/
+	byte2Size (byte) {
+		let sizeString = ''
+		if(byte == 0){
+			sizeString = "0B";
+		}else if(byte < 1024){
+			sizeString = byte + "B";
+		}else if(byte < 1048576){
+			sizeString = (byte/1024).toFixed(2) + "KB";
+		}else if (byte < 1073741824){
+			sizeString = (byte/1048576).toFixed(2) + "MB";
+		}else{
+			sizeString = (byte/1073741824).toFixed(2) + "GB";
+		}
+		return sizeString;
 	},
 	
 	// 深度克隆

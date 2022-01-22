@@ -79,7 +79,7 @@
 					<view class="control-box">
 					</view>
 					<view class="control-box">
-						<rd-icon v-if="isCache(song ? song.id : null)" enableClick @click="toShare" name="share-rect" size="50" :color="skinColor.color_white"></rd-icon>
+						<rd-icon v-if="isCache(song ? song.id : null) || (song ? song.source == 'local' : false)" enableClick @click="toShare" name="share-rect" size="50" :color="skinColor.color_white"></rd-icon>
 						<rd-icon v-else enableClick @click="toDownload" name="download" size="50" :color="skinColor.color_white"></rd-icon>
 					</view>
 					<view class="control-box">
@@ -194,9 +194,13 @@
 			},
 			toShare () {
 				if ( this.song ) {
-					const caches = this.$store.getters['cache/getCache']
-					const index = caches.findIndex(cache => cache.parentId == this.song.id)
-					index > -1 ? this.app.$business.share(caches[index].src) : null
+					if ( this.song.source == 'local' ) {
+						this.app.$business.share(this.song.src)
+					} else {
+						const caches = this.$store.getters['cache/getCache']
+						const index = caches.findIndex(cache => cache.parentId == this.song.id)
+						index > -1 ? this.app.$business.share(caches[index].src) : null
+					}
 				}
 			},
 			show () {
@@ -443,7 +447,7 @@
 		flex: 1;
 	}
 	.player .lyric-lines {
-		margin: 30rpx 0 100rpx 0;
+		margin: 30rpx 0 60rpx 0;
 		opacity: 0;
 	}
 	.player .cd {
@@ -516,6 +520,8 @@
 		text-align: center;
 		font-size: 30rpx;
 		margin: 10rpx 0;
+		lines: 3;
+		text-overflow: ellipsis;
 	}
 	.player .no-lyric {
 		flex: 1;

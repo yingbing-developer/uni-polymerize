@@ -1,3 +1,5 @@
+//原生组件使用颜色
+
 export default {
 	'light': {
 		bg: '#FFFFFF',
@@ -12,5 +14,14 @@ export default {
 		gap: '#191919',
 		text: '#8a8a8a',
 		text_2: '#888888'
+	},
+	'waring': {
+		text: '#FCC121'
+	},
+	'success': {
+		text: '#21C088'
+	},
+	'error': {
+		text: '#FF3B30'
 	}
 }

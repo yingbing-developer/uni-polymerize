@@ -27,7 +27,12 @@ const actions = {
 	addHistory ({state, commit}, history) {
 		const histories = [...state.history]
 		const index = histories.findIndex(his => his.title == history.title && history.type == his.type)
-		index == -1 ? histories.push(history) : histories.splice(index, 1) && histories.push(history)
+		if ( index > -1 ) {
+			histories.splice(index, 1)
+			histories.push(history)
+		} else {
+			histories.push(history)
+		}
 		commit('setHistory', histories)
 	},
 	//移除指定搜索历史

@@ -1,0 +1,296 @@
+<template>
+	<view class="read-menu" :style="{
+		position: 'relative',
+		flex: 1,
+		transform: $store.getters['reader/getDirection'] == 'vertical' ? 'rotateZ(0)' : 'rotateZ(90deg)',
+		width: $store.getters['reader/getDirection'] == 'vertical' ? windowWidth + 'px' : windowHeight + 'px'
+	}">
+		<yb-mask color="rgba(0,0,0,0)" @click="show = false"></yb-mask>
+		<!-- 顶部 -->
+		<yb-popup position="absolute" hideMask direction="top" :height="navHeight" :visible="show" @hide="hide">
+			<yb-nav-bar ref="navbar" :bgColor="skinColor.color_black" :frontColor="skinColor.color_white" :title="title" />
+		</yb-popup>
+		<!-- 底部设置 -->
+		<yb-popup position="absolute" hideMask direction="bottom" :height="windowHeight - navHeight" :visible="show">
+			<view class="board padding-gap" :style="{'background-color': skinColor.color_black}" @touchmove.stop.prevent="">
+				<view class="progress">
+					<rd-icon enableClick @click="prevPage" class="opac-actived" name="arrow-left-circle" size="35" :color="skinColor.color_white"></rd-icon>
+					<yb-progress class="center" itemShow disabled :height="4" :itemSize="20" :activeColor="skinColor.color_red" :value="record.progress"></yb-progress>
+					<rd-icon  enableClick @click="nextPage" class="opac-actived" name="arrow-right-circle" size="35" :color="skinColor.color_white"></rd-icon>
+				</view>
+				<view class="menus">
+					<view class="menu opac-actived" @tap="chapterShow = true">
+						<rd-icon class="icon" name="catalog" size="45" :color="skinColor.color_white"></rd-icon>
+						<text class="label" :style="{color: skinColor.color_white}">章节</text>
+					</view>
+					<view class="menu opac-actived" @tap="$store.dispatch('reader/changeDirection', $store.getters['reader/getDirection'] == 'vertical' ? 'horizontal' : 'vertical')">
+						<rd-icon class="icon" :name="$store.getters['reader/getDirection'] == 'vertical' ? 'screen-horizontal' : 'screen-vertical'" size="38" :color="skinColor.color_white"></rd-icon>
+						<text class="label" :style="{color: skinColor.color_white}">{{$store.getters['reader/getDirection'] == 'vertical' ? '横屏' : '竖屏'}}</text>
+					</view>
+					<view class="menu opac-actived" @tap="changeSkin">
+						<rd-icon class="icon" :name="skinMode == 'night' ? 'sun' : 'moon'" size="35" :color="skinColor.color_white"></rd-icon>
+						<text class="label" :style="{color: skinColor.color_white}">{{skinMode == 'night' ? '日间' : '夜间'}}</text>
+					</view>
+				</view>
+				<yb-gap></yb-gap>
+			</view>
+		</yb-popup>
+		<yb-popup hideMaskColor direction="bottom" :height="windowHeight - navHeight" :visible.sync="settingShow">
+			<view class="board setting" :style="{'background-color': skinColor.color_black}" @touchmove.stop.prevent="">
+				<view class="line">
+					<text class="label" :style="{color: skinColor.color_white}">字号</text>
+					<view class="right">
+						<view class="btn" @tap="downFontSize" :style="{'border-color': skinColor.color_white}">
+							<rd-icon name="font-down" size="30" :color="skinColor.color_white"></rd-icon>
+						</view>
+						<text class="text" :style="{color: skinColor.color_white}">{{fontSize}}</text>
+						<view class="btn" @tap="upFontSize" :style="{'border-color': skinColor.color_white}">
+							<rd-icon name="font-up" size="30" :color="skinColor.color_white"></rd-icon>
+						</view>
+					</view>
+				</view>
+				<view class="line">
+					<text class="label" :style="{color: skinColor.color_white}">排版</text>
+					<view class="right">
+						<view class="gap"
+						v-for="(item, index) in gap" :key="index"
+						:style="{'border-color': lineHeight == item.value ? skinColor.color_orange : skinColor.color_white}"
+						@tap="$store.dispatch('reader/changeLineHeight', item.value)">
+							<view class="w" v-for="(len, i) in item.length" :key="i">
+								<view class="h"
+								:style="{'background-color': lineHeight == item.value ? skinColor.color_orange : skinColor.color_white}"></view>
+								<yb-gap :height="(10 - item.length) + 'rpx'" v-if="i < (item.length - 1)"></yb-gap>
+							</view>
+						</view>
+					</view>
+				</view>
+				<view class="line">
+					<text class="label" :style="{color: skinColor.color_white}">翻页</text>
+					<view class="right">
+						<view class="btn"
+						@tap="$store.dispatch('reader/changePageType', item.value)"
+						v-for="(item, index) in pageTypes" :key="index"
+						:style="{
+							'border-color': item.value == pageType ? skinColor.color_orange : skinColor.color_white,
+							'margin-bottom': '20rpx',
+							'margin-right': '10rpx'
+						}">
+							<text class="text"
+							:style="{
+								color: item.value == pageType ? skinColor.color_orange : skinColor.color_white
+							}">{{item.label}}</text>
+						</view>
+					</view>
+				</view>
+				<yb-gap height="60rpx"></yb-gap>
+			</view>
+		</yb-popup>
+		<rd-catalog
+		position="absolute"
+		:topGapShow="$store.getters['reader/getDirection'] != 'vertical'"
+		@item-click="changePage"
+		:visible.sync="chapterShow"
+		:catalog="reader.chapters" :title="reader.book.title" unit="章节"></rd-catalog>
+	</view>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js'
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {
+				show: false,
+				windowHeight: 0,
+				windowWidth: 0,
+				navHeight: 0,
+				chapterShow: false,
+				settingShow: false,
+				gap: [{
+					value: 10,
+					length: 5
+				},{
+					value: 15,
+					length: 4
+				},{
+					value: 20,
+					length: 3
+				}],
+				pageTypes: [{
+					label: '仿真',
+					value: 'real'
+				},{
+					label: '覆盖',
+					value: 'cover'
+				},{
+					label: '滚动',
+					value: 'scroll'
+				},{
+					label: '无动画',
+					value: 'none'
+				}]
+			}
+		},
+		computed: {
+			//阅读位置
+			reader () {
+				return this.$store.getters['reader/getReader'];
+			},
+			title () {
+				return this.reader?.book.title || '设置窗口'
+			},
+			recorder () {
+				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
+				return index > -1 ? this.$store.getters['record/getRecord'][index].extra : null
+			},
+			record () {
+				return this.recorder ? this.recorder.record : null
+			}
+		},
+		onLoad () {
+			this.windowHeight = uni.getSystemInfoSync().windowHeight
+			this.windowWidth = uni.getSystemInfoSync().windowWidth
+		},
+		onReady () {
+			this.show = true
+			setTimeout(() => {
+				this.navHeight = this.$refs.navbar.height
+			}, 20)
+		},
+		methods: {
+			hide () {
+				this.app.$Router.back()
+			},
+			nextPage () {
+				const index = this.reader.chapters.findIndex(item => item.chapter == this.record.chapter + 1)
+				if ( index > -1 ) {
+					uni.$emit('change-page', {
+						chapter: this.reader.chapters[index].chapter
+					})
+				} else {
+					uni.showToast({
+						icon: 'none',
+						title: '后面已经没有章节了'
+					})
+				}
+			},
+			prevPage () {
+				const index = this.reader.chapters.findIndex(item => item.chapter == this.record.chapter - 1)
+				if ( index > -1 ) {
+					uni.$emit('change-page', {
+						chapter: this.reader.chapters[index].chapter
+					})
+				} else {
+					uni.showToast({
+						icon: 'none',
+						title: '前面已经没有章节了'
+					})
+				}
+			},
+			changePage (e) {
+				uni.$emit('change-page', {
+					chapter: e.chapter
+				})
+			}
+		},
+		onBackPress (event) {
+			if ( this.settingShow ) {
+				this.settingShow = false
+				return true
+			}
+			if ( this.chapterShow ) {
+				this.chapterShow = false
+				return true
+			}
+			if ( this.show ) {
+				this.show = false
+				return true;
+			}
+			return false;
+		}
+	}
+</script>
+
+<style scoped>
+	@import url("@/assets/css/app.css");
+	.read-menu {
+	}
+	.board {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	.board .progress {
+		flex-direction: row;
+		align-items: center;
+		height: 80rpx;
+	}
+	.board .progress .center {
+		flex: 1;
+		margin: 0 30rpx;
+	}
+	.board .menus {
+		flex-direction: row;
+		align-items: center;
+	}
+	.board .menus .menu {
+		flex: 1;
+		align-items: center;
+		justify-content: center;
+		height: 80rpx;
+	}
+	.board .menus .menu .icon {
+		height: 45rpx;
+	}
+	.board .menus .menu .label {
+		font-size: 24rpx;
+	}
+	.setting {
+		padding: 0 60rpx;
+	}
+	.setting .line {
+		flex-direction: row;
+		align-items: flex-start;
+		margin-top: 60rpx;
+	}
+	.setting .line .label {
+		font-size: 24rpx;
+		height: 50rpx;
+		line-height: 50rpx;
+	}
+	.setting .line .right {
+		flex: 1;
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+		margin-left: 40rpx;
+	}
+	.setting .line .text {
+		font-size: 24rpx;
+		margin: 0 20rpx;
+	}
+	.setting .btn {
+		border-width: 1rpx;
+		border-radius: 50rpx;
+		height: 50rpx;
+		justify-content: center;
+		padding: 0 30rpx;
+	}
+	.setting .gap {
+		border-width: 1rpx;
+		border-radius: 10rpx;
+		height: 50rpx;
+		justify-content: center;
+		align-items: center;
+		width: 60rpx;
+		margin-right: 30rpx;
+	}
+	.setting .gap .w {
+		width: 40rpx;
+	}
+	.setting .gap .h {
+		width: 40rpx;
+		height: 2rpx;
+	}
+</style>

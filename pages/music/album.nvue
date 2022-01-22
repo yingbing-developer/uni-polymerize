@@ -1,5 +1,5 @@
 <template>
-	<yb-page-anime :bgColor="skinColor.color_bg_1">
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="title + ' - 新碟'"></yb-nav-bar>
 		<yb-swiper-list
 		:column="tabs.length < 6 ? tabs.length : 'auto'"
@@ -39,7 +39,6 @@
 				</view>
 			</template>
 		</yb-swiper-list>
-		<music-panel :data="panelData" :visible.sync="panelShow"></music-panel>
 	</yb-page-anime>
 </template>
 
@@ -51,9 +50,7 @@
 			return {
 				list: [],
 				tabs: [],
-				current: 0,
-				panelData: '',
-				panelShow: false
+				current: 0
 			}
 		},
 		computed: {
@@ -64,7 +61,7 @@
 				return getApp().globalData.$Route.query.title
 			}
 		},
-		onLoad() {
+		onReady() {
 			this.getType().then(status => {
 				if ( status ) {
 					let list = []
@@ -97,22 +94,18 @@
 				}
 			},
 			pulldown (index) {
-				setTimeout(() => {
-					this.list[index].currentPage = 1
-					this.getList(index).then(list => {
-						this.list[index].child = list
-						this.$refs['pulldown_' + index].success()
-					})
-				}, 500)
+				this.list[index].currentPage = 1
+				this.getList(index).then(list => {
+					this.list[index].child = list
+					this.$refs['pulldown_' + index].success()
+				})
 			},
 			pullup (index) {
-				setTimeout(() => {
-					this.list[index].currentPage++;
-					this.getList(index).then(list => {
-						this.list[index].child = this.list[index].child.concat(list)
-						this.list[index].isLastPage ? this.$refs['pullup_' + index].finish() : this.$refs['pullup_' + index].success()
-					})
-				}, 500)
+				this.list[index].currentPage++;
+				this.getList(index).then(list => {
+					this.list[index].child = this.list[index].child.concat(list)
+					this.list[index].isLastPage ? this.$refs['pullup_' + index].finish() : this.$refs['pullup_' + index].success()
+				})
 			},
 			async getList (index) {
 				return await getApp().globalData.$api.music.getNewAlbumList({
@@ -142,13 +135,6 @@
 					}
 					return this.tabs.length > 0
 				})
-			},
-			showMore () {
-				this.panelData = {
-					title: '不能说秘密《主题曲》',
-					label: '周杰伦'
-				}
-				this.panelShow = true
 			}
 		}
 	}

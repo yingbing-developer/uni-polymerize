@@ -90,7 +90,7 @@
 		data () {
 			return {
 				show: false,
-				widowHeight: '',
+				widowHeight: 0,
 				navHeight: 0
 			}
 		},
@@ -125,7 +125,6 @@
 					})
 				}
 				this.show = newVal
-				
 				if ( newVal ) {
 					setTimeout(() => {
 						this.navHeight = this.$refs.navbar.height

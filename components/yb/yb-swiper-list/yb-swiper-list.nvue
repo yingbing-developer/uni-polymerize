@@ -1,6 +1,8 @@
 <template>
 	<view class="yb-swiper-list">
 		<yb-tabs
+		:type="type"
+		:size="size"
 		:column="column"
 		:tabs="tabs"
 		:borderColor="borderColor"
@@ -29,6 +31,14 @@
 				default () {
 					return new Array
 				}
+			},
+			size: {
+				type: String | Number,
+				default: 30
+			},
+			type: {
+				type: String,
+				default: 'normal'
 			},
 			frontColor: {
 				type: String,

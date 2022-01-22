@@ -1,15 +1,16 @@
+//操作面板
+
 const windowWidth = uni.getSystemInfoSync().screenWidth
 const windowHeight = uni.getSystemInfoSync().screenHeight
 import createMasks from './mask.js'
 import color from './color.js'
 
-
-
 export function panel ({title, subTitle, menus, cancelText, themeColor, dark, success, fail}) {
 	const lines = Math.ceil(menus.length / 4)
 	const titleHeight = uni.upx2px(60) + (subTitle ? uni.upx2px(20) : 0)
 	const footerHeight = uni.upx2px(100)
-	const height = uni.upx2px((lines * 150)) + footerHeight + titleHeight
+	const itemHeight = uni.upx2px(150)
+	const height = (lines * itemHeight) + footerHeight + titleHeight + uni.upx2px(20)
 	const footerTop = height - footerHeight
 	
 	const titleSize = uni.upx2px(28)
@@ -117,10 +118,10 @@ export function panel ({title, subTitle, menus, cancelText, themeColor, dark, su
 				verticalAlign: 'middle'
 			},
 			position: {
-				top: titleHeight + 'px',
-				left: (key * 25) + '%',
+				top: (titleHeight + (Math.floor(key / 4) * itemHeight)) + 'px',
+				left: ((key % 4) * 25) + '%',
 				width: '25%',
-				height: (height - footerHeight - titleHeight - 10) + 'px',
+				height: itemHeight + 'px',
 			}
 		}
 	})
@@ -136,18 +137,18 @@ export function panel ({title, subTitle, menus, cancelText, themeColor, dark, su
 				verticalAlign: 'bottom'
 			},
 			position: {
-				top: titleHeight + 'px',
-				left: (key * 25) + '%',
+				top: (titleHeight + (Math.floor(key / 4) * itemHeight)) + 'px',
+				left: ((key % 4) * 25) + '%',
 				width: '25%',
-				height: (height - footerHeight - titleHeight - 10) + 'px',
+				height: itemHeight + 'px',
 			}
 		}
 	})
 	popup.draw(draws.concat(drawMenuIcon.concat(drawMenuTitle)))
 	
-	const pages = getCurrentPages()
-	const page = pages[pages.length - 1]
-	const backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
+	let pages = getCurrentPages()
+	let page = pages[pages.length - 1]
+	let backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
 	page.$vm.$options.onBackPress = new Array(0)
 	page.$vm.$options.onBackPress.push((e) => {
 		complete(false)
@@ -159,11 +160,14 @@ export function panel ({title, subTitle, menus, cancelText, themeColor, dark, su
 			popup.close()
 			mask = null
 			popup = null
+			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
+			pages = null
+			page = null
+			backs = null
 			success ? success({
 				confirm: bol,
 				data: data || null
 			}) : null
-			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
 		} catch(e){
 			fail ? fail(e) : null
 		}
@@ -172,10 +176,10 @@ export function panel ({title, subTitle, menus, cancelText, themeColor, dark, su
 		try{
 			const menuItems = Object.keys(menus).map(key => {
 				return {
-					top: titleHeight,
-					bottom: titleHeight + (height - footerHeight - titleHeight - 10),
-					left: key * (windowWidth * 0.25),
-					right: (parseInt(key) + 1) * (windowWidth * 0.25)
+					top: titleHeight + (Math.floor(key / 4) * itemHeight),
+					bottom: titleHeight + (Math.floor(key / 4) * itemHeight) + itemHeight,
+					left: (key % 4) * (windowWidth * 0.25),
+					right: ((key % 4) * (windowWidth * 0.25)) + (windowWidth * 0.25)
 				}
 			})
 			menuItems.forEach((item, key) => {

@@ -1,5 +1,5 @@
 <template>
-	<yb-page-anime :bgColor="skinColor.color_bg_1">
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<rd-search placeholder="搜索歌曲/歌手" :keywords="keywords" :records="records" :value="keyword" @input="change" @clearRecord="clearRecord" @removeRecord="removeRecord">
 			<view class="result" v-if="keyword" :style="{'background-color': skinColor.color_bg_1}">
 				<list class="list" v-if="results.length > 0 && !loading" :render-whole="true">
@@ -11,12 +11,12 @@
 								<rd-icon name="music" size="34" :color="skinColor.color_1" v-else></rd-icon>
 								<view style="flex: 1;">
 									<text class="label" :style="{color: skinColor.color_1}">{{item.title}}</text>
-									<text class="label sub" :style="{color: skinColor.color_3}" v-if="item.type == 'single'">{{item.singer}}</text>
+									<text class="label sub" :style="{color: skinColor.color_3}" v-if="item.type == 'song'">{{item.singer}}</text>
 									<text class="label sub" :style="{color: skinColor.color_3}" v-else>专辑数量：{{item.albumSize}}</text>
 								</view>
 							</view>
 							<view class="item-right">
-								<rd-icon v-if="item.type == 'single'" enableClick @click="musicPanel(item, true)" class="icon opac-actived" name="more-horizontal" size="32" :color="skinColor.color_3"></rd-icon>
+								<rd-icon v-if="item.type == 'song'" enableClick @click="musicPanel(item, true)" class="icon opac-actived" name="more-horizontal" size="32" :color="skinColor.color_3"></rd-icon>
 								<view v-else @tap="toCollection(item)">
 									<rd-icon v-if="isCollection(item.id)" class="icon" name="love-fill" size="32" :color="skinColor.color_red"></rd-icon>
 									<rd-icon v-else class="icon" name="love" size="32" :color="skinColor.color_3"></rd-icon>
@@ -24,15 +24,15 @@
 							</view>
 						</view>
 					</cell>
-					<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup"></yb-pullup>
+					<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage"></yb-pullup>
 					<cell v-if="isLastPage && results.length > 0">
 						<yb-no-more :color="skinColor.color_3"></yb-no-more>
 					</cell>
 				</list>
-				<view class="loading" v-else>
-					<yb-no-data title="暂无搜索数据" v-if="results.length == 0 && !loading" />
-					<yb-loading size="80" :color="skinColor.color_3" title="搜索中" v-if="loading" />
-				</view>
+				<template v-else>
+					<rd-no-data title="暂无搜索数据" v-if="results.length == 0 && !loading" />
+					<rd-loading size="80" :color="skinColor.color_3" title="搜索中" v-if="loading" />
+				</template>
 			</view>
 		</rd-search>
 	</yb-page-anime>
@@ -61,16 +61,18 @@
 			records () {
 				const history = this.$store.getters['search/getHistory']
 				return history.filter(his => his.type == 'music')
+			},
+			MUSICURL () {
+				return this.app.$config.MUSICURL
 			}
 		},
 		onLoad () {
-			const MUSICURL = getApp().globalData.$config.MUSICURL
-			for ( let i in MUSICURL ) {
-				if ( MUSICURL[i].search ) {
-					this.nowPages[i] = 1 ;
-					this.isLastPages[i] = false;
+			Object.keys(this.MUSICURL).forEach(key => {
+				if ( this.MUSICURL[key].search && this.filterSource(key) > -1 && (!this.MUSICURL[key].isAdult || this.$store.getters['app/getAdult']) ) {
+					this.nowPages[key] = 1 ;
+					this.isLastPages[key] = false;
 				}
-			}
+			})
 			this.getHotKeyword()
 			this.keyword = getApp().globalData.$Route.query.keyword || ''
 		},
@@ -97,9 +99,7 @@
 					ress.forEach(res => {
 						if ( res.code == getApp().globalData.$config.ERR_OK ) {
 							results = results.concat(res.data.list);
-							if ( res.data.list.length == 0 ) {
-								this.$set(this.isLastPages, res.data.source, true);
-							}
+							this.$set(this.isLastPages, res.data.source, res.data.isLastPage);
 						} else {
 							//请求失败
 							this.nowPages[res.data.source] = this.nowPages[res.data.source] > 1 ? this.nowPages[res.data.source] - 1 : 1;
@@ -119,11 +119,19 @@
 			},
 			change (keyword) {
 				clearTimeout(this.timer);
+				this.timer = null
+				this.results = []
+				this.loading = true;
+				this.keyword = keyword
+				this.isLastPage = false;
 				this.timer = setTimeout(() => {
-					this.keyword = keyword
+					Object.keys(this.MUSICURL).forEach(key => {
+						if ( this.MUSICURL[key].search && this.filterSource(key) > -1 && (!this.MUSICURL[key].isAdult || this.$store.getters['app/getAdult']) ) {
+							this.nowPages[key] = 1 ;
+							this.isLastPages[key] = false;
+						}
+					})
 					if ( keyword ) {
-						this.results = []
-						this.loading = true;
 						this.search(keyword).then(results => {
 							this.loading = false
 							results.sort((a, b) => {
@@ -131,11 +139,12 @@
 							})
 							this.results = results;
 							this.scrollTop();
-							this.timer = null
 						})
 					} else {
 						this.results = []
 					}
+					clearTimeout(this.timer);
+					this.timer = null
 				}, 200)
 			},
 			pullup () {
@@ -158,7 +167,7 @@
 				getApp().globalData.$nativeUI.confirm({
 					title: '提示',
 					content: '是否清空所有搜索历史',
-					themeColor: this.skinColor.color_theme_1,
+					themeColor: this.skinColor.color_blue,
 					dark: this.skinMode == 'night',
 					success: (e) => {
 						if ( e.confirm ) {
@@ -194,20 +203,11 @@
 		right: 0;
 		bottom: 0;
 	}
-	.result .loading {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		align-items: center;
-		justify-content: center;
-	}
 	.result .list {
 		flex: 1;
 	}
 	.result .item {
-		padding: 20rpx 55rpx;
+		padding: 20rpx 30rpx;
 		border-bottom-width: 1rpx;
 		flex-direction: row;
 		align-items: center;

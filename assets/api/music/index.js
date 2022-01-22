@@ -8,13 +8,15 @@ const { MUSICURL } = Config;
 export default {
 	//搜索音乐列表
 	search (data) {
-		//判断一下哪些来源被关闭了
-		const sources = getters['source/getClose'];
-		const adult = getters['app/getAdult'];
 		let newArr = [];
 		Object.keys(api).forEach(key => {
-			if ( sources.indexOf(key) == -1 && !data.isLastPage[key] && (!MUSICURL[key].isAdult || adult) && MUSICURL[key].search ) {
-				newArr.push(api[key].search(data));
+			const sources = getters['source/get'];
+			const adult = getters['app/getAdult'];
+			let index = sources.findIndex(source => source.id == key)
+			if ( index == -1 || (index > -1 && sources[index].key > -1) ) {
+				if ( !data.isLastPage[key] && (!MUSICURL[key].isAdult || adult) && MUSICURL[key].search ) {
+					newArr.push(api[key].search(data));
+				}
 			}
 		})
 		return Promise.all(newArr.map((promise)=>promise.catch((e)=>{promise.resolve(e)})))
@@ -22,12 +24,15 @@ export default {
 	
 	//获取热门搜索关键词
 	getHotKeyword () {
-		const sources = getters['source/getClose'];
-		const adult = getters['app/getAdult'];
 		let newArr = [];
 		Object.keys(api).forEach(key => {
-			if ( sources.indexOf(key) == -1 && (!MUSICURL[key].isAdult || adult) && MUSICURL[key].hotKey ) {
-				newArr.push(api[key].getHotKeyword());
+			const sources = getters['source/get'];
+			const adult = getters['app/getAdult'];
+			let index = sources.findIndex(source => source.id == key)
+			if ( index == -1 || (index > -1 && sources[index].key > -1) ) {
+				if ( (!MUSICURL[key].isAdult || adult) && MUSICURL[key].hotKey ) {
+					newArr.push(api[key].getHotKeyword());
+				}
 			}
 		})
 		return Promise.all(newArr.map((promise)=>promise.catch((e)=>{promise.resolve(e)})))
@@ -35,12 +40,15 @@ export default {
 	
 	//获取热门推荐
 	getRecom () {
-		const sources = getters['source/getClose'];
-		const adult = getters['app/getAdult'];
 		let newArr = [];
 		Object.keys(api).forEach(key => {
-			if ( sources.indexOf(key) == -1 && (!MUSICURL[key].isAdult || adult) && MUSICURL[key].recome ) {
-				newArr.push(api[key].getRecom());
+			const sources = getters['source/get'];
+			const adult = getters['app/getAdult'];
+			let index = sources.findIndex(source => source.id == key)
+			if ( index == -1 || (index > -1 && sources[index].key > -1) ) {
+				if ( (!MUSICURL[key].isAdult || adult) && MUSICURL[key].recome ) {
+					newArr.push(api[key].getRecom());
+				}
 			}
 		})
 		return Promise.all(newArr.map((promise)=>promise.catch((e)=>{promise.resolve(e)})))

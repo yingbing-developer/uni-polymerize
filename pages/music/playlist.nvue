@@ -26,10 +26,10 @@
 					<view class="list-right">
 						<view class="list-icon" @tap="toCollection(item)">
 							<rd-icon v-if="isCollection(item.id)" name="love-fill" size="30" :color="skinColor.color_red"></rd-icon>
-							<rd-icon v-else name="love" size="30" :color="skinColor.color_red"></rd-icon>
+							<rd-icon v-else name="love" size="30" :color="skinColor.color_1"></rd-icon>
 						</view>
 						<view class="list-icon" @tap="remove(item)">
-							<rd-icon name="dustbin-fill" size="30" :color="skinColor.color_red"></rd-icon>
+							<rd-icon name="dustbin-fill" size="30" :color="skinColor.color_1"></rd-icon>
 						</view>
 					</view>	
 				</view>

@@ -1,0 +1,27 @@
+<template>
+	<text class="yb-tag" :style="{'border-color': color, color: color}">{{value}}</text>
+</template>
+
+<script>
+	export default {
+		props: {
+			value: {
+				type: String,
+				default: ''
+			},
+			color: {
+				type: String,
+				default: '#21C088'
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-tag {
+		padding: 5rpx 10rpx;
+		border-radius: 4rpx;
+		font-size: 20rpx;
+		border-width: 1rpx;
+	}
+</style>

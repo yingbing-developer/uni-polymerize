@@ -1,3 +1,5 @@
+//评论
+
 export default class Comment {
 	constructor({id, avatar, title, subtitle, content, subComment, extra}) {
 	  this.id = id
@@ -6,6 +8,7 @@ export default class Comment {
 	  this.subtitle = subtitle || ''
 	  this.content = content || ''
 	  this.subComment = subComment || []
+	  this.type = 'comment'//类型
 	  this.extra = extra || {}//附加字段
 	}
 }

@@ -1,4 +1,5 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
+import Reader from '@/assets/constructor/reader.js'
 const appMixin = {
 	computed: {
 		...mapGetters({
@@ -9,6 +10,15 @@ const appMixin = {
 		}),
 		app () {
 			return getApp().globalData
+		},
+		BOOKURL () {
+			return this.app.$config.BOOKURL
+		},
+		COMICURL () {
+			return this.app.$config.COMICURL
+		},
+		MUSICURL () {
+			return this.app.$config.MUSICURL
 		}
 	},
 	methods: {
@@ -98,6 +108,22 @@ const appMixin = {
 					family: 'iconfont',
 					fontSrc: '/static/iconfont.ttf'
 				},{
+					id: 'album',
+					title: '加入歌单',
+					icon: '\ue671',
+					color: this.skinColor.color_red_2,
+					size: '26',
+					family: 'iconfont',
+					fontSrc: '/static/iconfont.ttf'
+				},{
+					id: 'copy',
+					title: '复制歌名',
+					icon: '\ue6cb',
+					color: this.skinColor.color_yellow,
+					size: '30',
+					family: 'iconfont',
+					fontSrc: '/static/iconfont.ttf'
+				},{
 					id: 'search',
 					title: '搜索相关',
 					icon: '\ue644',
@@ -131,6 +157,57 @@ const appMixin = {
 									icon: 'none'
 								})
 								break
+							case 'album':
+								let list = this.$store.getters['custom/get'].filter(item => item.type == 'album')
+								if ( list.length == 0 ) {
+									this.app.$nativeUI.alert({
+										title: '友情提示',
+										content: '未创建自定义歌单',
+										dark: this.skinMode == 'night'
+									})
+								} else {
+									this.app.$modules.showActionSheet({
+										title: '选择歌单',
+										itemList: list.map(item => item.title),
+										success: (res) => {
+											if ( res.confirm ) {
+												let index = list[res.data.index].song.findIndex(item => item.id == song.id)
+												if ( index > -1 ) {
+													this.app.$nativeUI.alert({
+														title: '友情提示',
+														content: '这首歌曲已经加入该歌单中',
+														dark: this.skinMode == 'night'
+													})
+												} else {
+													list[res.data.index].song.push(song)
+													this.$store.dispatch('custom/add', list[res.data.index])
+													uni.showToast({
+														title: '加入歌单成功',
+														icon: 'none'
+													})
+												}
+											}
+										}
+									})
+								}
+								break
+							case 'copy':
+								uni.setClipboardData({
+								    data: song.title,
+								    success: () => {
+								        uni.showToast({
+								        	title: '已复制歌曲名称',
+											icon: 'none'
+								        })
+								    },
+									fail: () => {
+										uni.showToast({
+											title: '复制失败',
+											icon: 'none'
+										})
+									}
+								});
+								break
 							case 'search':
 								if ( search ) {
 									this.keyword = song.title
@@ -150,6 +227,41 @@ const appMixin = {
 				}
 			})
 		},
+		readBook (params) {
+			if ( params.type == 'story' ) {
+				if ( params.source == 'local' ) {
+					this.$store.dispatch('reader/init', new Reader({
+						book: params
+					}))
+					this.app.$Router.push({
+						path: '/pages/book/reader'
+					})
+				} else {
+					this.app.$Router.push({
+						path: '/pages/book/detail',
+						query: {
+							params: encodeURIComponent(JSON.stringify(params))
+						}
+					})
+				}
+			} else {
+				if ( params.source == 'local' ) {
+					this.$store.dispatch('reader/init', new Reader({
+						book: params
+					}))
+					this.app.$Router.push({
+						path: '/pages/comic/reader'
+					})
+				} else {
+					this.app.$Router.push({
+						path: '/pages/comic/detail',
+						query: {
+							params: encodeURIComponent(JSON.stringify(params))
+						}
+					})
+				}
+			}
+		},
 		toCollection (params) {
 			if ( !params ) {
 				return
@@ -160,14 +272,40 @@ const appMixin = {
 				this.$store.dispatch('collection/addCollection', params)
 			}
 		},
+		removeRecord (params) {
+			this.$store.dispatch('record/removeRecord', params.id)
+		},
+		clearRecord (type) {
+			this.app.$nativeUI.confirm({
+				title: '操作提示',
+				content: '确认要清空所有记录吗？',
+				success: (res) => {
+					if ( res.confirm ) {
+						this.$store.dispatch('record/clearRecord', type)
+					}
+				}
+			})
+		},
 		isCollection (id) {
 			return id ? this.$store.getters['collection/getCollection'].findIndex(collection => collection.id == id) > -1 : false
+		},
+		isRecord (id) {
+			return this.$store.getters['record/getRecord'].findIndex(record => record.id == id) > -1
 		},
 		isCache (id) {
 			return id ? this.$store.getters['cache/getCache'].findIndex(cache => cache.parentId == id) > -1 : false
 		},
+		filterSource (source) {
+			let sources = this.$store.getters['source/get']
+			let index = sources.findIndex(item => item.id == source)
+			if ( index == -1 ) {
+				return 0
+			} else {
+				return sources[index].key
+			}
+		},
 		download (params) {
-			if ( params ) {
+			if ( params && params.src ) {
 				const tasks = this.$store.getters['downer/getTask']
 				const index = tasks.findIndex(task => task.parentId == params.id)
 				if ( index == -1 ) {

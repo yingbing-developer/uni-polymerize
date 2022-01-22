@@ -1,0 +1,224 @@
+<template>
+	<yb-page-anime :bgColor="skinColor.color_bg_1">
+		<view :style="{
+			position: 'relative',
+			flex: 1,
+			transform: $store.getters['reader/getDirection'] == 'vertical' ? 'rotateZ(0)' : 'rotateZ(90deg)',
+			width: $store.getters['reader/getDirection'] == 'vertical' ? windowWidth + 'px' : windowHeight + 'px'
+		}">
+			<yb-gap :height="windowHeight - windowWidth" v-if="$store.getters['reader/getDirection'] != 'vertical'"></yb-gap>
+			<list @scroll="onScroll">
+				<cell>
+					<view ref="contentTop"></view>
+				</cell>
+				<cell v-for="(item, index) in contents" @appear="appear(index)" @disappear="disappear(index)">
+					<rd-image ref="content"
+					:style="{
+						'border-color': skinColor.color_gap_1,
+						width: $store.getters['reader/getDirection'] == 'vertical' ? windowWidth + 'px' : windowHeight + 'px'
+					}"
+					front-size="30"
+					min-height="800"
+					class="content"
+					:src="item"
+					mode="widthFix"></rd-image>
+				</cell>
+				<yb-page-anime-fixed v-if="contents.length == 0">
+					<yb-list-no-data title="请求失败" v-if="contents.length == 0 && !loading" />
+					<yb-list-loading size="80" :color="skinColor.color_3" title="加载中" v-if="loading" />
+				</yb-page-anime-fixed>
+			</list>
+			<view class="tips" :style="{'background-color': progressBg}" @tap="openSettingNvue">
+				<rd-icon size="20" name="setting-fill" :color="skinColor.color_white"></rd-icon>
+				<text class="text" :style="{color: skinColor.color_white}">{{reader.source == 'local' ? reader.book.title + '&nbsp;&nbsp;&nbsp;&nbsp;' + record.progress + '%' : record.title + '&nbsp;&nbsp;&nbsp;&nbsp;' + currentPage + '/' + totalPage}}</text>
+			</view>
+		</view>
+	</yb-page-anime>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js'
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {
+				loading: true,
+				contents: [],
+				currentChapter: 0,
+				currentPage: 1,
+				totalPage: 1,
+				direction: '',
+				oldOffsetY: -1,
+				windowWidth: 0,
+				windowHeight: 0
+			}
+		},
+		computed: {
+			reader () {
+				return this.$store.getters['reader/getReader']
+			},
+			title () {
+				return this.reader?.book.title || '设置窗口'
+			},
+			record () {
+				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
+				return index > -1 ? this.$store.getters['record/getRecord'][index].extra.record : ''
+			},
+			progressBg () {
+				let bg = this.app.$utils.hex2rgb(this.skinColor.color_black);
+				bg = bg.match(/rgb\((\S*)\)/)[1]
+				bg = `rgba(${bg},0.5)`
+				return bg
+			}
+		},
+		onShow() {
+		    plus.navigator.setFullscreen(true);
+		},
+		//如果不加这句，会导致跳转到别的页面后也是全屏
+		onUnload() {
+		    plus.navigator.setFullscreen(false);
+		},
+		beforeCreate () {
+			//监听页面跳转
+			uni.$on('change-page', (data) => {
+				this.contents = []
+				this.loading = true
+				this.scrollTo(this.$refs.contentTop)
+				this.currentChapter = data.chapter
+				this.getOnlineContent(data.chapter).then((res) => {
+					this.loading = false
+					if ( res.code == this.app.$config.ERR_OK ) {
+						this.contents = res.data.contents
+						this.totalPage = res.data.contents.length
+						this.savePageRecord()
+					} else {
+						uni.showToast({
+							title: '加载失败',
+							icon: 'none'
+						})
+					}
+				})
+			})
+		},
+		beforeDestroy () {
+			uni.$off('change-page')
+		},
+		onLoad() {
+			this.windowWidth = uni.getSystemInfoSync().windowWidth
+			this.windowHeight = uni.getSystemInfoSync().windowHeight
+			this.currentChapter = this.app.$Route.query.currentChapter
+		},
+		onReady() {
+			let start = this.record.start - 2 > 0 ? this.record.start - 2 : 0
+			this.currentPage = start
+			setTimeout(() => {
+				if ( this.reader.source == 'local' ) {
+					this.getLocalContent();
+				} else {
+					this.getOnlineContent(this.currentChapter).then((res) => {
+						this.loading = false
+						if ( res.code == this.app.$config.ERR_OK ) {
+							this.contents = res.data.contents
+							this.totalPage = res.data.contents.length
+							if ( this.record ) {
+								setTimeout(() => {
+									this.scrollTo(this.$refs.content[start])
+									this.savePageRecord()
+								}, 200)
+							}
+						} else {
+							uni.showToast({
+								title: '加载失败',
+								icon: 'none'
+							})
+						}
+					})
+				}
+			}, 100)
+		},
+		methods: {
+			onScroll (e) {
+				//向上滑动时
+				if ( e.contentOffset.y < this.oldOffsetY ) {
+					this.direction = 'up';
+				} else {
+					//向下滑动时
+					this.direction = 'under';
+				}
+				//如果列表y轴偏移为0
+				if ( e.contentOffset.y == 0 && this.oldOffsetY > -1 ) {
+					this.currentPage = 1;
+					this.direction = ''
+					this.savePageRecord()
+				}
+				this.oldOffsetY = e.contentOffset.y;
+			},
+			appear (index) {
+				if ( this.direction == 'under' ) {
+					this.currentPage = index + 1;
+					this.savePageRecord()
+				}
+			},
+			disappear (index) {
+				if ( this.direction == 'up' ) {
+					this.currentPage = index + 2;
+					this.savePageRecord()
+				}
+			},
+			//获取本地小说内容
+			getLocalContent () {
+			},
+			//获取在线小说内容
+			async getOnlineContent (chapter) {
+				let index = this.reader.chapters.findIndex(item => item.chapter == chapter)
+				return await this.app.$api.comic.getContent({
+					id: this.reader.chapters[index].id,
+					source: this.reader.source
+				}).then((res) => {
+					return res
+				})
+			},
+			openSettingNvue () {
+				this.app.$Router.push({
+					path: '/pages/comic/setting'
+				})
+			},
+			savePageRecord () {
+				let index = this.$store.getters['record/getRecord'].findIndex(record => this.reader.id == record.id)
+				let book = index > -1 ? this.$store.getters['record/getRecord'][index] : {...this.reader.book}
+				let chapterIndex = this.reader.chapters.findIndex(item => item.chapter == this.currentChapter)
+				book.extra.record = {
+					chapter: parseInt(this.currentChapter),
+					start: this.currentPage,
+					title: chapterIndex > -1 ? this.reader.chapters[chapterIndex].title : '',
+					progress: parseFloat(((this.currentPage / this.totalPage) * 100).toFixed(2)),
+				}
+				this.$store.dispatch('record/addRecord', book)
+			},
+			scrollTo (refs) {
+				const dom = weex.requireModule('dom');
+				dom.scrollToElement(refs, {animated: false});
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.tips {
+		position: absolute;
+		left: 15rpx;
+		bottom: 20rpx;
+		padding: 0 20rpx;
+		height: 30rpx;
+		flex-direction: row;
+		align-items: center;
+		border-radius: 40rpx;
+	}
+	.tips .text {
+		font-size: 18rpx;
+		margin-left: 10rpx;
+	}
+	.content {
+		border-bottom-width: 2rpx;
+	}
+</style>

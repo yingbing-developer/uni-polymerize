@@ -1,5 +1,5 @@
 <template>
-	<view class="keyboard" :style="{'background-color': dark ? '#131313' : '#FFFFFF'}">
+	<view class="yb-keyboard" :style="{'background-color': dark ? '#131313' : '#FFFFFF'}">
 		<view class="key"
 		:class="{'default': !dark && item.type == 'num', 'night': dark && item.type == 'num'}"
 		v-for="(item, index) in keys"
@@ -28,6 +28,10 @@
 			dark: {
 				type: Boolean,
 				default: false
+			},
+			max: {
+				type: String | Number,
+				default: 6
 			}
 		},
 		data () {
@@ -77,10 +81,10 @@
 		},
 		methods: {
 			selectNum (index) {
-				if ( this.keys[index].type == 'num' ) {
+				if ( this.keys[index].type == 'num' && this.valueSync.length < this.max ) {
 					this.valueSync += this.keys[index].value
 				}
-				if ( this.keys[index].value == 'delete' ) {
+				if ( this.keys[index].value == 'delete' && this.valueSync.length > 0 ) {
 					this.valueSync = this.valueSync.slice(0, this.valueSync.length - 1)
 				}
 				this.$emit('input', this.valueSync)
@@ -97,15 +101,11 @@
 </script>
 
 <style scoped>
-	.keyboard {
+	.yb-keyboard {
 		flex-direction: row;
 		flex-wrap: wrap;
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
 	}
-	.key {
+	.yb-keyboard .key {
 		width: 250rpx;
 		justify-content: center;
 		align-items: center;

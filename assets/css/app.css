@@ -23,3 +23,203 @@
 	font-size: 28rpx;
 	text-overflow: ellipsis;
 }
+.cell-item_1 .more {
+	width: 40rpx;
+}
+
+.cell-item_2 {
+	flex-direction: row;
+	align-items: center;
+	margin: 0 30rpx;
+	height: 120rpx;
+	border-bottom-width: 1rpx;
+}
+.cell-item_2 .index {
+	font-size: 30rpx;
+	margin-right: 20rpx;
+	width: 60rpx;
+	text-align: center;
+}
+.cell-item_2 .trophy {
+	width: 40rpx;
+	height: 40rpx;
+	margin-right: 30rpx;
+	margin-left: 10rpx;
+}
+.cell-item_2 .cover {
+	width: 80rpx;
+	height: 80rpx;
+}
+.cell-item_2 .info {
+	flex: 1;
+	margin-left: 30rpx;
+}
+.cell-item_2 .info .title, .cell-item_2 .info .label {
+	font-size: 26rpx;
+	lines: 1;
+	text-overflow: ellipsis;
+}
+.cell-item_2 .info .label {
+	margin-top: 20rpx;
+}
+.cell-item_2 .info .value {
+	font-size: 22rpx;
+}
+.cell-item_2 .more {
+	width: 40rpx;
+}
+
+.cell-item_3 {
+	flex-direction: row;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	height: 210rpx;
+	padding: 20rpx;
+	position: relative;
+}
+.cell-item_3 .cover {
+	width: 120rpx;
+	height: 190rpx;
+}
+.cell-item_3 .info {
+	flex: 1;
+	margin-left: 30rpx;
+}
+.cell-item_3 .title {
+	font-size: 30rpx;
+	font-weight: bold;
+	lines: 1;
+	text-overflow: ellipsis;
+}
+.cell-item_3 .subtitles {
+	flex-direction: row;
+	align-items: center;
+	flex: 1;
+}
+.cell-item_3 .subtitle {
+	font-size: 20rpx;
+	flex: 1;
+	lines: 1;
+	text-overflow: ellipsis;
+	margin-top: 12rpx;
+	margin-right: 10rpx;
+}
+.cell-item_3 .desc {
+	font-size: 22rpx;
+	lines: 2;
+	text-overflow: ellipsis;
+	height: 54rpx;
+	margin-top: 10rpx;
+}
+.cell-item_3 .tip {
+	font-size: 22rpx;
+	lines: 1;
+	text-overflow: ellipsis;
+	margin-top: 10rpx;
+}
+.cell-item_3 .badges {
+	flex-direction: row;
+	align-items: center;
+}
+.cell-item_3 .badge {
+	margin-right: 10rpx;
+}
+.cell-item_3 .delete {
+	position: absolute;
+	right: 20rpx;
+	bottom: 20rpx;
+}
+
+.cell-item_4 {
+	flex-direction: row;
+	height: 360rpx;
+}
+.cell-item_4 .left {
+	width: 240rpx;
+	position: relative;
+	align-items: center;
+	justify-content: center;
+}
+.cell-item_4 .left .cover {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+.cell-item_4 .left .title {
+	font-weight: bold;
+	font-size: 44rpx;
+	font-family: KUHEI;
+	margin-bottom: 80rpx;
+}
+.cell-item_4 .top {
+	flex: 1;
+}
+.cell-item_4 .top .list {
+	flex-direction: row;
+	align-items: center;
+	border-bottom-width: 1rpx;
+	flex: 1;
+	padding: 0 20rpx;
+}
+.cell-item_4 .top .list .label {
+	font-size: 26rpx;
+	flex: 1;
+	lines: 1;
+	text-overflow: ellipsis;
+}
+
+.cell-item_5 {
+	flex-direction: row;
+	align-items: center;
+	height: 80rpx;
+	border-bottom-width: 1rpx;
+}
+.cell-item_5 .label, .cell-item_5 .title {
+	font-size: 26rpx;
+}
+.cell-item_5 .title {
+	flex: 1;
+	lines: 1;
+	text-overflow: ellipsis;
+}
+.cell-item_5 .value {
+	font-size: 22rpx;
+}
+
+.grid_item_1 {
+	width: 130rpx;
+}
+.grid_item_1 .cover {
+	width: 130rpx;
+	height: 180rpx;
+}
+.grid_item_1 .title {
+	font-size: 24rpx;
+	lines: 2;
+	text-overflow: ellipsis;
+	margin-top: 10rpx;
+	height: 80rpx;
+}
+
+.fixed-bottom {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 200rpx;
+	align-items: center;
+	justify-content: center;
+}
+.fixed-bottom .button {
+	width: 220rpx;
+	height: 60rpx;
+}
+
+.rd-nav-right {
+	flex: 1;
+	flex-direction: row;
+	justify-content: flex-end;
+	align-items: center;
+}

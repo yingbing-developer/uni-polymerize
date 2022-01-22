@@ -17,7 +17,6 @@ function request (type = 'GET', url, options) {
 				resolve(res)
 			}),
 			fail:((err)=>{
-				plus.nativeUI.toast("网络错误！", {verticalAlign: 'bottom'});
 				reject(err);
 			})
 		})

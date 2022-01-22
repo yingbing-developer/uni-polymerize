@@ -1,0 +1,101 @@
+<template>
+	<yb-popup popout="fade" direction="bottom" :height="widowHeight" :visible="visibleSync" @hide="cancel">
+		<view class="yb-action-sheet" @touchmove.stop.prevent="" :style="{'background-color': bgColor}">
+			<text class="title" :style="{'background-color': gapColor, color: frontColor}">{{title}}</text>
+			<scroll-view scroll-y="true" :style="{height: itemList.length > 5 ? '435rpx' : 'auto'}">
+				<text class="item"
+				:style="{'border-color': gapColor, color: frontColor}"
+				v-for="(item, index) in itemList" :key="index"
+				@tap="confirm(index)">{{item}}</text>
+			</scroll-view>
+			<text class="close" @tap="cancel" :style="{'border-color': gapColor, color: frontColor}">取消</text>
+		</view>
+	</yb-popup>
+</template>
+
+<script>
+	export default {
+		props: {
+			visible: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: ''
+			},
+			itemList: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			},
+			bgColor: {
+				type: String,
+				default: '#ffffff'
+			},
+			frontColor: {
+				type: String,
+				default: '#333333'
+			},
+			gapColor: {
+				type: String,
+				default: '#eeeeee'
+			}
+		},
+		data () {
+			return {
+				widowHeight: 0,
+				visibleSync: false
+			}
+		},
+		mounted () {
+			this.widowHeight = uni.getSystemInfoSync().windowHeight
+			this.visibleSync = this.visible
+		},
+		methods: {
+			confirm (index) {
+				this.$emit('confirm', {
+					index: index,
+					item: this.itemList[index]
+				})
+			},
+			cancel () {
+				this.visibleSync = false
+				this.$emit('update:visible', false)
+				this.$emit('cancel')
+			}
+		},
+		watch: {
+			visible (newVal) {
+				this.visibleSync = newVal
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-action-sheet {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	.yb-action-sheet .title {
+		font-size: 26rpx;
+		text-align: center;
+		padding: 20rpx 0;
+	}
+	.yb-action-sheet .item {
+		font-size: 28rpx;
+		padding: 20rpx 0;
+		border-bottom-width: 1rpx;
+		text-align: center;
+	}
+	.yb-action-sheet .close {
+		font-size: 28rpx;
+		text-align: center;
+		padding: 20rpx 0;
+		border-top-width: 4rpx;
+	}
+</style>

@@ -1,0 +1,99 @@
+<template>
+	<yb-popup direction="bottom" :height="widowHeight" :visible="visible" @hide="cancel">
+		<view class="rd-action-sheet" :style="{'background-color': skinColor.color_bg_2}" @touchmove.stop.prevent="">
+			<text class="title" :style="{color: skinColor.color_2}">{{title}}</text>
+			<view class="action" :style="{'border-color': skinColor.color_gap_1}" v-for="(item, index) in itemList" :key="index" @tap="confirm(index)">
+				<rd-icon :name="item.icon" :color="skinColor.color_blue" :size="item.size"></rd-icon>
+				<text class="text" :style="{color: skinColor.color_1}">{{item.label}}</text>
+			</view>
+			<view class="close" :style="{'background-color': skinColor.color_theme_1}" @tap="cancel">
+				<text class="text" :style="{color: skinColor.color_4}">关闭</text>
+			</view>
+		</view>
+	</yb-popup>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		props: {
+			visible: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: ''
+			},
+			itemList: {
+				type: Array,
+				default () {
+					return new Array
+				}
+			}
+		},
+		data () {
+			return {
+				widowHeight: 0,
+				visibleSync: false
+			}
+		},
+		created () {
+			this.widowHeight = uni.getSystemInfoSync().windowHeight
+			this.visibleSync = this.visible
+		},
+		methods: {
+			confirm (index) {
+				this.$emit('confirm', {
+					index: index,
+					detail: this.itemList[index]
+				})
+			},
+			cancel () {
+				this.visibleSync = false
+				this.$emit('cancel')
+				this.$emit('update:visible', false)
+			}
+		},
+		watch: {
+			visible (newVal) {
+				this.visibleSync = newVal
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.rd-action-sheet {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	.rd-action-sheet .title {
+		font-size: 22rpx;
+		padding: 20rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+	}
+	.rd-action-sheet .action {
+		flex-direction: row;
+		align-items: center;
+		border-bottom-width: 1rpx;
+		height: 80rpx;
+		padding: 0 20rpx;
+	}
+	.rd-action-sheet .action .text {
+		font-size: 24rpx;
+		margin-left: 20rpx;
+	}
+	.rd-action-sheet .close {
+		align-items: center;
+		justify-content: center;
+		height: 80rpx;
+	}
+	.rd-action-sheet .close .text {
+		font-size: 26rpx;
+	}
+</style>

@@ -2,7 +2,7 @@ import { FILECACHE } from '../config.js'
 import Cache from '@/assets/constructor/cache.js'
 
 const state = {
-	cache: uni.getStorageSync(FILECACHE) || [] //图片临时文件存放
+	cache: uni.getStorageSync(FILECACHE) || [] //缓存列表
 }
 
 const getters = {
@@ -28,7 +28,7 @@ const actions = {
 	},
 	removeCache ({state, commit}, id) {
 		const caches = [...state.cache]
-		const index = caches.findIndex(cache => cache.parentId == id)
+		const index = caches.findIndex(cache => cache.id == id)
 		if ( index > -1 ) {
 			const src = plus.io.convertLocalFileSystemURL(caches[index].src);
 			const file = plus.android.newObject('java.io.File', src);
@@ -39,8 +39,9 @@ const actions = {
 		}
 		commit('setCache', caches)
 	},
-	clearCache ({commit}) {
-		commit('setCache', [])
+	clearCache ({commit}, type) {
+		const caches = [...state.cache]
+		commit('setCache', caches.filter(cache => cache.type != type))
 	}
 }
 

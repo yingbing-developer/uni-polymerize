@@ -5,7 +5,7 @@
 	import Router from '@/plugins/router';
 	import Http from '@/plugins/request'
 	import Xhr from '@/plugins/xhr'
-	import Dom from '@/plugins/dom'
+	import Modules from '@/plugins/modules'
 	import Utils from '@/assets/js/util.js'
 	import Config from '@/assets/js/config.js'
 	import Business from '@/assets/js/business.js'
@@ -17,7 +17,7 @@
 			$Route: new Route(),
 			$http: Http,
 			$xhr: Xhr,
-			$dom: Dom,
+			$modules: Modules,
 			$utils: Utils,
 			$config: Config,
 			$business: Business,
@@ -26,7 +26,7 @@
 		},
 		onLaunch: function() {
 			console.log('App Launch')
-			plus.screen.lockOrientation('portrait-primary');
+			// plus.screen.lockOrientation('portrait-primary');
 			//重写toast方法如果内容为 ‘再次返回退出应用’ 就隐藏应用，其他正常toast
 			const toast = plus.nativeUI.toast;
 			plus.nativeUI.toast = (function(message, styles) {
@@ -75,12 +75,12 @@
 	}
 
 	.margin-gap {
-		margin-left: 30rpx;
-		margin-right: 30rpx;
+		margin-left: 20rpx;
+		margin-right: 20rpx;
 	}
 
 	.padding-gap {
-		padding-left: 30rpx;
-		padding-right: 30rpx;
+		padding-left: 20rpx;
+		padding-right: 20rpx;
 	}
 </style>

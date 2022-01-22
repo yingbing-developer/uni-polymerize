@@ -43,6 +43,9 @@ const actions = {
 	changeSkin ({commit}, skin) {
 		commit('setSkin', skin)
 		getApp().globalData.$business.setSkinColor()
+	},
+	changeAdultPwd ({commit}, pwd) {
+		commit('setAdultPwd', pwd)
 	}
 }
 

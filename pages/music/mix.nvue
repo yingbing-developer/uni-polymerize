@@ -1,18 +1,14 @@
 <template>
-	<yb-page-anime :bgColor="skinColor.color_bg_1">
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="title + ' - 歌单'">
 			<template slot="right">
-				<view class="nav-right">
+				<view class="rd-nav-right">
 					<rd-icon enableClick class="opac-actived" name="more-horizontal" size="36" :color="skinColor.color_4" @click="dropShow = true"></rd-icon>
 				</view>
 			</template>
 		</yb-nav-bar>
 		<list>
 			<yb-pulldown v-if="!loading" ref="pulldown" @pulldown="pulldown"></yb-pulldown>
-			<yb-page-anime-fixed>
-				<yb-list-loading :color="skinColor.color_3" size="70" v-if="loading" title="加载中"></yb-list-loading>
-				<yb-list-no-data :color="skinColor.color_3" v-if="list.length == 0 && !loading"></yb-list-no-data>
-			</yb-page-anime-fixed>
 			<cell>
 				<yb-gap ref="listTop" height="30rpx"></yb-gap>
 			</cell>
@@ -30,6 +26,10 @@
 					</view>
 				</view>
 			</cell>
+			<yb-page-anime-fixed>
+				<yb-list-loading :color="skinColor.color_3" size="70" v-if="loading" title="加载中"></yb-list-loading>
+				<yb-list-no-data :color="skinColor.color_3" v-if="list.length == 0 && !loading"></yb-list-no-data>
+			</yb-page-anime-fixed>
 			<cell v-if="isLastPage && list.length > 0">
 				<yb-no-more :color="skinColor.color_3"></yb-no-more>
 			</cell>
@@ -71,7 +71,7 @@
 				return getApp().globalData.$Route.query.source
 			}
 		},
-		onLoad() {
+		onReady() {
 			this.getType().then(status => {
 				this.typeId = this.type[0].child[0].value
 				this.type[0].child[0].isChecked = true
@@ -160,11 +160,6 @@
 	}
 </script>
 
-<style scoped>
+<style>
 	@import url("@/assets/css/app.css");
-	.nav-right {
-		flex: 1;
-		flex-direction: row;
-		justify-content: flex-end;
-	}
 </style>

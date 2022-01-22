@@ -3,13 +3,25 @@
 		<image @load="load" @error="error" ref="image"
 			class="yb-img" :lazyLoad="lazyLoad" :src="url" :mode="mode"
 			:style="{borderRadius: borderRadius + 'rpx'}"></image>
-		<view class="img-mask" :style="{opacity: maskOpac, borderRadius: borderRadius + 'rpx'}"
-			v-if="enableMask"></view>
-		<view class="longpress" @longpress="preview" @tap="onTap" v-if="enablePreview || enableClick"></view>
-		<view class="error" v-if="isError">
-			<text class="error-text"
-				:style="{'font-size': errorSize + 'rpx', color: skinColor.color_1}">加载失败!</text>
-		</view>
+			<view class="img-mask" :style="{opacity: maskOpac, borderRadius: borderRadius + 'rpx'}"
+				v-if="enableMask"></view>
+		<template v-if="mode != 'widthFix'">
+			<view class="longpress" @longpress="preview" @tap="onTap" v-if="enablePreview || enableClick"></view>
+			<view class="error" v-if="isError">
+				<text class="error-text"
+					:style="{'font-size': frontSize + 'rpx', color: skinColor.color_1}">加载失败!</text>
+			</view>
+		</template>
+		<template v-else>
+			<view class="box" :style="{height: minHeight + 'rpx'}" v-if="isLoading">
+				<text class="error-text"
+					:style="{'font-size': frontSize + 'rpx', color: skinColor.color_1}">正在加载...!</text>
+			</view>
+			<view class="box" :style="{height: minHeight + 'rpx'}" v-if="isError">
+				<text class="error-text" v-if="isError"
+					:style="{'font-size': frontSize + 'rpx', color: skinColor.color_1}">加载失败!</text>
+			</view>
+		</template>
 	</view>
 </template>
 
@@ -44,15 +56,6 @@
 				type: Boolean,
 				default: true
 			},
-			resize: {
-				type: String,
-				default: 'cover'
-			},
-			//屏幕宽度用于计算高度
-			windowWidth: {
-				type: Number,
-				default: 0
-			},
 			//圆角大小
 			borderRadius: {
 				type: Number,
@@ -78,7 +81,8 @@
 					}
 				}
 			},
-			errorSize: {
+			//字体大小
+			frontSize: {
 				type: String | Number,
 				default: 22
 			},
@@ -96,13 +100,14 @@
 			enableClick: {
 				type: Boolean,
 				default: false
+			},
+			//mode为widthFix时的占位高度
+			minHeight: {
+				type: String | Number,
+				default: 0
 			}
 		},
 		computed: {
-			imageHeight() {
-				return (this.windowWidth / this.width * this.height) > 0 ? this.windowWidth / this.width * this.height :
-					400
-			},
 			maskOpac () {
 				return this.skinMode == 'night' ? 0.2 : 0
 			}
@@ -112,6 +117,7 @@
 				url: '',
 				width: 0,
 				height: 0,
+				isLoading: true,
 				isError: false
 			}
 		},
@@ -207,9 +213,11 @@
 			},
 			load(e) {
 				this.isError = false;
+				this.isLoading = false
 				this.$emit('load', e);
 			},
 			error(e) {
+				this.isError = true;
 				this.$emit('error', e);
 			},
 			//预览图片
@@ -354,6 +362,10 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
+		align-items: center;
+		justify-content: center;
+	}
+	.box {
 		align-items: center;
 		justify-content: center;
 	}

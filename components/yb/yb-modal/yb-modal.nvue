@@ -1,0 +1,178 @@
+<template>
+	<view class="yb-modal" v-if="visibleSync">
+		<yb-mask ref="mask" @click="cancel" :style="{opacity: 0}" @tap="cancel"></yb-mask>
+		<view class="popup" ref="popup" :style="{'background-color': bgColor}" @touchmove.stop.prevent="">
+			<text class="title" :style="{color: frontColor}">{{title}}</text>
+			<slot>
+				<text class="content" :style="{color: frontColor}">{{content}}</text>
+			</slot>
+			<view class="btns">
+				<text class="btn cancel opac-actived" :style="{color: themeColor}" @tap="cancel">取消</text>
+				<text class="btn confirm opac-actived" :style="{color: themeColor}" @tap="confirm">确认</text>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	const animation = weex.requireModule('animation');
+	let pages;
+	let page;
+	let backs;
+	export default {
+		props: {
+			visible: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: ''
+			},
+			content: {
+				type: String,
+				default: ''
+			},
+			bgColor: {
+				type: String,
+				default: '#FFFFFF'
+			},
+			frontColor: {
+				type: String,
+				default: '#333333'
+			},
+			themeColor: {
+				type: String,
+				default: '#2ca2f9'
+			},
+			duration: {
+				type: Number,
+				default: 500
+			}
+		},
+		data () {
+			return {
+				visibleSync: false
+			}
+		},
+		created() {
+			this.visibleSync = this.visible
+		},
+		mounted () {
+			if ( this.visibleSync ) {
+				this.show()
+			}
+		},
+		methods: {
+			show () {
+				animation.transition(this.$refs.mask, {
+				    styles: {
+						opacity: 1
+				    },
+				    duration: this.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				animation.transition(this.$refs.popup, {
+				    styles: {
+						opacity: 1
+				    },
+				    duration: this.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				pages = getCurrentPages()
+				page = pages[pages.length - 1]
+				backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
+				page.$vm.$options.onBackPress = new Array(0)
+				page.$vm.$options.onBackPress.push((e) => {
+					this.hide()
+					return true
+				})
+			},
+			hide() {
+				animation.transition(this.$refs.mask, {
+				    styles: {
+						opacity: 0
+				    },
+				    duration: this.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				animation.transition(this.$refs.popup, {
+				    styles: {
+						opacity: 0
+				    },
+				    duration: this.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				}, () => {
+					this.$emit('update:visible', false)
+					this.visibleSync = false
+					page.$vm.$options.onBackPress = backs
+				})
+			},
+			confirm () {
+				this.$emit('confirm')
+			},
+			cancel () {
+				this.$emit('cancel')
+				this.hide()
+			}
+		},
+		beforeDestroy () {
+			page ? page.$vm.$options.onBackPress = backs : null
+		},
+		watch: {
+			visible (newVal) {
+				if ( newVal ) {
+					this.visibleSync = newVal
+					setTimeout(() => {
+						this.show()
+					}, 30)
+				} else {
+					this.hide()
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		align-items: center;
+		justify-content: center;
+	}
+	.yb-modal .popup {
+		width: 500rpx;
+		padding: 40rpx;
+		opacity: 0;
+	}
+	.yb-modal .title {
+		font-size: 30rpx;
+		margin-bottom: 10rpx;
+	}
+	.yb-modal .content {
+		font-size: 24rpx;
+	}
+	.yb-modal .btns {
+		flex-direction: row;
+		justify-content: flex-end;
+		margin-top: 20rpx;
+	}
+	.yb-modal .btns .btn {
+		font-size: 24rpx;
+	}
+	.yb-modal .btns .cancel {
+		margin-right: 20rpx;
+	}
+</style>

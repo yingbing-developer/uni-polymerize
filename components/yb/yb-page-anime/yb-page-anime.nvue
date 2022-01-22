@@ -1,13 +1,26 @@
 <template>
-	<view class="yb-page-anime" ref="ybPageAnime" :style="{transform: transform, 'background-color': bgColor}">
-		<slot></slot>
+	<view>
+		<view class="mask" :style="{opacity: opacity}"></view>
+		<view class="yb-page-anime" ref="ybPageAnime" v-if="touch"
+		:style="{
+			transform: transform,
+			opacity: opacity,
+			'background-color': bgColor
+		}">
+			<slot></slot>
+		</view>
+		<view class="yb-page-anime" ref="ybPageAnime" @touchmove.stop.prevent="" v-else
+		:style="{
+			transform: transform,
+			opacity: opacity,
+			'background-color': bgColor
+		}">
+			<slot></slot>
+		</view>
 	</view>
 </template>
 
 <script>
-	// #ifdef APP-NVUE
-	const animation = weex.requireModule('animation');
-	// #endif
 	export default {
 		props: {
 			bgColor: {
@@ -21,22 +34,55 @@
 			duration: {
 				type: Number,
 				default: 300
+			},
+			//是否允许点击穿透
+			touch: {
+				type: Boolean,
+				default: false
+			},
+			//是否是tabbar页面
+			tabbar: {
+				type: Boolean,
+				default: false
 			}
 		},
 		data () {
 			return {
 				transform: '',
+				opacity: 0,
 				isBack: false
 			}
 		},
+		beforeCreate() {
+			const pages = getCurrentPages()
+			if ( pages.length - 2 >= 0 ) {
+				const page = pages[pages.length - 2]
+				if ( page.$vm.$refs.ybPageAnime ) {
+					page.$vm.$refs.ybPageAnime.hide()
+				}
+			}
+		},
 		created () {
-			this.init()
-			this.onBack()
+			if ( !this.tabbar ) {
+				this.init()
+				this.onBack()
+			} else {
+				this.opacity = 1
+				const pages = getCurrentPages()
+				const page = pages[pages.length - 1]
+				const shows = page.$vm.$options.onShow
+				const showEvnet = (e) => {
+					shows ? shows[0](e) : false
+					uni.showTabBar()
+				}
+				page.$vm.$options.onShow = new Array(0)
+				page.$vm.$options.onShow.push(showEvnet)
+			}
 		},
 		mounted () {
 			setTimeout(() => {
 				this.pushin()
-			}, 50)
+			}, 20)
 		},
 		methods: {
 			init () {
@@ -55,10 +101,46 @@
 					default:
 						this.transform = ''
 				}
-				
+			},
+			//页面显示时效果
+			show () {
+				const animation = weex.requireModule('animation');
+				// #ifdef APP-NVUE
+				animation.transition(this.$refs.ybPageAnime, {
+				    styles: {
+						transform: 'scale(1)'
+				    },
+				    duration: this.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				// #endif
+				// #ifndef APP-NVUE
+				this.transform = 'scale(1)'
+				// #endif
+			},
+			//页面隐藏时效果
+			hide () {
+				const animation = weex.requireModule('animation');
+				// #ifdef APP-NVUE
+				animation.transition(this.$refs.ybPageAnime, {
+				    styles: {
+						transform: 'scale(0.97)'
+				    },
+				    duration: this.duration, //ms
+				    timingFunction: 'ease',
+				    needLayout:false,
+				    delay: 0 //ms
+				})
+				// #endif
+				// #ifndef APP-NVUE
+				this.transform = 'scale(0.97)'
+				// #endif
 			},
 			pushin () {
-				const transform = this.animationType == 'zoom-out' ? 'scale(1)' : 'translate(0)'
+				const animation = weex.requireModule('animation');
+				const transform = this.animationType == 'slide-in-right' ? 'translateX(0)' : this.animationType == 'zoom-out' ? 'scale(1)' : 'translateY(0)'
 				// #ifdef APP-NVUE
 				animation.transition(this.$refs.ybPageAnime, {
 				    styles: {
@@ -73,6 +155,7 @@
 				// #endif
 				// #ifndef APP-NVUE
 				this.transform = transform
+				this.opacity = 1
 				// #endif
 				
 			},
@@ -91,6 +174,13 @@
 						break
 					default:
 						animationType = 'fade-out'
+				}
+				const pages = getCurrentPages()
+				if ( pages.length - 2 >= 0 ) {
+					const page = pages[pages.length - 2]
+					if ( page.$vm.$refs.ybPageAnime ) {
+						page.$vm.$refs.ybPageAnime.show()
+					}
 				}
 				uni.navigateBack({
 					animationType: animationType,
@@ -134,10 +224,16 @@
 	.yb-page-anime {
 		width: 100vw;
 		min-height: 100vh;
-		transition: transform .3s;
-		overflow: hidden;
+		transition: all .3s;
 		opacity: 0;
 	}
 	/* #endif */
-
+	.mask {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #000000;
+	}
 </style>

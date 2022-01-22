@@ -1,3 +1,5 @@
+//音乐播放
+
 import Api from '@/assets/api/music/api.js'
 import Config from '@/assets/js/config.js'
 import Store from "@/store"
@@ -13,11 +15,23 @@ export default class Player {
 		this.src = song.src || getCache(this.id)
 		this.lyric = song.lyric || ''
 		this.instance = null
+		this.song = song
 		this.source = song.source
 	}
 	async init() {
-		let arr = []
 		this.instance = uni.createInnerAudioContext()
+		if ( this.source == 'local' ) {
+			if ( this.src ) {
+				let file = plus.android.newObject('java.io.File', this.src);
+				if ( plus.android.invoke(file, 'exists') ) {
+					this.instance.src = this.src
+					dispatch('record/addRecord', this.song)
+					return true
+				}
+			}
+			return false
+		}
+		let arr = []
 		this.songId && !this.src ? arr.push(Api[this.source].getPlayUrl({
 			id: this.songId,
 			source: this.source
@@ -37,7 +51,10 @@ export default class Player {
 					}
 				}
 			})
-			this.src ? this.instance.src = this.src : null
+			if ( this.src ) {
+				this.instance.src = this.src
+				dispatch('record/addRecord', this.song)
+			}
 			return this.src ? true : false
 		}).catch(() => {
 			return false
@@ -60,7 +77,7 @@ function getCache (id) {
 		if ( plus.android.invoke(file, 'exists') ) {
 			return src
 		} else {
-			dispatch('cache/removeCache', id)
+			dispatch('cache/removeCache', caches[index].id)
 		}
 	}
 	return null

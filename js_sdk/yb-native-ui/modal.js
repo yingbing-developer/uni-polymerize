@@ -1,9 +1,9 @@
+//弹窗
+
 const windowWidth = uni.getSystemInfoSync().screenWidth
 const windowHeight = uni.getSystemInfoSync().screenHeight
 import createMasks from './mask.js'
 import color from './color.js'
-
-
 
 export function modal ({title, content, cancelHide, confirmText, cancelText, dark, themeColor, success, fail}) {
 	const padding = uni.upx2px(20)//内间隔
@@ -162,9 +162,9 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 	draws = draws.concat(arr)
 	popup.draw(draws)
 	
-	const pages = getCurrentPages()
-	const page = pages[pages.length - 1]
-	const backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
+	let pages = getCurrentPages()
+	let page = pages[pages.length - 1]
+	let backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
 	page.$vm.$options.onBackPress = new Array(0)
 	page.$vm.$options.onBackPress.push((e) => {
 		complete(false)
@@ -176,11 +176,14 @@ export function modal ({title, content, cancelHide, confirmText, cancelText, dar
 			popup.close()
 			mask = null
 			popup = null
+			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
+			pages = null
+			page = null
+			backs = null
 			success ? success({
 				confirm: confirm,
 				cancel: cancel
 			}) : null
-			page.$vm.$options.onBackPress = backs//还原当前页面的返回事件监听
 		} catch(e){
 			fail ? fail(e) : null
 		}

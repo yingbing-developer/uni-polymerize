@@ -1,5 +1,5 @@
 <template>
-	<yb-page-anime :bgColor="skinColor.color_bg_1">
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="title + ' - 排行榜'"></yb-nav-bar>
 		<list>
 			<cell>

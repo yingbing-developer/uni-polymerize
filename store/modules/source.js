@@ -1,37 +1,37 @@
-import { SOURCECLOSE } from '../config.js'
+import { SOURCE } from '../config.js'
 
 const state = {
-	close: uni.getStorageSync(SOURCECLOSE) || [] //已关闭的网站来源
+	source: uni.getStorageSync(SOURCE) || [] //已关闭的网站来源
 }
 
 const getters = {
-	getClose (state) {
-		return state.close
+	get (state) {
+		return state.source
 	}
 }
 
 const mutations = {
-	setClose (state, close) {
-		state.close = close
-		uni.setStorageSync(SOURCECLOSE, state.close)
+	set (state, source) {
+		state.source = source
+		uni.setStorageSync(SOURCE, state.source)
 	}
 }
 
 const actions = {
-	addClose ({state, commit}, source) {
-		const closes = [...state.close]
-		const index = closes.findIndex(close => close == source)
-		index > -1 ? closes[index] = source : closes.push(source)
-		commit('setClose', closes)
+	add ({state, commit}, source) {
+		const sources = [...state.source]
+		const index = sources.findIndex(item => item.id == source.id)
+		index > -1 ? sources[index] = source : sources.push(source)
+		commit('set', sources)
 	},
-	removeClose ({state, commit}, source) {
-		const closes = [...state.close]
-		const index = closes.findIndex(close => close == source)
-		if ( index > -1 ) closes.splice(index, 1);
-		commit('setClose', closes)
+	remove ({state, commit}, source) {
+		const sources = [...state.source]
+		const index = sources.findIndex(item => item.id == source.id)
+		if ( index > -1 ) sources.splice(index, 1);
+		commit('set', sources)
 	},
-	clearClose ({commit}) {
-		commit('setClose', [])
+	clear ({commit}) {
+		commit('set', [])
 	}
 }
 

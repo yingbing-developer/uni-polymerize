@@ -1,0 +1,160 @@
+<template>
+	<yb-popup direction="bottom" height="640rpx" :visible="visibleSync" @hide="hide">
+		<view class="yb-security" @touchmove.stop.prevent="" :style="{'background-color': dark ? '#272822' : '#fbfbfb'}">
+			<view class="title">
+				<text class="title-text">{{title}}</text>
+			</view>
+			<text class="tip-text color-text" :style="{color: dark ? '#8a8a8a' : '#666'}">{{tip}}</text>
+			<view class="pwds">
+				<view class="pwd" v-for="(item, index) in pwd" :key="index">
+					<text class="text" :style="{color: dark ? '#f4f7f5' : '#333333'}">{{item > -1 ? '●' : ''}}</text>
+					<view class="cursor" :style="{opacity: cursorOpac, 'background-color': dark ? '#f4f7f5' : '#333333'}" v-if="cursorIndex == index"></view>
+				</view>
+			</view>
+			<yb-keyboard class="keyboard" v-model="valueSync" :dark="dark" max="6"></yb-keyboard>
+		</view>
+	</yb-popup>
+</template>
+
+<script>
+	const animation = weex.requireModule('animation');
+	export default {
+		props: {
+			visible: {
+				type: Boolean,
+				default: false
+			},
+			dark: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: ''
+			},
+			tip: {
+				type: String,
+				default: ''
+			}
+		},
+		data () {
+			return {
+				valueSync: '',
+				visibleSync: false,
+				cursorOpac: 1,
+				cursorDuration: 600
+			}
+		},
+		computed: {
+			pwd () {
+				let pwd = this.valueSync.split('') || []
+				let len = 6 - pwd.length
+				for ( let i = 0; i < len; i++ ) {
+					pwd.push(-1)
+				}
+				return pwd
+			},
+			cursorIndex () {
+				let arr = this.pwd.filter(pwd => pwd > -1)
+				return arr.length > 0 ? arr.length : 0
+			}
+		},
+		created() {
+			this.visibleSync = this.visible
+		},
+		mounted () {
+			if ( this.visibleSync ) {
+				this.cursorAnimation()
+			}
+		},
+		methods: {
+			cursorAnimation () {
+				this.cursorOpac = this.cursorOpac > 0 ? 0 : 1;
+				clearTimeout(this.timer);
+				this.time = null
+				this.timer = setTimeout(() => {
+					if ( this.visibleSync ) {
+						this.cursorAnimation();
+					}
+				}, this.cursorDuration);
+			},
+			hide () {
+				this.$emit('update:visible', false)
+				this.visibleSync = false
+			},
+			reset () {
+				this.valueSync = '';
+				this.cursorIndex = 0;
+			}
+		},
+		watch: {
+			cursorIndex () {
+				this.cursorOpac = 1;
+			},
+			visible (newVal) {
+				this.visibleSync = newVal
+				if ( newVal ) {
+					this.cursorAnimation()
+				} else {
+					this.reset()
+				}
+			},
+			valueSync (newVal) {
+				if ( newVal.toString().length >= 6 ) {
+					this.$emit('confirm', this.valueSync)
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-security {
+		position: relative;
+		flex: 1;
+	}
+	.yb-security .title {
+		align-items: center;
+		justify-content: center;
+		height: 70rpx;
+		background-color: #007AFF;
+	}
+	.yb-security .title-text {
+		color: #FFFFFF;
+		font-size: 30rpx;
+		font-weight: bold;
+	}
+	.yb-security .tip-text {
+		text-align: center;
+		font-size: 25rpx;
+		margin: 20rpx 0;
+	}
+	.yb-security .pwds {
+		flex-direction: row;
+		justify-content: space-between;
+		margin: 0 80rpx;
+	}
+	.yb-security .pwd {
+		border: 1px solid #eee;
+		width: 80rpx;
+		height: 80rpx;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+	}
+	.yb-security .cursor {
+		position: absolute;
+		top: 20rpx;
+		left: 40rpx;
+		transform: translateX(-0.5px);
+		height: 40rpx;
+		width: 1px;
+		background-color: #333;
+	}
+	.keyboard {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+</style>

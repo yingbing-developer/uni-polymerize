@@ -4,70 +4,94 @@
 		{
 			"path": "pages/book/index"
 		},
-		// // 本地小说添加页
-		// {
-		// 	"path": "pages/book/search/index"
-		// },
-		// //在线小说添加页
-		// {
-		// 	"path": "pages/book/online/index"
-		// },
-		// //小说详情页
-		// {
-		// 	"path": "pages/book/detail/index"
-		// },
-		// //小说阅读页
-		// {
-		// 	"path": "pages/book/read/index",
-		// 	"style": {
-		// 		"disableScroll": false,
-		// 		"app-plus": {
-		// 			"bounce":"none"
-		// 		}
-		// 	}
-		// },
-		// //小说设置页
-		// {
-		// 	"path": "pages/book/setting/index",
-		// 	"style": {
-		// 		"backgroundColor": "transparent",
-		// 		"app-plus": {
-		// 			"bounce":"none",
-		// 			"animationType": "fade-in",
-		// 			"background": "transparent", // 背景透明
-		// 			"backgroundColor": "rgba(0,0,0,0)", // 背景透明
-		// 			"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
-		// 		}
-		// 	}
-		// },
+		//小说搜索页
+		{
+			"path": "pages/book/search"
+		},
+		//小说分类
+		{
+			"path": "pages/book/type"
+		},
+		//小说最近更新页面
+		{
+			"path": "pages/book/update"
+		},
+		//书籍详情
+		{
+			"path": "pages/book/detail",
+			"style": {
+				"enablePullDownRefresh": true
+			}
+		},
+		//书单信息
+		{
+			"path": "pages/book/shelf"
+		},
+		//小说阅读
+		{
+			"path": "pages/book/reader",
+			"style": {
+				"disableScroll": false,
+				"app-plus": {
+					"bounce":"none"
+				}
+			}
+		},
+		//小说设置窗口
+		{
+			"path": "pages/book/setting"
+		},
+		//本地书籍
+		{
+			"path": "pages/book/local"
+		},
+		//收藏书籍
+		{
+			"path": "pages/book/collection"
+		},
+		//自定义书单
+		{
+			"path": "pages/book/custom"
+		},
+		//阅读记录
+		{
+			"path": "pages/book/record"
+		},
 		//漫画主页
 		{
 			"path": "pages/comic/index"
 		},
-		// //本地漫画添加页
-		// {
-		// 	"path": "pages/comic/search/index"
-		// },
-		// //在线漫画添加页
-		// {
-		// 	"path": "pages/comic/online/index"
-		// },
-		// //漫画详情页
-		// {
-		// 	"path": "pages/comic/detail/index"
-		// },
-		// //漫画阅读页
-		// {
-		// 	"path": "pages/comic/read/index"
-		// },
-		// //设置页
-		// {
-		// 	"path": "pages/setting/index"
-		// },
-		// //关于软件
-		// {
-		// 	"path": "pages/about/index"
-		// },
+		//漫画搜索页
+		{
+			"path": "pages/comic/search"
+		},
+		//漫画分类
+		{
+			"path": "pages/comic/type"
+		},
+		//漫画最近更新页面
+		{
+			"path": "pages/comic/update"
+		},
+		//漫画详情
+		{
+			"path": "pages/comic/detail",
+			"style": {
+				"enablePullDownRefresh": true
+			}
+		},
+		//漫画阅读
+		{
+			"path": "pages/comic/reader"
+		},
+		//漫画设置窗口
+		{
+			"path": "pages/comic/setting"
+		},
+		//本地漫画
+		{
+			"path": "pages/comic/local"
+		},
 		//音乐首页
 		{
 			"path": "pages/music/index"
@@ -95,6 +119,14 @@
 		//音乐详情页
 		{
 			"path": "pages/music/detail"
+		},
+		//收藏的音乐内容
+		{
+			"path": "pages/music/collection"
+		},
+		//音乐播放记录
+		{
+			"path": "pages/music/record"
 		},
 		//音乐播放页面
 		{
@@ -128,9 +160,45 @@
 		{
 			"path": "pages/music/search"
 		},
+		//本地音乐
+		{
+			"path": "pages/music/local"
+		},
+		//自定义歌单
+		{
+			"path": "pages/music/custom"
+		},
 		//个人
 		{
 			"path": "pages/user/index"
+		},
+		//下载页面
+		{
+			"path": "pages/user/download"
+		},
+		//编辑信息
+		{
+			"path": "pages/user/edit"
+		},
+		//设置中心
+		{
+			"path": "pages/setting/index"
+		},
+		//来源设置
+		{
+			"path": "pages/setting/source"
+		},
+		//字典设置
+		{
+			"path": "pages/setting/dict"
+		},
+		//关于软件
+		{
+			"path": "pages/about/index"
+		},
+		//青壮年模式
+		{
+			"path": "pages/adult/index"
 		},
 		//评论列表
 		{
@@ -162,24 +230,9 @@
 				}
 			}
 		},
-		//章节书签展示页
+		//操作列表
 		{
-			"path": "modules/catalog",
-			"style": {
-				"backgroundColor": "transparent",
-				"navigationStyle": "custom",
-				"app-plus": {
-					"bounce":"none",
-					"animationType": "fade-in",
-					"background": "transparent", // 背景透明
-					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
-					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
-				}
-			}
-		},
-		//安全密码
-		{
-			"path": "modules/security",
+			"path": "modules/action-sheet",
 			"style": {
 				"backgroundColor": "transparent",
 				"navigationStyle": "custom",

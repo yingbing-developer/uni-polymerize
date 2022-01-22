@@ -4,7 +4,7 @@
 			<cell v-for="(item, index) in list">
 				<view class="list" :style="{'border-color': lineColor}">
 					<view class="top">
-						<image class="avatar" lazy-load :src="item.avatar" mode="aspectFill"></image>
+						<yb-avatar enablePreview size="60" class="avatar" lazy-load :src="item.avatar"></yb-avatar>
 						<view class="info">
 							<text class="title" :style="{color: titleColor}">{{item.title}}</text>
 							<text class="subtitle" :style="{color: titleColor}">{{item.subtitle}}</text>
@@ -15,7 +15,7 @@
 						<view class="child" :style="{'background-color': lineColor}" v-if="item.subComment.length > 0">
 							<view class="list" :style="{'border-color': lineColor}" v-for="(child, i) in item.subComment.slice(0, item.isShowMore ? item.subComment.length : 1)" :key="i">
 								<view class="top">
-									<image class="avatar" lazy-load :src="child.avatar" mode="aspectFill"></image>
+									<yb-avatar enablePreview size="60" class="avatar" lazy-load :src="child.avatar"></yb-avatar>
 									<view class="info">
 										<text class="title" :style="{color: titleColor}">{{child.title}}</text>
 										<text class="subtitle" :style="{color: titleColor}">{{child.subtitle}}</text>
@@ -125,9 +125,6 @@
 		align-items: center;
 	}
 	.yb-comment .list .top .avatar {
-		width: 60rpx;
-		height: 60rpx;
-		border-radius: 60rpx;
 		margin-right: 20rpx;
 	}
 	.yb-comment .list .top .info {

@@ -12,6 +12,7 @@ export default {
 	color_4: '#fff',
 	color_5: '#737373',
 	color_gap_1: '#E0E0E0',
+	color_gap_2: '#f6f7f9',
 	color_read_text: '#2E2B23',
 	color_read_bg: '#BFAD8A'
 }

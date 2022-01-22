@@ -1,5 +1,5 @@
 <template>
-	<yb-page-anime :bgColor="skinColor.color_bg_1">
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="title + ' - 歌手'"></yb-nav-bar>
 		<yb-swiper-list
 		:tabs="tabs"
@@ -8,7 +8,7 @@
 		:borderColor="skinColor.color_3"
 		:activedColor="skinColor.color_actived_1">
 			<template v-slot="{swiperSlot}">
-				<yb-index-list :data="list[swiperSlot.index].child" :headerBgColor="skinColor.color_theme_1" v-if="list[swiperSlot.index].child.length > 0">
+				<yb-index-list :data="list[swiperSlot.index].child" :headerBgColor="skinColor.color_red_2" v-if="list[swiperSlot.index].child.length > 0">
 					<template slot="pulldown">
 						<yb-pulldown
 						v-if="!list[swiperSlot.index].loading"
@@ -51,7 +51,7 @@
 				panelShow: false
 			}
 		},
-		onLoad() {
+		onReady() {
 			this.getType().then(status => {
 				if ( status ) {
 					let list = []

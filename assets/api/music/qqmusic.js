@@ -3,26 +3,17 @@
 import http from '@/plugins/request/index.js'
 import Config from '@/assets/js/config.js'
 import Utils from '@/assets/js/util.js'
-
 import Comment from '@/assets/constructor/comment.js'
 import Song from '@/assets/constructor/song.js'
 import Album from '@/assets/constructor/album.js'
 import Singer from '@/assets/constructor/singer.js'
-
 import Sign from '@/assets/other/qqSign.js'
+import { getHref, htmlDecodeByRegExp } from '@/assets/api/global.js'
 
-const {
-	MUSICURL,
-	ERR_OK,
-	ERR_FALSE
-} = Config
-const {
-	time2seconds,
-	dateFormat
-} = Utils;
+const { MUSICURL, ERR_OK, ERR_FALSE } = Config
+const { dateFormat, time2seconds } = Utils;
 
 const source = 'qqmusic';
-const href = MUSICURL[source].href;
 
 //QQ音乐请求常量
 const commonParams = {
@@ -37,37 +28,15 @@ const commonParams = {
 	needNewCode: 0
 }
 
-
-//转义html特殊字符
-const htmlDecodeByRegExp = function(str) {
-	let s = "";
-	if (str.length == 0) return "";
-	s = str.replace(/&#58;/g, ":");
-	s = s.replace(/&#32;/g, " ");
-	s = s.replace(/&#33;/g, "!");
-	s = s.replace(/&#34;/g, '"');
-	s = s.replace(/&#35;/g, "#");
-	s = s.replace(/&#36;/g, "$");
-	s = s.replace(/&#37;/g, "%");
-	s = s.replace(/&#38;/g, "&");
-	s = s.replace(/&#39;/g, "'");
-	s = s.replace(/&#40;/g, "(");
-	s = s.replace(/&#41;/g, ")");
-	s = s.replace(/&#42;/g, "*");
-	s = s.replace(/&#43;/g, "+");
-	s = s.replace(/&#44;/g, ",");
-	s = s.replace(/&#45;/g, "-");
-	s = s.replace(/&#46;/g, ".");
-	s = s.replace(/&#47;/g, "/");
-	s = s.replace(/&#13;/g, "\n");
-	return s;
-}
-
 export default {
-	/**
-	 * 搜索音乐列表
-	 * @param {Object} data = {keyword: '搜索关键词', page: '搜索页数'} 
-	 **/
+/**
+* @event {Function()} search 
+* @author yingbing
+* @description 搜索
+* @param {String} keyword = [搜索关键词] 
+* @param {Number} page = [搜索页数] 
+* @return {Object}
+**/
 	search(data) {
 		const dataSync = Object.assign({
 			_: '15778592' + Math.floor(Math.random() * Math.pow(10, 5)),
@@ -151,11 +120,14 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取热门搜索关键词
-	 *
-	 **/
+/**
+* @event {Function()} getHotKeyword 
+* @author yingbing
+* @description 获取热门搜索关键词
+* @return {Object}
+**/
 	getHotKeyword() {
+		const href = getHref(source)
 		const dataValue = Object.assign({}, {
 			"comm": commonParams,
 		}, {"hotkey":{"module":"tencent_musicsoso_hotkey.HotkeyService","method":"GetHotkeyForQQMusicMobile","param":{"remoteplace":"txt.miniapp.wxada7aab80ba27074","searchid":"1559616839293"}}})
@@ -199,10 +171,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取热门推荐
-	 *
-	 **/
+/**
+* @event {Function()} getRecom 
+* @author yingbing
+* @description 获取热门推荐
+* @return {Object}
+**/
 	getRecom () {
 		return new Promise((resolve) => {
 			let newArr = [];
@@ -215,29 +189,21 @@ export default {
 				hotDisc: [],
 				newSong: []
 			}
-			if ( MUSICURL[source].banner ) {
-				newArr.push(this.getBannerList());
-			}
-			if ( MUSICURL[source].singer ) {
-				newArr.push(this.getHotSinger());
-			}
-			if ( MUSICURL[source].top ) {
-				newArr.push(this.getToplist());
-			}
-			if ( MUSICURL[source].album ) {
-				newArr.push(this.getHotDiscList());
-			}
+			newArr.push(this.getBannerList());
+			newArr.push(this.getHotSinger());
+			newArr.push(this.getToplist());
+			newArr.push(this.getHotDiscList());
 			Promise.all(newArr).then((ress) => {
-				ress.forEach((res, key) => {
+				ress.forEach(res => {
 					if ( res.code == ERR_OK ) {
-						switch (key) {
-							case 0:
+						switch (res.data.module) {
+							case 'BANNER':
 								recome.banners = res.data.list
 								break;
-							case 1:
+							case 'HOT_SINGER':
 								recome.hotSinger = res.data.list
 								break;
-							case 2:
+							case 'TOP':
 								recome.topList = res.data.list
 								break;
 							default:
@@ -264,11 +230,14 @@ export default {
 		})
 	},
 
-	/**
-	 * 获取轮播图列表
-	 *
-	 **/
+/**
+* @event {Function()} getBannerList 
+* @author yingbing
+* @description 获取轮播图列表
+* @return {Object}
+**/
 	getBannerList() {
+		const href = getHref(source)
 		const dataSync = Object.assign({
 			'-': 'recom61961704538089270',
 		}, commonParams, {
@@ -313,6 +282,7 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						module: 'BANNER',
 						source: source
 					}
 				})
@@ -322,6 +292,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'BANNER',
 						source: source
 					}
 				})
@@ -329,11 +300,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取轮播详情
-	 * @param {Object} data = {id: 轮播ID} 
-	 **/
+/**
+* @event {Function()} getBannerDetail 
+* @author yingbing
+* @description 获取轮播详情
+* @param {String} id = [轮播id] 
+* @return {Object}
+**/
 	getBannerDetail(data) {
+		const href = getHref(source)
 		const dataSync = Object.assign({
 			'-': 'albumSonglist' + Math.random() * Math.pow(10, 17)
 		}, commonParams, {
@@ -407,11 +382,14 @@ export default {
 		})
 	},
 
-	/**
-	 * 获取排行榜
-	 *
-	 **/
+/**
+* @event {Function()} getToplist 
+* @author yingbing
+* @description 获取排行榜
+* @return {Object}
+**/
 	getToplist() {
+		const href = getHref(source)
 		const dataSync = {
 			'-': '1577850668501',
 			data: JSON.stringify({
@@ -463,6 +441,7 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						module: 'TOP',
 						source: source
 					}
 				})
@@ -472,6 +451,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'TOP',
 						source: source
 					}
 				})
@@ -479,12 +459,16 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取排行榜详情
-	 * @param {String} id = {id: 排行榜ID} 
-	 * @param {String} extra = {period: 时间段} 
-	 **/
+/**
+* @event {Function()} getTopDetail 
+* @author yingbing
+* @description 获取排行榜详情
+* @param {String} id = [排行榜id] 
+* @param {Object} extra = [period: 时间段] 
+* @return {Object}
+**/
 	getTopDetail(data) {
+		const href = getHref(source)
 		const dataValue = {
 			"comm":{
 				"cv":4747474,
@@ -557,11 +541,14 @@ export default {
 		})
 	},
 
-	/**
-	 * 获取最新歌曲
-	 *
-	 **/
+/**
+* @event {Function()} getNewSongList 
+* @author yingbing
+* @description 获取最新歌曲
+* @return {Object}
+**/
 	getNewSongList() {
+		const href = getHref(source)
 		const dataValue = {
 			'comm': {
 				'ct': 24
@@ -634,10 +621,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取新碟类型
-	 *
-	 **/
+/**
+* @event {Function()} getNewAlbumType 
+* @author yingbing
+* @description 获取新碟类型
+* @return {Object}
+**/
 	getNewAlbumType() {
 		return new Promise((resolve) => {
 			const list = [{
@@ -675,12 +664,16 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取最新上架专辑
-	 * @param {String} typeId = 类型 
-	 * @param {String} page = 请求页数 
-	 **/
+/**
+* @event {Function()} getNewAlbumList 
+* @author yingbing
+* @description 获取上架新碟
+* @param {String} typeId = [分类id] 
+* @param {Number} page = [请求当前页] 
+* @return {Object}
+**/
 	getNewAlbumList(data) {
+		const href = getHref(source)
 		const dataValue = {
 			'comm': {
 				'ct': 24
@@ -758,11 +751,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取专辑详情
-	 * @param {String} id = 专辑ID 
-	 **/
+/**
+* @event {Function()} getAlbumDetail 
+* @author yingbing
+* @description 获取专辑详情
+* @param {String} id = [专辑id] 
+* @return {Object}
+**/
 	getAlbumDetail(data) {
+		const href = getHref(source)
 		const dataValue = {
 			'comm': {
 				'ct': 24
@@ -839,10 +836,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌手类型
-	 *
-	 **/
+/**
+* @event {Function()} getSingerType 
+* @author yingbing
+* @description 获取歌手类型
+* @return {Object}
+**/
 	getSingerType() {
 		return new Promise((resolve) => {
 			const list = [{
@@ -876,10 +875,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取热门歌手
-	 *
-	 **/
+/**
+* @event {Function()} getHotSinger 
+* @author yingbing
+* @description 获取热门歌手
+* @return {Object}
+**/
 	getHotSinger() {
 		return new Promise((resolve) => {
 			this.getSinger({
@@ -889,6 +890,7 @@ export default {
 					code: res.code,
 					data: {
 						list: res.data.list.slice(0, 10),
+						module: 'HOT_SINGER',
 						source: source
 					}
 				})
@@ -897,6 +899,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'HOT_SINGER',
 						source: source
 					}
 				})
@@ -904,11 +907,15 @@ export default {
 		})
 	},
 
-	/**
-	 * 获取歌手
-	 * @param {Object} data = {area: 地区} 
-	 **/
+/**
+* @event {Function()} getSinger 
+* @author yingbing
+* @description 获取歌手
+* @param {String} area = [地区] 
+* @return {Object}
+**/
 	getSinger(data) {
+		const href = getHref(source)
 		const dataSync = Object.assign({
 			'-': 'getUCGI' + Math.random() * Math.pow(10, 17)
 		}, commonParams, {
@@ -955,11 +962,15 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌手专辑列表
-	 * @param {Object} data = {id: 歌手ID} 
-	 **/
+/**
+* @event {Function()} getSingerDetail 
+* @author yingbing
+* @description 获取歌手详情
+* @param {String} id = [歌手id] 
+* @return {Object}
+**/
 	getSingerDetail(data) {
+		const href = getHref(source)
 		const dataSync = Object.assign({
 			'-': 'getSingerSong' + Math.random() * Math.pow(10, 17)
 		}, commonParams, {
@@ -1047,11 +1058,14 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌单类型
-	 *
-	 **/
+/**
+* @event {Function()} getDiscType 
+* @author yingbing
+* @description 获取歌单分类
+* @return {Object}
+**/
 	getDiscType(data) {
+		const href = getHref(source)
 		const dataValue = {
 			"comm": {
 				"ct": 24
@@ -1112,10 +1126,12 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取热门歌单
-	 *
-	 **/
+/**
+* @event {Function()} getHotDiscList 
+* @author yingbing
+* @description 获取热门歌单
+* @return {Object}
+**/
 	getHotDiscList() {
 		const dataSync = Object.assign({}, commonParams, {
 			picmid: 1,
@@ -1157,6 +1173,7 @@ export default {
 					code: ERR_OK,
 					data: {
 						list: list,
+						module: 'HOT_DISC',
 						source: source
 					}
 				})
@@ -1166,6 +1183,7 @@ export default {
 					code: ERR_FALSE,
 					data: {
 						list: [],
+						module: 'HOT_DISC',
 						source: source
 					}
 				})
@@ -1173,14 +1191,17 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌单
-	 * @param {Object} data = {参数} 
-	 * @param {String} order = {new or hot} 
-	 * @param {Number} limit = {请求数量} 
-	 * @param {String} cat = {分类} 
-	 **/
+/**
+* @event {Function()} getDiscList 
+* @author yingbing
+* @description 获取歌单
+* @param {String} order = [排序] 
+* @param {String} typeId = [分类id] 
+* @param {Number} page = [请求当前页] 
+* @return {Object}
+**/
 	getDiscList(data) {
+		const href = getHref(source)
 		const dataValue = {
 			"comm": {
 				"ct": 24
@@ -1257,11 +1278,13 @@ export default {
 		})
 	},
 	
-	/**
-	 * 获取歌单详情
-	 * @param {String} id = {id: 排行榜ID} 
-	 * @param {String} extra = {period: 时间段} 
-	 **/
+/**
+* @event {Function()} getDiscDetail 
+* @author yingbing
+* @description 获取歌单详情
+* @param {String} id = [歌单id] 
+* @return {Object}
+**/
 	getDiscDetail(data) {
 		const dataSync = Object.assign({}, commonParams, {
 			type: 1,
@@ -1322,11 +1345,15 @@ export default {
 		})
 	},
 
-	/**
-	 * 获取播放链接
-	 * @param {Object} data = {id: '歌曲Id'} 
-	 **/
+/**
+* @event {Function()} getPlayUrl 
+* @author yingbing
+* @description 获取播放链接
+* @param {String} id = [音乐id] 
+* @return {Object}
+**/
 	getPlayUrl(data) {
+		const href = getHref(source)
 		const dataSync = Object.assign({
 			'-': 'getplaysongvkey700897959535075'
 		}, commonParams, {
@@ -1395,10 +1422,13 @@ export default {
 		})
 	},
 
-	/**
-	 * 获取歌词
-	 * @param {Object} data = {id: '歌词id'} 
-	 **/
+/**
+* @event {Function()} getLyric 
+* @author yingbing
+* @description 获取歌词
+* @param {String} id = [歌词id] 
+* @return {Object}
+**/
 	getLyric(data) {
 		const dataSync = Object.assign({}, commonParams, {
 			'-': 'jsonp1',
@@ -1447,14 +1477,17 @@ export default {
 			})
 		})
 	},
-	/**
-	 * 获取歌单
-	 * @param {Object} data = {参数} 
-	 * @param {String} id = {new or hot} 
-	 * @param {Number} limit = {请求数量} 
-	 * @param {String} cat = {分类} 
-	 **/
+	
+/**
+* @event {Function()} getComment 
+* @author yingbing
+* @description 获取评论列表
+* @param {String} id = [评论id] 
+* @param {String} page = [请求当前页] 
+* @return {Object}
+**/
 	getComment(data) {
+		const href = getHref(source)
 		const dataValue = {
 			"comm": {
 				"ct": 24

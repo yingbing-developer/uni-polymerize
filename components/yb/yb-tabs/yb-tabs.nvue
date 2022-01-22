@@ -4,12 +4,24 @@
 	:scroll-into-view="scrollId"
 	:show-scrollbar="false"
 	class="tabs"
+	ref="ybTabs"
 	scroll-x="true"
-	:style="{
-		'border-color': borderColor
-	}">
-		<view class="tab" :style="{width: column == 'auto' ? column : (750 / column) + 'rpx'}" v-for="(item, index) in tabs" :key="index" :id="'yb-tab_' + index" @tap="changeTab(index)">
-			<text class="tab-text" :style="{color: index == currentSync ? activedColor : frontColor}">{{item.label}}</text>
+	:style="tabsStyle">
+		<view class="tab"
+		:style="{
+			width: column == 'auto' ? '' : (fullWidth / column) + 'px',
+			'padding-top': type == 'normal' ? '32rpx' : '20rpx',
+			'padding-bottom': type == 'normal' ? '32rpx' : '20rpx',
+			'padding-left': column == 'auto' ? '46rpx' : '',
+			'padding-right': column == 'auto' ? '46rpx' : '',
+			'border-right': type == 'normal' ? '' : '1rpx solid ' + activedColor,
+			'background-color': type == 'normal' ? '' : (index == currentSync ? activedColor : '')
+		}" v-for="(item, index) in tabs" :key="index" :id="'yb-tab_' + index" @tap="changeTab(index)">
+			<text class="tab-text"
+			:style="{
+				color: type == 'normal' ? (index == currentSync ? activedColor : frontColor) : (index == currentSync ? frontColor : activedColor),
+				fontSize: size + 'rpx'
+			}">{{item.label}}</text>
 		</view>
 	</scroll-view>
 </template>
@@ -23,9 +35,17 @@
 					return new Array
 				}
 			},
+			size: {
+				type: String | Number,
+				default: 30
+			},
 			frontColor: {
 				type: String,
 				default: '#333333'
+			},
+			type: {
+				type: String,
+				default: 'normal'
 			},
 			borderColor: {
 				type: String,
@@ -44,14 +64,33 @@
 				default: 'auto'
 			}
 		},
+		computed: {
+			tabsStyle () {
+				return this.type == 'normal' ? {
+					'border-bottom-width': '1rpx',
+					'border-color': this.borderColor
+				} : {
+					'border-width': '1rpx',
+					'border-color': this.activedColor
+				}
+			}
+		},
 		data () {
 			return {
 				currentSync: 0,
-				scrollId: ''
+				scrollId: '',
+				fullWidth: 0
 			}
 		},
 		created() {
 			this.currentSync = this.current
+		},
+		mounted () {
+			setTimeout(() => {
+				weex.requireModule('dom').getComponentRect(this.$refs.ybTabs, (e) => {
+					this.fullWidth = e.size.width
+				})
+			}, 200)
 		},
 		methods: {
 			changeTab (index) {
@@ -77,14 +116,9 @@
 <style scoped>
 	.tabs {
 		flex-direction: row;
-		border-bottom-width: 1rpx;
 		border-color: #666;
 	}
-	.tabs .tab {
-		padding: 32rpx 46rpx;
-	}
 	.tabs .tab .tab-text {
-		font-size: 30rpx;
 		text-align: center;
 		lines: 1;
 		color: #333333;

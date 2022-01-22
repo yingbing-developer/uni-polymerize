@@ -1,5 +1,5 @@
 <template>
-	<yb-page-anime :bgColor="skinColor.color_bg_1">
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<template v-if="module">
 			<yb-nav-bar :bgColor="skinColor.color_bg_1" :frontColor="skinColor.color_1" :title="module.title"></yb-nav-bar>
 			<list>
@@ -8,7 +8,7 @@
 				</cell>
 				<rd-header title="热门歌手"></rd-header>
 				<cell>
-					<view class="padding-gap">
+					<view class="padding-gap" v-if="module.hotSinger.length > 0">
 						<rd-title title="热门歌手" moreText="更多"
 						@more="app.$Router.push({
 							path: '/pages/music/singer',
@@ -29,7 +29,7 @@
 				</cell>
 				<rd-header title="推荐歌单"></rd-header>
 				<cell>
-					<view class="padding-gap">
+					<view class="padding-gap" v-if="module.hotDisc.length > 0">
 						<rd-title title="推荐歌单" moreText="更多" @more="app.$Router.push({
 							path: '/pages/music/mix',
 							query: {

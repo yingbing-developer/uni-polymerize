@@ -1,11 +1,11 @@
 <template>
 	<view class="toast">
-		<view class="mask" ref="mask" @tap="hide('cancel')"></view>
+		<view class="mask" ref="mask" @tap="hide(false)"></view>
 		<view class="popup" ref="popup" :style="{'background-color': skinColor.color_bg_1}" @touchmove.stop.prevent="">
 			<text class="title" :style="{color: skinColor.color_1}">编辑内容</text>
 			<textarea :adjust-position="false" :show-confirm-bar="false" :style="{'border-color': skinColor.color_gap_1, 'background-color': skinColor.color_read_bg, color: skinColor.color_read_text}" class="editTextarea" v-model="content" />
 			<view class="btns">
-				<view class="btn" :class="skinMode + '-actived'" @tap="hide('cancel')">
+				<view class="btn" :class="skinMode + '-actived'" @tap="hide(false)">
 					<text class="btn-text" :style="{color: skinColor.color_1}">取消</text>
 				</view>
 				<view class="line-gap" :style="{'background-color': skinColor.color_gap_1}"></view>
@@ -43,7 +43,6 @@
 			})
 		},
 		onLoad (data) {
-			uni.$emit('musicBtn-down');
 			this.content = decodeURIComponent(data.content);
 			this.start = data.start;
 			this.end = data.end;
@@ -73,7 +72,7 @@
 					delay: 0 //ms
 				})
 			},
-			hide (flag) {
+			hide (bol) {
 				animation.transition(this.$refs.mask, {
 					styles: {
 						opacity: 0
@@ -93,37 +92,40 @@
 					needLayout: false,
 					delay: 0 //ms
 				}, (res) => {
-					if ( flag == 'cancel' ) {
-						uni.$emit('edit-btn', {
-							flag: 'cancel'
-						})
-					} else {
-						uni.$emit('edit-btn', {
-							flag: 'confirm',
+					if ( bol ) {
+						uni.$emit('edit', {
+							confirm: bol,
 							content: this.content,
 							start: this.start,
 							end: this.end
+						})
+					} else {
+						uni.$emit('edit', {
+							confirm: bol
 						})
 					}
 				})
 			},
 			save () {
-				getApp().globalData.$dom.confirm('操作提示', '确认保存修改的内容吗？').then((res) => {
-					if ( res == 'confirm' ) {
-						this.hide('confirm');
+				this.app.$nativeUI.confirm({
+					title: '操作提示',
+					content: '确认要保存修改的内容吗？',
+					success: (res) => {
+						if ( res.confirm ) {
+							this.hide(true);
+						}
 					}
 				})
 			}
 		},
 		beforeDestroy () {
-			uni.$emit('musicBtn-open');
 			uni.offKeyboardHeightChange(res => {
 				console.log(res);
 			});
 		},
 		onBackPress (event) {
 			if ( event.from == 'backbutton' ) {
-				this.hide('cancel');
+				this.hide(false);
 				return true;
 			}
 			return false;
