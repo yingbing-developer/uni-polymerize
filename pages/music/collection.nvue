@@ -41,7 +41,7 @@
 						<template v-slot="{indexItem}">
 							<view class="singer" :style="{'border-color': skinColor.color_gap_1}" @tap="goDetail(indexItem)">
 								<rd-image lazyLoad class="cover" :src="indexItem.cover" mode="aspectFill"></rd-image>
-								<text class="name" :style="{color: skinColor.color_1}">{{indexItem.title}}（{{MUSICURL[indexItem.source].title}}）</text>
+								<text class="name" :style="{color: skinColor.color_1}">{{indexItem.title}}（{{filterSource(indexItem.source)}}）</text>
 							</view>
 						</template>
 					</yb-index-list>

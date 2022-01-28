@@ -99,7 +99,7 @@
 								}">题材：{{item.style || '未知题材'}}</text>
 								<text class="subtitle" :style="{
 									'color': skinColor.color_3
-								}">来源：{{COMICURL[item.source].title}}</text>
+								}">来源：{{filterSource(item.source)}}</text>
 							</view>
 							<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
 							<view class="badges">
@@ -145,7 +145,7 @@
 									:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
 										<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
 										<text class="title" :style="{color: skinColor.color_1}"> | {{item.title}}</text>
-										<text class="value" :style="{color: skinColor.color_3}">{{COMICURL[item.source].title}}</text>
+										<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
 									</view>
 									<rd-no-data v-if="updates.filter(up => up.source == tabs[swiperSlot.index].source).length == 0"></rd-no-data>
 								</view>
@@ -235,28 +235,13 @@
 						this.updates = this.updates.concat(res.data.updates)
 						this.hotTops = this.hotTops.concat(res.data.hotTops)
 						this.tabs.push({
-							label: this.COMICURL[res.data.source].title,
+							label: this.filterSource(res.data.source),
 							value: res.data.source,
 							source: res.data.source
 						})
 					}
 				})
 			})
-			// let str = `
-			// <div class="title">
-			// <div class="text">文本</div>
-			// <div class="text_2">文本2</div>
-			// </div>
-			// <div class="title">
-			// <div class="text">文本</div>
-			// <div class="text_2">文本2</div>
-			// </div>
-			// <div class="title">
-			// <div class="text">文本</div>
-			// <div class="text_2">文本2</div>
-			// </div>
-			// `
-			// console.log(str.match(/<div[^>]*class=([""]?)title\1[^>]*>*([\s\S]*?)<\/div>/ig));
 		},
 		onShow () {
 			getApp().globalData.$business.setSkinColor();
@@ -267,8 +252,10 @@
 					this.$refs.pulldown.success()
 					this.banners = []
 					this.hotBooks = []
+					this.populars = []
 					this.updates = []
 					this.hotTops = []
+					this.tabs = []
 					ress.forEach(res => {
 						if ( res.code == this.app.$config.ERR_OK ) {
 							this.banners = this.banners.concat(res.data.banners)
@@ -276,6 +263,11 @@
 							this.populars = this.populars.concat(res.data.populars)
 							this.updates = this.updates.concat(res.data.updates)
 							this.hotTops = this.hotTops.concat(res.data.hotTops)
+							this.tabs.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source
+							})
 						}
 					})
 				})

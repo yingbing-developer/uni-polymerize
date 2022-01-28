@@ -25,32 +25,28 @@
 			</view>
 			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage"></yb-pullup>
 		</list>
-		<yb-modal
+		<yb-modal-input
 		:visible.sync="showCreate"
-		:bgColor="skinColor.color_bg_2"
-		:frontColor="skinColor.color_1"
-		:themeColor="skinColor.color_blue"
 		title="新建歌单"
-		@confirm="createAlbum"
-		@cancel="albumTitle = ''">
-			<view class="modal-input-box">
-				<input class="input" max-length="40" v-model="albumTitle" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_2}" type="text" placeholder="请输入歌单标题">
-				<text class="tip" :style="{color: skinColor.color_gap_1}">{{albumTitle.length}}/40</text>
-			</view>
-		</yb-modal>
-		<yb-modal
-		:visible.sync="showEdit"
+		v-model="albumTitle"
 		:bgColor="skinColor.color_bg_2"
 		:frontColor="skinColor.color_1"
 		:themeColor="skinColor.color_blue"
+		:tipColor="skinColor.color_2"
+		:gapColor="skinColor.color_gap_1"
+		@confirm="createAlbum"
+		@cancel="albumTitle = ''"></yb-modal-input>
+		<yb-modal-input
+		:visible.sync="showEdit"
 		title="编辑歌单"
+		v-model="albumTitle"
+		:bgColor="skinColor.color_bg_2"
+		:frontColor="skinColor.color_1"
+		:themeColor="skinColor.color_blue"
+		:tipColor="skinColor.color_2"
+		:gapColor="skinColor.color_gap_1"
 		@confirm="editAlbum"
-		@cancel="albumTitle = ''">
-			<view class="modal-input-box">
-				<input class="input" max-length="40" v-model="albumTitle" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_2}" type="text" placeholder="请输入歌单标题">
-				<text class="tip" :style="{color: skinColor.color_gap_1}">{{albumTitle.length}}/40</text>
-			</view>
-		</yb-modal>
+		@cancel="albumTitle = ''"></yb-modal-input>
 		<rd-action-sheet
 		:visible.sync="showMore"
 		:title="'歌单：' + (panelInfo ? panelInfo.title : '')"
@@ -263,17 +259,5 @@
 	.album .label {
 		font-size: 24rpx;
 		lines: 1;
-	}
-	.modal-input-box {
-		flex-direction: row;
-		align-items: center;
-	}
-	.modal-input-box .input {
-		border-bottom-width: 1rpx;
-		flex: 1;
-		font-size: 24rpx;
-	}
-	.modal-input-box .tip {
-		font-size: 24rpx;
 	}
 </style>

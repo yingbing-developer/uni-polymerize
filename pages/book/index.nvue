@@ -67,38 +67,6 @@
 						<yb-gap></yb-gap>
 					</view>
 				</cell>
-				<!-- <cell v-for="(item, index) in hotBooks.slice(4)">
-					<view class="cell-item_3"
-					@tap="app.$Router.push({
-						path: '/pages/book/detail',
-						query: {
-							params: encodeURIComponent(JSON.stringify(item))
-						}
-					})"
-					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-						<view elevation="3">
-							<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
-						</view>
-						<view class="info">
-							<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
-							<view class="subtitles">
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">作者：{{item.author}}</text>
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">题材：{{item.style || '未知题材'}}</text>
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">来源：{{BOOKURL[item.source].title}}</text>
-							</view>
-							<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
-							<view class="badges">
-								<yb-tag :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
-							</view>
-						</view>
-					</view>
-				</cell> -->
 				<cell>
 					<yb-gap></yb-gap>
 					<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
@@ -134,7 +102,7 @@
 									:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
 										<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
 										<text class="title" :style="{color: skinColor.color_1}"> | {{item.title}}</text>
-										<text class="value" :style="{color: skinColor.color_3}">{{BOOKURL[item.source].title}}</text>
+										<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
 									</view>
 									<rd-no-data v-if="updates.filter(up => up.source == tabs[swiperSlot.index].source).length == 0"></rd-no-data>
 								</view>
@@ -204,6 +172,7 @@
 				loading: true,
 				error: false,
 				banners: [],
+				populars: [],
 				hotBooks: [],
 				updates: [],
 				hotTops: [],
@@ -214,16 +183,19 @@
 		onLoad() {
 			this.$store.dispatch('cache/clearCache', 'image')
 			this.windowHeight = uni.getSystemInfoSync().windowWidth
+		},
+		onReady() {
 			this.app.$api.book.getRecome().then((ress) => {
 				this.loading = false
 				ress.forEach(res => {
 					if ( res.code == this.app.$config.ERR_OK ) {
 						this.banners = this.banners.concat(res.data.banners)
 						this.hotBooks = this.hotBooks.concat(res.data.hotBooks)
+						this.populars = this.populars.concat(res.data.populars)
 						this.updates = this.updates.concat(res.data.updates)
 						this.hotTops = this.hotTops.concat(res.data.hotTops)
 						this.tabs.push({
-							label: this.BOOKURL[res.data.source].title,
+							label: this.filterSource(res.data.source),
 							value: res.data.source,
 							source: res.data.source
 						})
@@ -240,14 +212,22 @@
 					this.$refs.pulldown.success()
 					this.banners = []
 					this.hotBooks = []
+					this.populars = []
 					this.updates = []
 					this.hotTops = []
+					this.tabs = []
 					ress.forEach(res => {
 						if ( res.code == this.app.$config.ERR_OK ) {
 							this.banners = this.banners.concat(res.data.banners)
 							this.hotBooks = this.hotBooks.concat(res.data.hotBooks)
+							this.populars = this.populars.concat(res.data.populars)
 							this.updates = this.updates.concat(res.data.updates)
 							this.hotTops = this.hotTops.concat(res.data.hotTops)
+							this.tabs.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source
+							})
 						}
 					})
 				})

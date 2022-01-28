@@ -1,6 +1,6 @@
-import music from './music/index.js'
-import book from './book/index.js'
-import comic from './comic/index.js'
+import music from './music.js'
+import book from './book.js'
+import comic from './comic.js'
 
 const api = {
 	music: music,

@@ -20,7 +20,7 @@
 						:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
 							<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
 							<text class="title" :style="{color: skinColor.color_1}"> | {{item.title}}</text>
-							<text class="value" :style="{color: skinColor.color_3}">{{BOOKURL[item.source].title}}</text>
+							<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
 						</view>
 					</cell>
 				</list>

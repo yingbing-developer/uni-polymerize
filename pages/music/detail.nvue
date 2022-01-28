@@ -140,12 +140,12 @@
 						this.list = list
 					})
 				} else if ( this.params.type == 'album' ) {
-					this.getDiscDetail().then(list => {
+					this.getAlbumDetail().then(list => {
 						this.loading = false
 						this.list = list
 					})
 				} else {
-					this.getAlbumDetail().then(list => {
+					this.getNewAlbumDetail().then(list => {
 						this.loading = false
 						this.list = list
 					})
@@ -162,10 +162,11 @@
 			async getSingerDetail () {
 				return await getApp().globalData.$api.music.getSingerDetail({
 					id: this.params.singerId,
-					source: this.params.source
+					source: this.params.source,
+					extra: this.params.extra
 				}).then((res) => {
 					return {
-						desc: res.data.desc,
+						desc: res.data.desc || '',
 						list: res.data.list
 					}
 				}).catch(() => {
@@ -190,18 +191,8 @@
 			async getBannerDetail () {
 				return await getApp().globalData.$api.music.getBannerDetail({
 					id: this.params.albumId,
-					source: this.params.source
-				}).then((res) => {
-					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
-					return res.data.list
-				}).catch(() => {
-					return []
-				})
-			},
-			async getDiscDetail () {
-				return await getApp().globalData.$api.music.getDiscDetail({
-					id: this.params.albumId,
-					source: this.params.source
+					source: this.params.source,
+					extra: this.params.extra
 				}).then((res) => {
 					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
 					return res.data.list
@@ -212,7 +203,20 @@
 			async getAlbumDetail () {
 				return await getApp().globalData.$api.music.getAlbumDetail({
 					id: this.params.albumId,
-					source: this.params.source
+					source: this.params.source,
+					extra: this.params.extra
+				}).then((res) => {
+					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
+					return res.data.list
+				}).catch(() => {
+					return []
+				})
+			},
+			async getNewAlbumDetail () {
+				return await getApp().globalData.$api.music.getNewAlbumDetail({
+					id: this.params.albumId,
+					source: this.params.source,
+					extra: this.params.extra
 				}).then((res) => {
 					// this.isLastPage = this.source == 'qqmusic' ? true : res.data.list.length > 0 ? false : true
 					return res.data.list

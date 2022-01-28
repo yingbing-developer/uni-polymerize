@@ -1,7 +1,7 @@
 import { SOURCE } from '../config.js'
 
 const state = {
-	source: uni.getStorageSync(SOURCE) || [] //已关闭的网站来源
+	source: uni.getStorageSync(SOURCE) || [] //接口来源
 }
 
 const getters = {
@@ -24,9 +24,9 @@ const actions = {
 		index > -1 ? sources[index] = source : sources.push(source)
 		commit('set', sources)
 	},
-	remove ({state, commit}, source) {
+	remove ({state, commit}, id) {
 		const sources = [...state.source]
-		const index = sources.findIndex(item => item.id == source.id)
+		const index = sources.findIndex(item => item.id == id)
 		if ( index > -1 ) sources.splice(index, 1);
 		commit('set', sources)
 	},

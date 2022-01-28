@@ -62,15 +62,15 @@
 				const history = this.$store.getters['search/getHistory']
 				return history.filter(his => his.type == 'music')
 			},
-			MUSICURL () {
-				return this.app.$config.MUSICURL
+			sources () {
+				return this.$store.getters['source/get'].filter(source => source.type == 'music')
 			}
 		},
 		onLoad () {
-			Object.keys(this.MUSICURL).forEach(key => {
-				if ( this.MUSICURL[key].search && this.filterSource(key) > -1 && (!this.MUSICURL[key].isAdult || this.$store.getters['app/getAdult']) ) {
-					this.nowPages[key] = 1 ;
-					this.isLastPages[key] = false;
+			this.sources.forEach(source => {
+				if ( source.request.search?.value && source.isOpen && (!source.isAdult || this.$store.getters['app/getAdult']) ) {
+					this.nowPages[source.id] = 1 ;
+					this.isLastPages[source.id] = false;
 				}
 			})
 			this.getHotKeyword()
@@ -125,10 +125,10 @@
 				this.keyword = keyword
 				this.isLastPage = false;
 				this.timer = setTimeout(() => {
-					Object.keys(this.MUSICURL).forEach(key => {
-						if ( this.MUSICURL[key].search && this.filterSource(key) > -1 && (!this.MUSICURL[key].isAdult || this.$store.getters['app/getAdult']) ) {
-							this.nowPages[key] = 1 ;
-							this.isLastPages[key] = false;
+					this.sources.forEach(source => {
+						if ( source.request.search?.value && source.isOpen && (!source.isAdult || this.$store.getters['app/getAdult']) ) {
+							this.nowPages[source.id] = 1 ;
+							this.isLastPages[source.id] = false;
 						}
 					})
 					if ( keyword ) {

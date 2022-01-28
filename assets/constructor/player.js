@@ -1,11 +1,12 @@
 //音乐播放
 
-import Api from '@/assets/api/music/api.js'
+import MusicApi from '@/assets/api/music.js'
 import Config from '@/assets/js/config.js'
 import Store from "@/store"
 
 const { getters, dispatch } = Store
 const { ERR_OK } = Config
+const { getPlayUrl, getLyric } = MusicApi
 
 export default class Player {
 	constructor(song) {
@@ -32,13 +33,15 @@ export default class Player {
 			return false
 		}
 		let arr = []
-		this.songId && !this.src ? arr.push(Api[this.source].getPlayUrl({
+		this.songId && !this.src ? arr.push(getPlayUrl({
 			id: this.songId,
-			source: this.source
+			source: this.source,
+			extra: this.song.extra
 		})) : this.instance.src = this.src;
-		this.lyricId && !this.lyric ? arr.push(Api[this.source].getLyric({
+		this.lyricId && !this.lyric ? arr.push(getLyric({
 			id: this.lyricId,
-			source: this.source
+			source: this.source,
+			extra: this.song.extra
 		})) : null
 		return arr.length > 0 ? await Promise.all(arr).then((ress) => {
 			ress.forEach((res, key) => {

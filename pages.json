@@ -112,10 +112,6 @@
 		{
 			"path": "pages/music/rank"
 		},
-		//音乐更多展示
-		{
-			"path": "pages/music/more"
-		},
 		//音乐详情页
 		{
 			"path": "pages/music/detail"
@@ -184,13 +180,17 @@
 		{
 			"path": "pages/setting/index"
 		},
-		//来源设置
-		{
-			"path": "pages/setting/source"
-		},
 		//字典设置
 		{
 			"path": "pages/setting/dict"
+		},
+		//网站来源
+		{
+			"path": "pages/source/index"
+		},
+		//来源添加
+		{
+			"path": "pages/source/form"
 		},
 		//关于软件
 		{
@@ -199,6 +199,21 @@
 		//青壮年模式
 		{
 			"path": "pages/adult/index"
+		},
+		//文件选择
+		{
+			"path": "modules/chooseFile",
+			"style": {
+				"backgroundColor": "transparent",
+				"navigationStyle": "custom",
+				"app-plus": {
+					"bounce":"none",
+					"animationType": "fade-in",
+					"background": "transparent", // 背景透明
+					"backgroundColor": "rgba(0,0,0,0)", // 背景透明
+					"popGesture": "none" // 关闭IOS屏幕左边滑动关闭当前页面的功能
+				}
+			}
 		},
 		//评论列表
 		{

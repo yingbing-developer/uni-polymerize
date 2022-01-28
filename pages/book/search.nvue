@@ -30,7 +30,7 @@
 									}">题材：{{item.style || '未知题材'}}</text>
 									<text class="subtitle" :style="{
 										'color': skinColor.color_3
-									}">来源：{{BOOKURL[item.source].title}}</text>
+									}">来源：{{filterSource(item.source)}}</text>
 								</view>
 								<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc.replace(/\n/g, '') || '暂无简介'}}</text>
 								<view class="badges">
@@ -79,15 +79,15 @@
 				const history = this.$store.getters['search/getHistory']
 				return history.filter(his => his.type == 'story')
 			},
-			BOOKURL () {
-				return this.app.$config.BOOKURL
+			sources () {
+				return this.$store.getters['source/get'].filter(source => source.type == 'story')
 			}
 		},
 		onLoad () {
-			Object.keys(this.BOOKURL).forEach(key => {
-				if ( this.BOOKURL[key].search && this.filterSource(key) > -1 && (!this.BOOKURL[key].isAdult || this.$store.getters['app/getAdult']) ) {
-					this.nowPages[key] = 1 ;
-					this.isLastPages[key] = false;
+			this.sources.forEach(source => {
+				if ( source.request.search?.value && source.isOpen && (!source.isAdult || this.$store.getters['app/getAdult']) ) {
+					this.nowPages[source.id] = 1 ;
+					this.isLastPages[source.id] = false;
 				}
 			})
 			this.getHotKeyword()
@@ -142,10 +142,10 @@
 				this.keyword = keyword
 				this.isLastPage = false;
 				this.timer = setTimeout(() => {
-					Object.keys(this.BOOKURL).forEach(key => {
-						if ( this.BOOKURL[key].search && this.filterSource(key) > -1 && (!this.BOOKURL[key].isAdult || this.$store.getters['app/getAdult']) ) {
-							this.nowPages[key] = 1 ;
-							this.isLastPages[key] = false;
+					this.sources.forEach(source => {
+						if ( source.request.search?.value && source.isOpen && (!source.isAdult || this.$store.getters['app/getAdult']) ) {
+							this.nowPages[source.id] = 1 ;
+							this.isLastPages[source.id] = false;
 						}
 					})
 					this.isLastPage = false;

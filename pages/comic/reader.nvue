@@ -104,6 +104,10 @@
 			uni.$off('change-page')
 		},
 		onLoad() {
+			if ( !this.reader ) {
+				this.app.$Router.back()
+				return
+			}
 			this.windowWidth = uni.getSystemInfoSync().windowWidth
 			this.windowHeight = uni.getSystemInfoSync().windowHeight
 			this.currentChapter = this.app.$Route.query.currentChapter

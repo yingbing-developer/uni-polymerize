@@ -1,0 +1,431 @@
+<template>
+	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
+		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="action + title">
+			<template slot="right">
+				<view class="rd-nav-right">
+					<rd-icon class="opac-actived" enableClick @click="chooseFile" name="load-rect" size="45" :color="skinColor.color_white"></rd-icon>
+				</view>
+			</template>
+		</yb-nav-bar>
+		<yb-swiper-list
+		:column="tabs.length < 5 ? tabs.length : 'auto'"
+		:tabs="tabs"
+		@change="changeTab"
+		:frontColor="skinColor.color_2"
+		:borderColor="skinColor.color_3"
+		:activedColor="skinColor.color_actived_1">
+			<template v-slot="{swiperSlot}">
+				<list>
+					<template v-if="swiperSlot.index == 0">
+						<cell>
+							<view class="column">
+								<text class="label" :style="{color: skinColor.color_orange}">网站标识（类似唯一id）</text>
+								<input class="input" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_1}" type="text" v-model="info.id" placeholder="请输入网站标识">
+							</view>
+						</cell>
+						<cell>
+							<view class="column">
+								<text class="label" :style="{color: skinColor.color_orange}">网站名称</text>
+								<input class="input" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_1}" type="text" v-model="info.title" placeholder="请输入网站名称">
+							</view>
+						</cell>
+						<cell>
+							<view class="column">
+								<text class="label" :style="{color: skinColor.color_orange}">网站链接</text>
+								<input class="input" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_1}" type="text" v-model="info.href" placeholder="请输入网站链接">
+							</view>
+						</cell>
+						<cell>
+							<view class="column">
+								<text class="label" :style="{color: skinColor.color_orange}">是否包含青壮年内容</text>
+								<radio-group class="radioGroup">
+									<label class="radio-label">
+										<radio class="radio" :checked="info.isAdult" /><text class="name">是</text>
+									</label>
+									<label class="radio-label">
+										<radio class="radio" :checked="!info.isAdult" /><text class="name">否</text>
+									</label>
+								</radio-group>
+							</view>
+						</cell>
+					</template>
+					<template v-else>
+						<cell style="flex: 1;">
+							<view class="column" style="flex: 1;">
+								<text class="label" :style="{color: skinColor.color_orange}">{{request[swiperSlot.detail.value].label}}（{{request[swiperSlot.detail.value].required ? '必填' : '可不填'}}）</text>
+								<textarea v-if="!loading" :maxlength="-1" :adjust-position="false" class="textarea"
+								:style="{
+									'border-color': skinColor.color_gap_1,
+									color: skinColor.color_1
+								}"
+								v-model="request[swiperSlot.detail.value].value" placeholder="请填写请求方法" />
+							</view>
+							<view :style="{height: keyboardHeight + 'px'}"></view>
+						</cell>
+					</template>
+				</list>
+			</template>
+		</yb-swiper-list>
+		<view class="fixed-bottom">
+			<yb-button @click="submit" class="button" title="确认创建" size="22" round />
+		</view>
+	</yb-page-anime>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	import Source from '@/assets/constructor/source.js';
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {
+				loading: false,
+				keyboardHeight: 0,
+				info: {
+					id: '',
+					title: '',
+					href: '',
+					isAdult: false
+				},
+				request: {}
+			}
+		},
+		beforeCreate () {
+			uni.onKeyboardHeightChange(res => {
+			   this.keyboardHeight = res.height;
+			})
+		},
+		onUnload () {
+			uni.offKeyboardHeightChange(res => {
+			});
+		},
+		onLoad () {
+			this.tabs.forEach((tab, key) => {
+				if ( key > 0 ) {
+					this.request[tab.value] = {
+						label: tab.label,
+						value: '',
+						required: tab.required
+					}
+				} 
+			})
+			if ( getApp().globalData.$Route.query.form ) {
+				this.loadData(JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.form)))
+			}
+		},
+		computed: {
+			action () {
+				return getApp().globalData.$Route.query.action == 'add' ? '新建' : '编辑'
+			},
+			current () {
+				return getApp().globalData.$Route.query.current
+			},
+			type () {
+				return this.current == 0 ? 'story' : this.current == 1 ? 'comic' : 'music'
+			},
+			title () {
+				return this.current == 0 ? '书源' :  this.current == 1 ? '图源' : '音源'
+			},
+			tabs () {
+				return this.current == 0 || this.current == 1 ? [
+					{
+						label: '基本信息',
+						value: 'info',
+						required: true
+					},{
+						label: '推荐功能',
+						value: 'getRecome',
+						required: false
+					},{
+						label: '搜索功能',
+						value: 'search',
+						required: false
+					},{
+						label: '热门关键词',
+						value: 'getHotKeyword',
+						required: false
+					},{
+						label: '分类列表',
+						value: 'getTypeList',
+						required: false
+					},{
+						label: '分类详情',
+						value: 'getTypeDetail',
+						required: false
+					},{
+						label: '书籍详情',
+						value: 'getDetail',
+						required: true
+					},{
+						label: '书籍内容',
+						value: 'getContent',
+						required: true
+					},{
+						label: '评论',
+						value: 'getComment',
+						required: false
+					}
+				] : [
+					{
+						label: '基本信息',
+						value: 'info',
+						required: true
+					},{
+						label: '搜索功能',
+						value: 'search',
+						required: false
+					},{
+						label: '热门关键词',
+						value: 'getHotKeyword',
+						required: false
+					},{
+						label: '轮播图列表',
+						value: 'getBannerList',
+						required: false
+					},{
+						label: '轮播图详情',
+						value: 'getBannerDetail',
+						required: false
+					},{
+						label: '排行榜列表',
+						value: 'getTopList',
+						required: false
+					},{
+						label: '排行榜详情',
+						value: 'getTopDetail',
+						required: false
+					},{
+						label: '热门歌手',
+						value: 'getHotSingerList',
+						required: false
+					},{
+						label: '歌手分类',
+						value: 'getSingerType',
+						required: false
+					},{
+						label: '歌手列表',
+						value: 'getSingerList',
+						required: false
+					},{
+						label: '歌手详情',
+						value: 'getSingerDetail',
+						required: false
+					},{
+						label: '热门歌单',
+						value: 'getHotAlbumList',
+						required: false
+					},{
+						label: '歌单分类',
+						value: 'getAlbumType',
+						required: false
+					},{
+						label: '歌单列表',
+						value: 'getAlbumList',
+						required: false
+					},{
+						label: '歌单详情',
+						value: 'getAlbumDetail',
+						required: false
+					},{
+						label: '新歌上架',
+						value: 'getNewSongList',
+						required: false
+					},{
+						label: '新碟分类',
+						value: 'getNewAlbumType',
+						required: false
+					},{
+						label: '新碟上架',
+						value: 'getNewAlbumList',
+						required: false
+					},{
+						label: '新碟详情',
+						value: 'getNewAlbumDetail',
+						required: false
+					},{
+						label: '播放链接',
+						value: 'getPlayUrl',
+						required: true
+					},{
+						label: '歌词',
+						value: 'getLyric',
+						required: false
+					},{
+						label: '评论',
+						value: 'getComment',
+						required: false
+					}
+				]
+			}
+		},
+		methods: {
+			submit () {
+				if ( !this.info.id ) {
+					uni.showToast({
+						title: '请输入网站标识',
+						icon: 'none'
+					})
+					return
+				}
+				if ( !this.info.title ) {
+					uni.showToast({
+						title: '请输入网站名称',
+						icon: 'none'
+					})
+					return
+				}
+				if ( !this.info.href ) {
+					uni.showToast({
+						title: '请输入网站链接',
+						icon: 'none'
+					})
+					return
+				}
+				for ( let i in this.request ) {
+					if ( !this.request[i].value && this.request[i].required ) {
+						uni.showToast({
+							title: this.request[i].label + '是必填功能',
+							icon: 'none'
+						})
+						return
+					}
+				}
+				let index = this.$store.getters['source/get'].findIndex(source => source.id == this.info.id)
+				let source = new Source({
+					id: this.info.id,
+					title: this.info.title,
+					href: this.info.href,
+					isAdult: this.isAdult,
+					isOpen: true,
+					request: this.request,
+					type: this.current == 0 ? 'story' : this.current == 1 ? 'comic' : 'music'
+				})
+				if ( index > -1 ) {
+					getApp().globalData.$nativeUI.confirm({
+						title: '提示',
+						content: '网站标识重复，是否覆盖当前网站标识的内容',
+						success: (res) => {
+							if ( res.confirm ) {
+								this.$store.dispatch('source/add', source)
+								getApp().globalData.$Router.back()
+							}
+						}
+					})
+				} else {
+					this.$store.dispatch('source/add', source)
+					getApp().globalData.$Router.back()
+				}
+			},
+			chooseFile () {
+				getApp().globalData.$modules.chooseFile({
+					title: '选择' + this.title,
+					suffix: 'json',
+					success: (res) => {
+						if ( res.confirm ) {
+							plus.io.resolveLocalFileSystemURL(res.data.file.path, ( entry ) => {
+								// 可通过entry对象操作test.html文件 
+								entry.file( (file) => {
+									let fileReader = new plus.io.FileReader();
+									fileReader.readAsText(file, 'UTF-8');
+									fileReader.onloadend = (evt) => {
+										try{
+											let data = evt.target.result.replace(/\r|\n|\t/g, '')
+											let requesValues = data.match(/\"value\": \"*([\s\S]*?)\"}/ig)
+											if ( requesValues ) {
+												requesValues.forEach((value, key) => {
+													let val = value.match(/\"value\": \"*([\s\S]*?)\"}/)[1]
+													data = data.replace(val, key)
+												})
+											}
+											let result = JSON.parse(data)
+											if ( result.type == this.type ) {
+												Object.keys(result.request).forEach(key => {
+													if ( result.request[key].value ) {
+														let val = requesValues[result.request[key].value].match(/\"value\": \"*([\s\S]*?)\"}/)[1]
+														result.request[key].value = val
+													}
+												})
+												this.loadData(result)
+											} else {
+												uni.showToast({
+													title: '错误的' + this.title,
+													icon: 'none'
+												})
+											}
+										}catch(e){
+											uni.showToast({
+												title: '错误的' + this.title,
+												icon: 'none'
+											})
+										}
+									}
+								} );
+							}, ( err ) => {
+								uni.showToast({
+									title: '错误的' + this.title,
+									icon: 'none'
+								})
+							});
+						}
+					}
+				})
+			},
+			loadData (form) {
+				this.info.id = form.id
+				this.info.title = form.title
+				this.info.href = form.href
+				this.info.isAdult = form.isAdult
+				Object.keys(this.request).forEach(key => {
+					if ( form.request[key] ) {
+						this.request[key].value = form.request[key].value
+					} else {
+						this.request[key].value = ''
+					}
+				})
+				this.loading = true
+				setTimeout(() => {
+					this.loading = false
+				}, 20)
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	@import url("@/assets/css/app.css");
+	.column {
+		margin: 30rpx 30rpx 0 30rpx;
+	}
+	.label {
+		font-size: 24rpx;
+		margin-bottom: 10rpx;
+	}
+	.input {
+		height: 80rpx;
+		border-width: 2rpx;
+		font-size: 24rpx;
+		padding: 0 30rpx;
+	}
+	.radioGroup {
+		flex-direction: row;
+		align-items: center;
+	}
+	.radio-label {
+		flex-direction: row;
+		align-items: center;
+		margin-right: 40rpx;
+	}
+	.radio-label .name {
+		font-size: 25rpx;
+	}
+	.radio {
+		transform: scale(0.7);
+	}
+	.textarea {
+		border-width: 2rpx;
+		font-size: 24rpx;
+		padding: 20rpx 30rpx;
+		margin-bottom: 20rpx;
+		flex: 1;
+	}
+</style>

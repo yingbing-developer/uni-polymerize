@@ -1,0 +1,114 @@
+<template>
+	<yb-modal
+	:visible="visible"
+	:bgColor="bgColor"
+	:frontColor="frontColor"
+	:themeColor="themeColor"
+	:title="title"
+	@confirm="onConfirm"
+	@cancel="onCancel">
+		<view class="yb-modal-input-box">
+			<input class="input" :max-length="max" :value="value" @input="onInput" :style="{'border-color': gapColor, color: tipColor}" type="text" placeholder="请输入书单标题">
+			<text class="tip" :style="{color: gapColor}">{{value.length}}/{{max}}</text>
+		</view>
+		<view class="yb-modal-check" @tap="changeChecked" v-if="checkedShow">
+			<checkbox class="checkbox" :checked="checked" />
+			<text class="text" :style="{color: tipColor}">{{checkedText}}</text>
+		</view>
+	</yb-modal>
+</template>
+
+<script>
+	export default {
+		props: {
+			value: {
+				type: String,
+				default: ''
+			},
+			visible: {
+				type: Boolean,
+				default: false
+			},
+			title: {
+				type: String,
+				default: ''
+			},
+			checkedShow: {
+				type: Boolean,
+				default: false
+			},
+			checked: {
+				type: Boolean,
+				default: false
+			},
+			checkedText: {
+				type: String,
+				default: ''
+			},
+			max: {
+				type: Number,
+				default: 40
+			},
+			frontColor: {
+				type: String,
+				default: '#333'
+			},
+			bgColor: {
+				type: String,
+				default: '#fbfbfb'
+			},
+			themeColor: {
+				type: String,
+				default: '#2ca2f9'
+			},
+			tipColor: {
+				type: String,
+				default: '#666'
+			},
+			gapColor: {
+				type: String,
+				default: '#E0E0E0'
+			}
+		},
+		methods: {
+			changeChecked () {
+				this.$emit('update:checked', !this.checked)
+			},
+			onInput (e) {
+				this.$emit('input', e.detail.value)
+			},
+			onConfirm () {
+				this.$emit('confirm')
+			},
+			onCancel () {
+				this.$emit('cancel')
+				this.$emit('update:visible', false)
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.yb-modal-input-box {
+		flex-direction: row;
+		align-items: center;
+	}
+	.yb-modal-input-box .input {
+		border-bottom-width: 1rpx;
+		flex: 1;
+		font-size: 24rpx;
+	}
+	.yb-modal-input-box .tip {
+		font-size: 24rpx;
+	}
+	.yb-modal-check {
+		flex-direction: row;
+		align-items: center;
+	}
+	.yb-modal-check .checkbox {
+		transform: scale(0.5);
+	}
+	.yb-modal-check .text {
+		font-size: 22rpx;
+	}
+</style>

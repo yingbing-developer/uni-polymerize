@@ -1,6 +1,7 @@
 <template>
 	<view class="yb-swiper-list">
 		<yb-tabs
+		v-if="tabs.length > 1"
 		:type="type"
 		:size="size"
 		:column="column"

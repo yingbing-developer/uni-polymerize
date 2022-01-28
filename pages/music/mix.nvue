@@ -1,9 +1,9 @@
 <template>
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
-		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="title + ' - 歌单'">
+		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="title">
 			<template slot="right">
 				<view class="rd-nav-right">
-					<rd-icon enableClick class="opac-actived" name="more-horizontal" size="36" :color="skinColor.color_4" @click="dropShow = true"></rd-icon>
+					<rd-icon enableClick class="opac-actived" name="more-horizontal" size="36" :color="skinColor.color_4" @click="showDrop"></rd-icon>
 				</view>
 			</template>
 		</yb-nav-bar>
@@ -13,16 +13,11 @@
 				<yb-gap ref="listTop" height="30rpx"></yb-gap>
 			</cell>
 			<cell v-for="(item, index) in list">
-				<view class="cell-item_1 padding-gap" @tap="app.$Router.push({
-					path: '/pages/music/detail',
-					query: {
-						params: encodeURIComponent(JSON.stringify(item))
-					}
-				})">
+				<view class="cell-item_1 padding-gap" @tap="goDetail(item)">
 					<rd-image lazyLoad border-radius="12" class="cover" :src="item.cover" mode="aspectFill"></rd-image>
 					<view class="info">
 						<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-						<text class="label" :style="{color: skinColor.color_3}">{{item.creator}}</text>
+						<text class="label" :style="{color: skinColor.color_3}">{{item.singer || item.creator}}</text>
 					</view>
 				</view>
 			</cell>
@@ -35,6 +30,9 @@
 			</cell>
 			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage"></yb-pullup>
 		</list>
+		<view class="fixed-bottom">
+			<yb-button @click="playAlbum(list)" v-if="list.length > 0 && typeId == 'getNewSongList'" class="button" title="播放全部" size="22" round />
+		</view>
 		<yb-filter-menu
 		:visible.sync="dropShow"
 		:bgColor="skinColor.color_bg_1"
@@ -43,12 +41,11 @@
 		mode="single"
 		type="square"
 		title="选择类型"
-		:data="type" @change="changeType" :height="670"></yb-filter-menu>
+		:data="types" @change="changeType" :height="670"></yb-filter-menu>
 	</yb-page-anime>
 </template>
 
 <script>
-	const dom = weex.requireModule('dom');
 	import appMixin from '@/common/mixin/app.js';
 	export default {
 		mixins: [appMixin],
@@ -57,38 +54,44 @@
 				loading: true,
 				list: [],
 				dropShow: false,
-				type: [],
+				types: [],
 				currentPage: 1,
 				isLastPage: false,
-				typeId: ''
+				typeId: '',
+				typeTitle: '',
+				typeSource: ''
 			}
 		},
 		computed: {
 			title () {
-				return getApp().globalData.$Route.query.title
-			},
-			source () {
-				return getApp().globalData.$Route.query.source
+				return this.typeTitle || '歌单列表'
 			}
 		},
+		onLoad () {
+			this.typeId = 'getHotAlbumList'
+			this.typeTitle = '热门歌单'
+		},
 		onReady() {
-			this.getType().then(status => {
-				this.typeId = this.type[0].child[0].value
-				this.type[0].child[0].isChecked = true
-				this.getList().then(data => {
-					this.loading = false
-					this.list = data.list
-					this.isLastPage = data.isLastPage
-				})
+			this.getHotAlbumList().then(list => {
+				this.list = list
+				this.loading = false
 			})
 		},
 		methods: {
 			pulldown () {
 				this.currentPage = 1
-				this.getList().then(data => {
-					this.list = data.list
-					this.$refs.pulldown.success()
-				})
+				if ( this.typeId == 'getHotAlbumList' ) {
+					this.getHotAlbumList().then(list => {
+						this.list = list
+						this.$refs.pulldown.success()
+					})
+				} else {
+					this.getList().then(data => {
+						this.list = data.list
+						this.isLastPage = data.isLastPage
+						this.$refs.pulldown.success()
+					})
+				}
 			},
 			pullup () {
 				this.currentPage++;
@@ -100,10 +103,11 @@
 				})
 			},
 			async getList () {
-				return await getApp().globalData.$api.music.getDiscList({
+				return await this.app.$api.music.getAlbumList({
 					page: this.currentPage,
-					typeId: this.typeId,
-					source: this.source
+					id: this.typeId,
+					title: this.typeTitle,
+					source: this.typeSource
 				}).then((res) => {
 					return {
 						list: res.data.list,
@@ -112,46 +116,97 @@
 					}
 				})
 			},
-			async getType () {
-				return await getApp().globalData.$api.music.getDiscType({source: this.source}).then((res) => {
-					let type = []
-					if ( res.code == getApp().globalData.$config.ERR_OK ) {
-						type = res.data.list.map(data => {
-							const item = data.child.map(child => {
-								return Object.assign({}, child, {
-									isChecked: false
-								})
-							})
-							return {
-								label: data.label,
-								child: item
-							}
-						})
-					}
-					this.type = type
-					return type.length > 0
+			async getHotAlbumList () {
+				return await this.app.$api.music.getHotAlbumList().then((ress) => {
+					let list = []
+					ress.forEach(res => {
+						if ( res.code == getApp().globalData.$config.ERR_OK ) {
+							list = list.concat(res.data.list)
+						}
+					})
+					this.isLastPage = true
+					this.currentPage = 1
+					return list
 				})
 			},
+			showDrop () {
+				if ( this.types.length > 0 ) {
+					this.dropShow = true
+				} else {
+					uni.showLoading({
+						title: '加载中'
+					})
+					this.types = [{
+						label: '综合',
+						child: [{
+							label: '热门歌单',
+							value: 'getHotAlbumList',
+							isChecked: true
+						}]
+					}]
+					this.app.$api.music.getAlbumType().then(ress => {
+						ress.forEach(res => {
+							if ( res.code == this.app.$config.ERR_OK ) {
+								res.data.list.forEach(type => {
+									this.types.push({
+										label: type.label,
+										child: type.child.map(item => {
+											return Object.assign({}, item, {
+												isChecked: false
+											})
+										}) 
+									})
+								})
+							}
+						})
+						uni.hideLoading()
+						this.dropShow = true
+					})
+				}
+			},
 			changeType (e) {
-				Object.keys(this.type).forEach(key => {
-					Object.keys(this.type[key].child).forEach(ckey => {
-						this.type[key].child[ckey].isChecked = false
+				Object.keys(this.types).forEach(key => {
+					Object.keys(this.types[key].child).forEach(ckey => {
+						this.types[key].child[ckey].isChecked = false
 					})
 				})
-				const index = this.type[e.current].child.findIndex(item => item.value == e.results.value)
-				index > -1 ? this.type[e.current].child[index].isChecked = true : null
+				const index = this.types[e.current].child.findIndex(item => item.value == e.results.value)
+				index > -1 ? this.types[e.current].child[index].isChecked = true : null
 				this.typeId = e.results.value
+				this.typeTitle = e.results.label
+				this.typeSource = e.results.source
 				this.currentPage = 1
 				this.loading = true
 				this.list = []
 				setTimeout(() => {
-					this.getList().then(data => {
-						this.loading = false
-						this.list = data.list
-						this.isLastPage = data.isLastPage
-						this.scrollTop()
-					})
+					if ( this.typeId == 'getNewSongList' ) {
+						this.getNewSongList().then(list => {
+							this.loading = false
+							this.list = list
+							this.isLastPage = true
+							this.scrollTop()
+						})
+					} else {
+						this.getList().then(data => {
+							this.loading = false
+							this.list = data.list
+							this.isLastPage = data.isLastPage
+							this.scrollTop()
+						})
+					}
 				}, 500)
+			},
+			goDetail (params) {
+				if ( params.type == 'song' ) {
+					this.playSong(params)
+				} else {
+					this.app.$Router.push({
+						path: '/pages/music/detail',
+						query: {
+							params: encodeURIComponent(JSON.stringify(params))
+						}
+					})
+				}
 			},
 			scrollTop () {
 				dom.scrollToElement(this.$refs.listTop, {animated: false});

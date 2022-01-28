@@ -38,6 +38,11 @@
 				isLastPage: false
 			}
 		},
+		computed: {
+			sources () {
+				return this.$store.getters['source/get']
+			}
+		},
 		onLoad () {
 			this.show = true
 			this.params = JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.params))
@@ -64,7 +69,7 @@
 				})
 			},
 			async getComment () {
-				if ( Object.keys(this.MUSICURL).indexOf(this.params.source) > -1 ) {
+				if ( this.sources.filter(source => source.type == 'music').findIndex( source => source.id == this.params.source) > -1 ) {
 					return await getApp().globalData.$api.music.getComment({
 						id: this.params.commentId,
 						page: this.currentPage,
@@ -77,7 +82,7 @@
 							isLastPage: res.data.isLastPage
 						}
 					})
-				} else if ( Object.keys(this.BOOKURL).indexOf(this.params.source) > -1 ) {
+				} else if ( this.sources.filter(source => source.type == 'story').findIndex( source => source.id == this.params.source) > -1 ) {
 					return await getApp().globalData.$api.book.getComment({
 						id: this.params.commentId,
 						page: this.currentPage,

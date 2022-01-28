@@ -132,6 +132,11 @@
 				default () {
 					return new Array
 				}
+			},
+			//是否允许多选
+			multiple: {
+				type: Boolean,
+				default: true
 			}
 		},
 		data () {
@@ -182,6 +187,9 @@
 		methods: {
 			//全选文件 /取消全选
 			selectAll () {
+				if ( !this.multiple ) {
+					return
+				}
 				if ( this.checkes.length < this.fileLength ) {
 					this.checkes = [];
 					let len = this.list.length;
@@ -198,6 +206,9 @@
 			},
 			//选择文件
 			check (params) {
+				if ( !this.multiple ) {
+					return
+				}
 				//如果为文件夹则不能选择
 				if ( params.type == 'folder') {
 					return;

@@ -1,13 +1,32 @@
 <template>
-	<view class="c-switch" :style="{'background-color': bgColor, 'border-color': gapColor}">
-		<view class="switch-item" :style="{'background-color': itemColor, transform: `translateX(${valueSync ? 0 : '75rpx'})`}"></view>
-		<view class="text-box" @tap="change(true)"><text class="text" :style="{'color': valueSync ? checkedColor : uncheckedColor}">{{trueText}}</text></view>
-		<view class="text-box" @tap="change(false)"><text class="text" :style="{'color': !valueSync ? checkedColor : uncheckedColor}">{{falseText}}</text></view>
+	<view class="yb-switch"
+	:style="{
+		'background-color': bgColor,
+		'border-color': gapColor,
+		width: (size * 3.5) + 'rpx',
+		height: size + 'rpx',
+		'border-radius': size + 'rpx'
+	}">
+		<view class="switch-item"
+		:style="{
+			'background-color': itemColor,
+			transform: `translateX(${valueSync ? 0 : '20rpx'})`,
+			width: ((size * 3.5) / 2) + 'rpx',
+			height: size + 'rpx',
+			'border-radius': size + 'rpx'
+		}"></view>
+		<view class="text-box" @tap="change(true)"><text class="text"
+		:style="{
+			'color': valueSync ? checkedColor : uncheckedColor
+		}">{{trueText}}</text></view>
+		<view class="text-box" @tap="change(false)"><text class="text"
+		:style="{
+			'color': !valueSync ? checkedColor : uncheckedColor
+		}">{{falseText}}</text></view>
 	</view>
 </template>
 
 <script>
-	const dom = weex.requireModule('dom');
 	export default {
 		props: {
 			value: {
@@ -41,6 +60,10 @@
 			gapColor: {
 				type: String,
 				default: '#eeeeee'
+			},
+			size: {
+				type: Number,
+				default: 45
 			}
 		},
 		data () {
@@ -68,31 +91,24 @@
 </script>
 
 <style scoped>
-	.c-switch {
+	.yb-switch {
 		position: relative;
-		width: 170rpx;
-		height: 55rpx;
-		border-radius: 55rpx;
 		border-width: 1px;
 		flex-direction: row;
-		justify-content: space-between;
-	}
-	.text-box {
-		width: 85rpx;
-		height: 55rpx;
-		justify-content: center;
 		align-items: center;
 	}
-	.text {
+	.yb-switch .text-box {
+		justify-content: center;
+		align-items: center;
+		flex: 1;
+	}
+	.yb-switch .text {
 		font-size: 25rpx;
 	}
-	.switch-item {
+	.yb-switch .switch-item {
 		position: absolute;
 		left: 0;
 		top: 0;
 		transition: transform 0.3s;
-		width: 95rpx;
-		height: 53rpx;
-		border-radius: 55rpx;
 	}
 </style>

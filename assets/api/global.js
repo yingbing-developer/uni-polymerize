@@ -5,29 +5,18 @@ import { simpleToTraditional, traditionalToSimple } from '@/assets/other/s2t.js'
 import { bookDict, comicDict } from '@/assets/other/dict.js';
 
 const { getters } = Store;
-const { MUSICURL, BOOKURL, COMICURL } = Config
-
-//获取当前设置的来源href
-export function getHref (source) {
-	const sources = getters['source/get'];
-	let musicIndex = Object.keys(MUSICURL).findIndex(key => source == key)
-	let bookIndex = Object.keys(BOOKURL).findIndex(key => source == key)
-	let comicIndex = Object.keys(COMICURL).findIndex(key => source == key)
-	const hrefs = musicIndex > -1 ? MUSICURL[source].href : bookIndex > -1 ? BOOKURL[source].href : COMICURL[source].href;
-	const index = sources.findIndex(item => item.id == source)
-	return typeof hrefs == 'string' ? hrefs : index > -1 ? hrefs[sources[index].key > -1 ? sources[index].key : 0] : hrefs[0];
-}
 
 //获取关键词
 export function getTag (source, cc) {
+	const sources = getters['source/get'];
 	let storyStoreDict = getters['dict/get'].filter(item => item.type == 'story').map(item => {
 		return item.title
 	})
 	let comicStoreDict = getters['dict/get'].filter(item => item.type == 'comic').map(item => {
 		return item.title
 	})
-	let bookIndex = Object.keys(BOOKURL).findIndex(key => source == key)
-	let comicIndex = Object.keys(COMICURL).findIndex(key => source == key)
+	let bookIndex = sources.filter(item => item.type == 'story').findIndex(item => item.id == source)
+	let comicIndex = sources.filter(item => item.type == 'comic').findIndex(item => item.id == source)
 	let dict = comicIndex > -1 ? comicDict.concat(comicStoreDict) : bookDict.concat(storyStoreDict)
 	let str = simpleToTraditional(dict.toString())
 	str = str + ',' + traditionalToSimple(str)

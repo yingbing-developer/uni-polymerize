@@ -1,30 +1,34 @@
 <template>
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
-		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="title + ' - 排行榜'"></yb-nav-bar>
-		<list>
-			<cell>
-				<yb-gap height="20rpx"></yb-gap>
-			</cell>
-			<cell v-for="(item, index) in list">
-				<view class="item" :style="{'background-color': skinColor.color_black}" @tap="app.$Router.push({
-					path: '/pages/music/detail',
-					query: {
-						params: encodeURIComponent(JSON.stringify(item))
-					}
-				})">
-					<rd-image class="cover" lazyLoad
-						:src="item.cover"
-						mode="aspectFill"></rd-image>
-					<view class="top-desc">
-						<text class="top-desc-text" :style="{'color': skinColor.color_white}">{{item.desc || item.title}}</text>
-					</view>
-				</view>
-			</cell>
-			<yb-page-anime-fixed>
-				<yb-list-loading :color="skinColor.color_3" size="70" v-if="loading" title="加载中"></yb-list-loading>
-				<yb-list-no-data :color="skinColor.color_3" v-if="list.length == 0 && !loading"></yb-list-no-data>
-			</yb-page-anime-fixed>
-		</list>
+		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" title="排行榜"></yb-nav-bar>
+		<yb-swiper-list
+		:column="tabs.length < 6 ? tabs.length : 'auto'"
+		:tabs="tabs"
+		:frontColor="skinColor.color_2"
+		:borderColor="skinColor.color_3"
+		:activedColor="skinColor.color_actived_1">
+			<template v-slot="{swiperSlot}">
+				<list v-if="list.filter(top => top.source == tabs[swiperSlot.index].source).length > 0">
+					<cell><yb-gap></yb-gap></cell>
+					<cell v-for="(item, index) in list.filter(top => top.source == tabs[swiperSlot.index].source)">
+						<view class="item" :style="{'background-color': skinColor.color_black}" @tap="app.$Router.push({
+							path: '/pages/music/detail',
+							query: {
+								params: encodeURIComponent(JSON.stringify(item))
+							}
+						})">
+							<rd-image class="cover" lazyLoad :src="item.cover" mode="aspectFill"></rd-image>
+							<view class="top-desc">
+								<text class="top-desc-text" :style="{'color': skinColor.color_white}">{{item.desc || item.title}}</text>
+							</view>
+						</view>
+					</cell>
+				</list>
+				<template v-else>
+					<rd-no-data title="暂无数据" /></rd-no-data>
+				</template>
+			</template>
+		</yb-swiper-list>
 	</yb-page-anime>
 </template>
 
@@ -34,28 +38,14 @@
 		mixins: [appMixin],
 		data() {
 			return {
-				loading: true,
-				list: []
-			}
-		},
-		computed: {
-			data () {
-				return JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.data)) || []
-			},
-			title () {
-				return getApp().globalData.$Route.query.title
+				list: [],
+				tabs: [],
+				current: 0
 			}
 		},
 		onLoad() {
-			this.getList()
-		},
-		methods: {
-			getList (index) {
-				setTimeout(() => {
-					this.list = this.data
-					this.loading = false
-				}, 500)
-			}
+			this.tabs = JSON.parse(decodeURIComponent(this.app.$Route.query.tabs))
+			this.list = JSON.parse(decodeURIComponent(this.app.$Route.query.list))
 		}
 	}
 </script>

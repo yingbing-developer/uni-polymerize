@@ -10,15 +10,6 @@ const appMixin = {
 		}),
 		app () {
 			return getApp().globalData
-		},
-		BOOKURL () {
-			return this.app.$config.BOOKURL
-		},
-		COMICURL () {
-			return this.app.$config.COMICURL
-		},
-		MUSICURL () {
-			return this.app.$config.MUSICURL
 		}
 	},
 	methods: {
@@ -296,12 +287,11 @@ const appMixin = {
 			return id ? this.$store.getters['cache/getCache'].findIndex(cache => cache.parentId == id) > -1 : false
 		},
 		filterSource (source) {
-			let sources = this.$store.getters['source/get']
-			let index = sources.findIndex(item => item.id == source)
+			let index = this.$store.getters['source/get'].findIndex(item => item.id == source)
 			if ( index == -1 ) {
-				return 0
+				return '本地'
 			} else {
-				return sources[index].key
+				return this.$store.getters['source/get'][index].title
 			}
 		},
 		download (params) {

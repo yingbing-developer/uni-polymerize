@@ -13,7 +13,7 @@
 						<text class="label" :style="{color: skinColor.color_white}">类型：{{params.style || '未知类型'}}</text>
 						<text class="label" :style="{color: skinColor.color_white}" v-if="params.size">大小：{{params.size}}</text>
 						<text class="label" :style="{color: skinColor.color_white}">状态：{{params.isEnd ? '已完结' : '连载中'}}</text>
-						<text class="label" :style="{color: skinColor.color_white}">来源：{{COMICURL[params.source].title}}</text>
+						<text class="label" :style="{color: skinColor.color_white}">来源：{{filterSource(params.source)}}</text>
 						<view class="line">
 							<view class="opac-actived" @tap="searchTo(tag)"  v-for="(tag, i) in params.tag" :key="i" style="margin-right: 10rpx;margin-bottom: 10rpx;">
 								<yb-tag :color="skinColor.color_white" :value="tag"></yb-tag>
@@ -131,7 +131,7 @@
 					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
 						<text class="label" :style="{color: skinColor.color_3}">{{item.style}}</text>
 						<text class="title" :style="{color: skinColor.color_1}">{{(item.style ? ' | ' : '') + item.title}}</text>
-						<text class="value" :style="{color: skinColor.color_3}">{{COMICURL[item.source].title}}</text>
+						<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
 					</view>
 				</view>
 				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
@@ -154,7 +154,7 @@
 					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
 						<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
 						<text class="title" :style="{color: skinColor.color_1}"> | {{item.title}}</text>
-						<text class="value" :style="{color: skinColor.color_3}">{{COMICURL[item.source].title}}</text>
+						<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
 					</view>
 				</view>
 			</template>
@@ -221,7 +221,8 @@
 		onPullDownRefresh () {
 			this.app.$api.comic.getDetail({
 				id: this.params.bookId,
-				source: this.params.source
+				source: this.params.source,
+				extra: this.params.extra
 			}).then((res) => {
 				uni.stopPullDownRefresh()
 				if ( res.code == this.app.$config.ERR_OK ) {

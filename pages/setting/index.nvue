@@ -3,7 +3,7 @@
 		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" title="设置中心"></yb-nav-bar>
 		<scroll-view scroll-y="true" style="flex: 1;">
 			<view class="list padding-gap" :class="skinMode + '-actived'" :style="{'border-color': skinColor.color_gap_1}" @tap="app.$Router.push({
-				path: '/pages/setting/source'
+				path: '/pages/source/index'
 			})">
 				<text class="label" :style="{color: skinColor.color_1}">来源设置</text>
 				<rd-icon name="arrow-right" size="40" :color="skinColor.color_1"></rd-icon>

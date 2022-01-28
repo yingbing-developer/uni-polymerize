@@ -113,6 +113,10 @@
 			uni.$off('inc-mark')
 		},
 		onLoad() {
+			if ( !this.reader ) {
+				this.app.$Router.back()
+				return
+			}
 			this.barHeight = uni.getSystemInfoSync().statusBarHeight + 4
 			this.currentChapter = this.$Route.query.currentChapter
 		},
@@ -121,7 +125,8 @@
 				if ( this.reader.source == 'local' ) {
 					this.getLocalContent();
 				} else {
-					this.getOnlineContent(this.currentChapter).then((res) => {
+					let chapters = this.reader.chapters.filter(item => this.currentChapter == item.chapter || this.currentChapter + 1 == item.chapter  || this.currentChapter - 1 == item.chapter)
+					this.getOnlineContent(chapters).then((res) => {
 						if ( res.code == this.$config.ERR_OK ) {
 							this.$refs.page.init({
 								contents: res.data.contents,
@@ -152,13 +157,42 @@
 				Reader = null;
 			},
 			//获取在线小说内容
-			async getOnlineContent (chapter) {
-				chapter = parseInt(chapter);
-				let data = this.reader.chapters.filter(item => {
-					return item.chapter == chapter || item.chapter == chapter - 1 || item.chapter == chapter + 1
-				});
-				return await this.$api.book.getContent(data).then((res) => {
-					return res
+			async getOnlineContent (chapters) {
+				let https = []
+				chapters.forEach(item => {
+					if ( item.payread ) {
+						https.push(
+							Promise.resolve({
+								code: this.app.$config.ERR_OK,
+								data: {
+									content: {
+										chapter: item.chapter,
+										content: item.title + '\r\n该章节已锁，如果想看请支持正版\r\n\r\n\r\n该章节已锁，如果想看请支持正版\r\n\r\n\r\n该章节已锁，如果想看请支持正版',
+										title: item.title,
+										isStart: item.isStart,
+										isEnd: item.isEnd
+									},
+									source: item.source
+								}
+							})
+						)
+					} else {
+						https.push(this.$api.book.getContent(item))
+					}
+				})
+				return await Promise.all(https).then((ress) => {
+					let contents = []
+					ress.forEach(res => {
+						if ( res.code == this.app.$config.ERR_OK ) {
+							contents.push(res.data.content)
+						}
+					})
+					return {
+						code: contents.length > 0 ? this.app.$config.ERR_OK : this.app.$config.ERR_FALSE,
+						data: {
+							contents: contents
+						}
+					}
 				})
 			},
 			openSettingNvue () {
@@ -288,7 +322,7 @@
 			},
 			preloadContent (chapters, callback) {
 				const data = this.reader.chapters.filter(item => chapters.indexOf(item.chapter) > -1)
-				this.$api.book.getContent(data).then((res) => {
+				this.getOnlineContent(data).then((res) => {
 					if ( res.code == this.$config.ERR_OK ) {
 						callback('success', res.data.contents)
 					} else {
@@ -300,7 +334,7 @@
 			},
 			loadmoreContent (chapter, callback) {
 				const data = this.reader.chapters.filter(item => item.chapter == chapter)
-				this.$api.book.getContent(data).then((res) => {
+				this.getOnlineContent(data).then((res) => {
 					if ( res.code == this.$config.ERR_OK ) {
 						callback('success', res.data.contents[0])
 					} else {

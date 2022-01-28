@@ -118,7 +118,7 @@
 				})
 			}
 		},
-		beforeDestroy () {
+		onUnload () {
 			uni.offKeyboardHeightChange(res => {
 				console.log(res);
 			});

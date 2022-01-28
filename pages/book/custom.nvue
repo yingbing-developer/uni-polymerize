@@ -30,40 +30,34 @@
 			</view>
 			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage"></yb-pullup>
 		</list>
-		<yb-modal
+		<yb-modal-input
 		:visible.sync="showCreate"
-		:bgColor="skinColor.color_bg_2"
-		:frontColor="skinColor.color_1"
-		:themeColor="skinColor.color_blue"
 		title="新建书单"
-		@confirm="createShelf"
-		@cancel="onCancel">
-			<view class="modal-input-box">
-				<input class="input" max-length="40" v-model="shelfTitle" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_2}" type="text" placeholder="请输入书单标题">
-				<text class="tip" :style="{color: skinColor.color_gap_1}">{{shelfTitle.length}}/40</text>
-			</view>
-			<view class="modal-check" @tap="isAdult = !isAdult" v-if="$store.getters['app/getAdult']">
-				<checkbox class="checkbox" :checked="isAdult" />
-				<text class="text" :style="{color: skinColor.color_2}">是否属于青壮年内容</text>
-			</view>
-		</yb-modal>
-		<yb-modal
-		:visible.sync="showEdit"
+		v-model="shelfTitle"
+		:checked-show="$store.getters['app/getAdult']"
+		:checked.sync="isAdult"
+		checked-text="是否包含青壮年内容"
 		:bgColor="skinColor.color_bg_2"
 		:frontColor="skinColor.color_1"
 		:themeColor="skinColor.color_blue"
+		:tipColor="skinColor.color_2"
+		:gapColor="skinColor.color_gap_1"
+		@confirm="createShelf"
+		@cancel="onCancel"></yb-modal-input>
+		<yb-modal-input
+		:visible.sync="showEdit"
 		title="编辑书单"
+		v-model="shelfTitle"
+		:checked-show="$store.getters['app/getAdult']"
+		:checked.sync="isAdult"
+		checked-text="是否包含青壮年内容"
+		:bgColor="skinColor.color_bg_2"
+		:frontColor="skinColor.color_1"
+		:themeColor="skinColor.color_blue"
+		:tipColor="skinColor.color_2"
+		:gapColor="skinColor.color_gap_1"
 		@confirm="editName"
-		@cancel="onCancel">
-			<view class="modal-input-box">
-				<input class="input" max-length="40" v-model="shelfTitle" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_2}" type="text" placeholder="请输入歌单标题">
-				<text class="tip" :style="{color: skinColor.color_gap_1}">{{shelfTitle.length}}/40</text>
-			</view>
-			<view class="modal-check" @tap="isAdult = !isAdult" v-if="$store.getters['app/getAdult']">
-				<checkbox class="checkbox" :checked="isAdult" />
-				<text class="text" :style="{color: skinColor.color_2}">是否属于青壮年内容</text>
-			</view>
-		</yb-modal>
+		@cancel="onCancel"></yb-modal-input>
 		<rd-action-sheet
 		:visible.sync="showMore"
 		:title="'书单：' + (panelInfo ? panelInfo.title : '')"
@@ -250,27 +244,5 @@
 	.album .label {
 		font-size: 24rpx;
 		lines: 1;
-	}
-	.modal-input-box {
-		flex-direction: row;
-		align-items: center;
-	}
-	.modal-input-box .input {
-		border-bottom-width: 1rpx;
-		flex: 1;
-		font-size: 24rpx;
-	}
-	.modal-input-box .tip {
-		font-size: 24rpx;
-	}
-	.modal-check {
-		flex-direction: row;
-		align-items: center;
-	}
-	.modal-check .checkbox {
-		transform: scale(0.5);
-	}
-	.modal-check .text {
-		font-size: 22rpx;
 	}
 </style>

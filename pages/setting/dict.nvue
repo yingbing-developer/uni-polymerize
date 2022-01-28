@@ -27,23 +27,20 @@
 		<view class="fixed-bottom">
 			<yb-button @click="createShow = true" class="button" title="新增字典" size="22" round />
 		</view>
-		<yb-modal
+		<yb-modal-input
 		:visible.sync="createShow"
+		title="新增字典"
+		v-model="dictTitle"
+		:checked-show="$store.getters['app/getAdult']"
+		:checked.sync="isAdult"
+		checked-text="是否属于敏感词汇"
 		:bgColor="skinColor.color_bg_2"
 		:frontColor="skinColor.color_1"
 		:themeColor="skinColor.color_blue"
-		title="新增字典"
+		:tipColor="skinColor.color_2"
+		:gapColor="skinColor.color_gap_1"
 		@confirm="createDict"
-		@cancel="onCancel">
-			<view class="modal-input-box">
-				<input class="input" max-length="40" v-model="dictTitle" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_2}" type="text" placeholder="请输入词汇">
-				<text class="tip" :style="{color: skinColor.color_gap_1}">{{dictTitle.length}}/40</text>
-			</view>
-			<view class="modal-check" @tap="isAdult = !isAdult" v-if="$store.getters['app/getAdult']">
-				<checkbox class="checkbox" :checked="isAdult" />
-				<text class="text" :style="{color: skinColor.color_2}">是否属于敏感词汇</text>
-			</view>
-		</yb-modal>
+		@cancel="onCancel"></yb-modal-input>
 	</yb-page-anime>
 </template>
 
@@ -106,17 +103,20 @@
 					})
 					return
 				}
+				console.log(this.isAdult);
 				this.$store.dispatch('dict/add', new Dict({
 					title: this.dictTitle,
 					type: this.tabs[this.current].value,
 					isAdult: this.isAdult
 				}))
 				this.createShow = false
-				this.dictTitle = ''
-				this.isAdult = false
 				uni.showToast({
 					title: '新增字典成功',
 					icon: 'none'
+				})
+				this.$nextTick(() => {
+					this.dictTitle = ''
+					this.isAdult = false
 				})
 			},
 			onCancel () {
@@ -144,27 +144,5 @@
 		lines: 1;
 		text-overflow: ellipsis;
 		margin-right: 20rpx;
-	}
-	.modal-input-box {
-		flex-direction: row;
-		align-items: center;
-	}
-	.modal-input-box .input {
-		border-bottom-width: 1rpx;
-		flex: 1;
-		font-size: 24rpx;
-	}
-	.modal-input-box .tip {
-		font-size: 24rpx;
-	}
-	.modal-check {
-		flex-direction: row;
-		align-items: center;
-	}
-	.modal-check .checkbox {
-		transform: scale(0.5);
-	}
-	.modal-check .text {
-		font-size: 22rpx;
 	}
 </style>

@@ -2,108 +2,152 @@
 	<yb-page-anime ref="ybPageAnime" tabbar :bgColor="skinColor.color_bg_1">
 		<list class="list">
 			<yb-pulldown ref="pulldown" :color="skinColor.color_1" @pulldown="pulldown"></yb-pulldown>
-			<template v-if="!error">
-				<cell>
-					<swiper
-					v-if="banners.length > 0"
-					:style="{'height': (statusBarHeight + 150) + 'px'}"
-					class="ad-swiper"
-					circular
-					:indicator-dots="true"
-					:indicator-color="skinColor.color_bg_1"
-					:indicator-active-color="skinColor.color_actived_1"
-					:autoplay="true"
-					:interval="3000"
-					:duration="1000">
-						<swiper-item v-for="(item, index) in banners" :key="index" @tap="goDetail(item)">
-							<rd-image lazyLoad class="ad" :src="item.cover" mode="aspectFill"></rd-image>
-						</swiper-item>
-					</swiper>
-				</cell>
-				<cell>
-					<view class="singer-line opac-actived" :style="{'background-color': skinColor.color_theme_2}" @tap="app.$Router.push({path: '/pages/music/search'})">
-						<view class="singer-left">
-							<rd-icon name="search" color="#ffa916" size="50"></rd-icon>
-							<text class="singer-text" :style="{color: skinColor.color_1}">搜索歌曲/歌手</text>
-						</view>
-						<view class="go">
-							<text class="go-text">GO</text>
-						</view>
+			<cell>
+				<swiper
+				v-if="banners.length > 0"
+				:style="{'height': (statusBarHeight + 100) + 'px'}"
+				class="ad-swiper"
+				circular
+				:indicator-dots="true"
+				:indicator-color="skinColor.color_bg_1"
+				:indicator-active-color="skinColor.color_actived_1"
+				:autoplay="true"
+				:interval="3000"
+				:duration="1000">
+					<swiper-item v-for="(item, index) in banners" :key="index" @tap="goDetail(item)">
+						<rd-image lazyLoad class="ad" :src="item.cover" mode="aspectFill"></rd-image>
+					</swiper-item>
+				</swiper>
+			</cell>
+			<cell>
+				<view class="singer-line opac-actived" :style="{'background-color': skinColor.color_theme_2}" @tap="app.$Router.push({path: '/pages/music/search'})">
+					<view class="singer-left">
+						<rd-icon name="search" color="#ffa916" size="50"></rd-icon>
+						<text class="singer-text" :style="{color: skinColor.color_1}">搜索歌曲/歌手</text>
 					</view>
-				</cell>
-				
-				<!-- 音乐模块 -->
-				<cell v-for="(module, i) in modules" :key="i">
-					<template>
-						<view class="padding-gap">
-							<rd-title :title="module.title" moreText="更多"
-							@more="app.$Router.push({
-								path: '/pages/music/more',
-								query: {
-									module: encodeURIComponent(JSON.stringify(module))
-								}
-							})"></rd-title>
-							<yb-grid :data="module.hotSinger" :count="4" :column="4" v-if="module.hotSinger.length > 0">
+					<view class="go">
+						<text class="go-text">GO</text>
+					</view>
+				</view>
+			</cell>
+			<cell>
+				<view class="padding-gap">
+					<rd-title title="热门歌手" moreText="更多"
+					@more="app.$Router.push({
+						path: '/pages/music/singer'
+					})"></rd-title>
+					<yb-swiper-list
+					style="height: 700rpx;"
+					type="card"
+					:size="24"
+					:column="tabs.length < 5 ? tabs.length : 'auto'"
+					:tabs="tabs"
+					:frontColor="skinColor.color_white"
+					:activedColor="skinColor.color_red">
+						<template v-slot="{swiperSlot}">
+							<yb-gap></yb-gap>
+							<yb-grid :data="hotSingers.filter(singer => singer.source == tabs[swiperSlot.index].source)" :count="8" :column="4">
 								<template v-slot="{gridItem}">
 									<view class="singer" @tap="goDetail(gridItem.detail)">
 										<rd-image lazyLoad border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
 										<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+										<text class="source" :style="{color: skinColor.color_1}">（{{filterSource(gridItem.detail.source)}})</text>
 									</view>
 								</template>
 							</yb-grid>
-						</view>
-						<yb-gap></yb-gap>
-						<!-- 排行榜 -->
-						<view class="types" v-if="module.hotTop.length > 0">
-							<view class="type opac-actived"
-							v-for="(item, index) in module.hotTop"
-							@tap="goRank(item)"
-							:key="index"
-							:style="{
-								'background-color': skinColor.color_theme_2,
-								'margin-right': ((parseInt(index / 4) + 1) * 4) - 1 == index ? '0' : '24rpx'
-							}">
-								<text class="type-text" :style="{color: skinColor.color_1}">{{item.title}}</text>
-								<rd-icon name="arrow-right" v-if="index == 7" :color="skinColor.color_1"></rd-icon>
-							</view>
-						</view>
-						
-						<!-- 推荐歌单 -->
-						<template v-if=" module.hotDisc.length > 0">
-							<rd-type title="推荐歌单"></rd-type>
-							<view class="cell-item_1 padding-gap" v-for="(item, index) in module.hotDisc.slice(0, 3)" :key="index" @tap="goDetail(item)">
-								<rd-image lazyLoad border-radius="12" class="cover" :src="item.cover"></rd-image>
-								<view class="info">
-									<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-									<text class="label" :style="{color: skinColor.color_3}">{{item.creator}}</text>
+						</template>
+					</yb-swiper-list>
+				</view>
+				<yb-gap :color="skinColor.color_gap_2"></yb-gap>
+			</cell>
+			<cell>
+				<view class="padding-gap">
+					<rd-title title="排行榜" moreText="更多"
+					@more="app.$Router.push({
+						path: '/pages/music/rank',
+						query: {
+							title: '最近更新',
+							tabs: encodeURIComponent(JSON.stringify(tabs)),
+							list: encodeURIComponent(JSON.stringify(hotTops))
+						}
+					})"></rd-title>
+					<yb-swiper-list
+					style="height: 700rpx;"
+					type="card"
+					:size="24"
+					:column="tabs.length < 5 ? tabs.length : 'auto'"
+					:tabs="tabs"
+					:frontColor="skinColor.color_white"
+					:activedColor="skinColor.color_red">
+						<template v-slot="{swiperSlot}">
+							<yb-gap></yb-gap>
+							<yb-grid :data="hotTops.filter(top => top.source == tabs[swiperSlot.index].source)" :column="4" :count="32">
+								<template v-slot="{gridItem}">
+									<view class="topItem opac-actived"
+									@tap="goRank(gridItem.detail)"
+									:key="index"
+									:style="{
+										'background-color': skinColor.color_theme_2
+									}">
+										<text class="type-text" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+									</view>
+								</template>
+							</yb-grid>
+						</template>
+					</yb-swiper-list>
+				</view>
+				<yb-gap :color="skinColor.color_gap_2"></yb-gap>
+			</cell>
+			<cell>
+				<view class="padding-gap">
+					<rd-title title="推荐歌单" moreText="更多" @more="app.$Router.push({
+						path: '/pages/music/mix'
+					})"></rd-title>
+				</view>
+			</cell>
+			<cell v-for="(tab, i) in tabs">
+				<yb-grid class="padding-gap" :data="hotAlbums.filter(al => al.source == tab.source)" :count="6">
+					<template v-slot="{gridItem}">
+						<view class="gridItem" @tap="goDetail(gridItem.detail)">
+							<rd-image  border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
+							<view class="bottom">
+								<view class="num">
+									<rd-icon name="play-outline" :color="skinColor.color_white"></rd-icon>
+									<text class="num-text" :style="{color: skinColor.color_white}">{{gridItem.detail.playnum / 10000}}万</text>
 								</view>
 							</view>
-						</template>
-						<view class="newAlbum" :style="{'border-color': skinColor.color_gap_1}" v-if="MUSICURL[module.source].newSong">
-							<view class="newAlbum-center"
-							@tap="app.$Router.push({
-								path: '/pages/music/album',
-								query: {
-									source: module.source,
-									title: module.title
-								}
-							})">
-								<text class="newAlbum-text"
-								:style="{color: skinColor.color_actived_1}"
-								>新碟上架</text>
-								<rd-icon name="arrow-right" size="36" :color="skinColor.color_actived_1" />
-							</view>
+							<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
 						</view>
 					</template>
-				</cell>
-			</template>
-			<template v-else>
-				<cell>
-					<view :style="{position: 'relative', height: windowHeight + 'px'}">
-						<rd-no-data :color="skinColor.color_3" v-if="error" title="还没有查找到数据"></rd-no-data>
-					</view>
-				</cell>
-			</template>
+				</yb-grid>
+			</cell>
+			<cell>
+				<yb-gap :color="skinColor.color_gap_2"></yb-gap>
+			</cell>
+			<cell>
+				<view class="padding-gap" v-if="newSongs.length > 0">
+					<rd-title title="新碟上架" moreText="更多" @more="app.$Router.push({
+						path: '/pages/music/album'
+					})"></rd-title>
+				</view>
+			</cell>
+			<cell v-for="(tab, i) in tabs">
+				<yb-grid class="padding-gap" :data="newSongs.filter(al => al.source == tab.source)" :count="6">
+					<template v-slot="{gridItem}">
+						<view class="gridItem" @tap="playSong(gridItem.detail)">
+							<rd-image  border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
+							<view class="bottom">
+								<view class="num">
+									<rd-icon name="play-outline" :color="skinColor.color_white"></rd-icon>
+									<text class="num-text" :style="{color: skinColor.color_white}">{{gridItem.detail.singer}}</text>
+								</view>
+							</view>
+							<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+						</view>
+					</template>
+				</yb-grid>
+			</cell>
+			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="newSongs.length == 0"></yb-pullup>
 		</list>
 		<yb-list-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></yb-list-loading>
 	</yb-page-anime>
@@ -117,23 +161,35 @@
 			return {
 				statusBarHeight: 0,
 				windowHeight: 0,
-				modules: [],//音乐模块展示
+				tabs: [],
+				hotSingers: [],
+				hotTops: [],
 				banners: [],
-				loading: true,
-				error: false
-			}
-		},
-		computed: {
-			MUSICURL () {
-				return getApp().globalData.$config.MUSICURL
+				hotAlbums: [],
+				newSongs: [],
+				loading: true
 			}
 		},
 		onLoad () {
 			this.statusBarHeight = uni.getSystemInfoSync().statusBarHeight
 			this.windowHeight = uni.getSystemInfoSync().windowWidth
-			this.getRecome().then(status => {
+		},
+		onReady () {
+			getApp().globalData.$api.music.getRecom().then((ress) => {
 				this.loading = false
-				!status ? this.error = true : null
+				ress.forEach(res => {
+					if ( res.code == getApp().globalData.$config.ERR_OK ) {
+						this.banners = this.banners.concat(res.data.banners)
+						this.hotSingers = this.hotSingers.concat(res.data.hotSingers)
+						this.hotTops = this.hotTops.concat(res.data.hotTops.filter(top => top.title.length < 6))
+						this.hotAlbums = this.hotAlbums.concat(res.data.hotAlbums)
+						this.tabs.push({
+							label: this.filterSource(res.data.source),
+							value: res.data.source,
+							source: res.data.source
+						})
+					}
+				})
 			})
 		},
 		onShow () {
@@ -141,42 +197,36 @@
 		},
 		methods: {
 			pulldown () {
-				this.getRecome().then(status => {
-					if ( status ) {
-						this.$refs.pulldown.success()
-						this.error = false
-					} else {
-						this.$refs.pulldown.fail()
-						this.error = true
-					}
-				})
-			},
-			async getRecome () {
-				return await getApp().globalData.$api.music.getRecom().then((ress) => {
-					let modules = []
-					let banners = []
+				getApp().globalData.$api.music.getRecom().then((ress) => {
+					this.$refs.pulldown.success()
+					this.banners = []
+					this.hotSingers = []
+					this.hotTops = []
+					this.hotAlbums = []
+					this.tabs = []
 					ress.forEach((res, index) => {
 						if ( res.code == getApp().globalData.$config.ERR_OK ) {
-							let module = res.data.data
-							module.banners.forEach(banner => {
-								banners.push(banner)
+							this.banners = this.banners.concat(res.data.banners)
+							this.hotSingers = this.hotSingers.concat(res.data.hotSingers)
+							this.hotTops = this.hotTops.concat(res.data.hotTops.filter(top => top.title.length < 6))
+							this.hotAlbums = this.hotAlbums.concat(res.data.hotAlbums)
+							this.tabs.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source
 							})
-							if ( module.topList.length > 0 ) {
-								const hotTop = module.topList.filter(top => top.title.length < 6)
-								module.hotTop = hotTop.slice(0, 7)
-								module.hotTop.push({
-									title: '更多',
-									source: res.data.source
-								})
-							} else {
-								module.hotTop = []
-							}
-							modules.push(module)
 						}
 					})
-					this.modules = modules
-					this.banners = banners
-					return modules.length > 0
+				})
+			},
+			pullup () {
+				getApp().globalData.$api.music.getNewSongList().then((ress) => {
+					ress.forEach(res => {
+						if ( res.code == getApp().globalData.$config.ERR_OK ) {
+							this.newSongs = this.newSongs.concat(res.data.list)
+						}
+					})
+					this.newSongs.length > 0 ? this.$refs.pullup.success() : this.$refs.pullup.fail()
 				})
 			},
 			goDetail (params) {
@@ -245,13 +295,7 @@
 		font-size: 38rpx;
 		color: #fff;
 	}
-	.types {
-		flex-direction: row;
-		justify-content: center;
-		flex-wrap: wrap;
-		padding: 0 30rpx;
-	}
-	.types .type {
+	.topItem {
 		width: 150rpx;
 		height: 64rpx;
 		flex-direction: row;
@@ -259,8 +303,44 @@
 		justify-content: center;
 		margin: 0 0 24rpx 0;
 	}
-	.types .type .type-text {
+	.topItem .type-text {
 		font-size: 24rpx;
+	}
+	
+	.gridItem {
+		position: relative;
+		width: 208rpx;
+	}
+	.gridItem .cover {
+		width: 208rpx;
+		height: 208rpx;
+	}
+	.gridItem .name {
+		font-size: 24rpx;
+		height: 66rpx;
+		lines: 2;
+		text-overflow: ellipsis;
+		margin-top: 15rpx;
+	}
+	.gridItem .bottom {
+		flex-direction: row;
+		align-items: center;
+		position: absolute;
+		bottom: 90rpx;
+		left: 10rpx;
+		right: 10rpx;
+	}
+	.gridItem .num {
+		flex-direction: row;
+		align-items: center;
+		flex: 1;
+	}
+	.gridItem .num .num-text {
+		font-size: 24rpx;
+		margin-left: 10rpx;
+		flex: 1;
+		lines: 1;
+		text-overflow: ellipsis;
 	}
 	
 	.singer {
@@ -276,6 +356,13 @@
 		text-overflow: ellipsis;
 		text-align: center;
 		margin: 10rpx 0;
+	}
+	.singer .source {
+		font-size: 20rpx;
+		lines: 1;
+		text-overflow: ellipsis;
+		text-align: center;
+		margin-bottom: 10rpx;
 	}
 	
 	.newAlbum {

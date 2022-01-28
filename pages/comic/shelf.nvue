@@ -49,7 +49,7 @@
 								}">题材：{{item.style || '未知题材'}}</text>
 								<text class="subtitle" :style="{
 									'color': skinColor.color_3
-								}">来源：{{COMICURL[item.source].title}}</text>
+								}">来源：{{filterSource(item.source)}}</text>
 							</view>
 							<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
 							<view class="badges">
@@ -84,9 +84,6 @@
 		computed: {
 			title () {
 				return this.params?.title || '书架信息'
-			},
-			BOOKURL () {
-				return this.app.$config.BOOKURL
 			}
 		},
 		onLoad() {

@@ -28,7 +28,7 @@
 									}">题材：{{item.style || '未知题材'}}</text>
 									<text class="subtitle" :style="{
 										'color': skinColor.color_3
-									}">来源：{{BOOKURL[item.source] ? BOOKURL[item.source].title : '本地'}}</text>
+									}">来源：{{filterSource(item.source)}}</text>
 								</view>
 								<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc.replace(/\n/g, '') || '暂无简介'}}</text>
 								<view class="badges">

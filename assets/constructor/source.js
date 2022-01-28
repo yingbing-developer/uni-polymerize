@@ -1,8 +1,13 @@
 //來源
 
 export default class Source {
-	constructor({id, key}) {
+	constructor({id, title, href, isAdult, isOpen, request, type}) {
 	  this.id = id
-	  this.key = key
+	  this.title = title
+	  this.href = href
+	  this.isAdult = isAdult || false
+	  this.isOpen = isOpen || true
+	  this.request = request
+	  this.type = type
 	}
 }
