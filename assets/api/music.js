@@ -51,7 +51,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.search?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.search?.value && (!!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -76,7 +76,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getHotKeyword?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getHotKeyword?.value && (!!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -101,7 +101,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( (source.isAdult || adult) && source.isOpen ) {
+			if ( (!source.isAdult || adult) && source.isOpen ) {
 				let https = []
 				data.baseUrl = source.href
 				data.source = source.id
@@ -245,7 +245,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getNewSongList?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getNewSongList?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -269,7 +269,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getNewAlbumType?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getNewAlbumType?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -323,7 +323,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getHotSingerList?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getHotSingerList?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -347,7 +347,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getSingerType?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getSingerType?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -401,7 +401,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getHotAlbumList?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getHotAlbumList?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -425,7 +425,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getAlbumType?.value && (source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getAlbumType?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{

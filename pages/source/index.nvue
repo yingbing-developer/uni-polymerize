@@ -150,25 +150,21 @@
 													})
 												}
 												let result = JSON.parse(data)
-												if ( result.type == this.type ) {
-													Object.keys(result.request).forEach(key => {
-														if ( result.request[key].value ) {
-															let val = requesValues[result.request[key].value].match(/\"value\": \"*([\s\S]*?)\"}/)[1]
-															result.request[key].value = val
-														}
-													})
-													this.$store.dispatch('source/add', new Source({
-														id: result.id,
-														title: result.title,
-														href: result.href,
-														isAdult: result.isAdult,
-														isOpen: true,
-														request: result.request,
-														type: result.type
-													}))
-												} else {
-													throw new Error('错误的文件来源');
-												}
+												Object.keys(result.request).forEach(key => {
+													if ( result.request[key].value ) {
+														let val = requesValues[result.request[key].value].match(/\"value\": \"*([\s\S]*?)\"}/)[1]
+														result.request[key].value = val
+													}
+												})
+												this.$store.dispatch('source/add', new Source({
+													id: result.id,
+													title: result.title,
+													href: result.href,
+													isAdult: result.isAdult,
+													isOpen: true,
+													request: result.request,
+													type: result.type
+												}))
 											}catch(e){
 												throw new Error('错误的文件来源');
 											}

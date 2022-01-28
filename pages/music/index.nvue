@@ -72,7 +72,7 @@
 						}
 					})"></rd-title>
 					<yb-swiper-list
-					style="height: 700rpx;"
+					style="height: 380rpx;"
 					type="card"
 					:size="24"
 					:column="tabs.length < 5 ? tabs.length : 'auto'"
@@ -81,7 +81,7 @@
 					:activedColor="skinColor.color_red">
 						<template v-slot="{swiperSlot}">
 							<yb-gap></yb-gap>
-							<yb-grid :data="hotTops.filter(top => top.source == tabs[swiperSlot.index].source)" :column="4" :count="32">
+							<yb-grid :data="hotTops.filter(top => top.source == tabs[swiperSlot.index].source)" :column="4" :count="12">
 								<template v-slot="{gridItem}">
 									<view class="topItem opac-actived"
 									@tap="goRank(gridItem.detail)"

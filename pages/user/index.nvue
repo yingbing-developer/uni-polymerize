@@ -140,12 +140,6 @@
 					icon: 'folder-open-fill',
 					size: 65,
 					color: this.skinColor.color_orange
-				},{
-					title: '本地漫画',
-					to: '/pages/comic/local',
-					icon: 'folder-open-fill',
-					size: 65,
-					color: this.skinColor.color_orange
 				}]
 			},
 			name () {

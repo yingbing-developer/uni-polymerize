@@ -847,6 +847,8 @@ export const comicDict = [
 	'白虎',
 	'私密',
 	'嫩穴',
+	'一线天',
+	'馒头穴',
 	'无毛',
 	'Pussy',
 	'Ass',
