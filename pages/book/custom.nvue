@@ -33,6 +33,7 @@
 		<yb-modal-input
 		:visible.sync="showCreate"
 		title="新建书单"
+		placeholder="请输入书单名称"
 		v-model="shelfTitle"
 		:checked-show="$store.getters['app/getAdult']"
 		:checked.sync="isAdult"
@@ -47,6 +48,7 @@
 		<yb-modal-input
 		:visible.sync="showEdit"
 		title="编辑书单"
+		placeholder="请输入新的书单名称"
 		v-model="shelfTitle"
 		:checked-show="$store.getters['app/getAdult']"
 		:checked.sync="isAdult"

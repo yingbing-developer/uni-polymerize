@@ -8,7 +8,7 @@
 	@confirm="onConfirm"
 	@cancel="onCancel">
 		<view class="yb-modal-input-box">
-			<input class="input" :max-length="max" :value="value" @input="onInput" :style="{'border-color': gapColor, color: tipColor}" type="text" placeholder="请输入书单标题">
+			<input class="input" :max-length="max" :value="value" @input="onInput" :style="{'border-color': gapColor, color: tipColor}" type="text" :placeholder="placeholder">
 			<text class="tip" :style="{color: gapColor}">{{value.length}}/{{max}}</text>
 		</view>
 		<view class="yb-modal-check" @tap="changeChecked" v-if="checkedShow">
@@ -30,6 +30,10 @@
 				default: false
 			},
 			title: {
+				type: String,
+				default: ''
+			},
+			placeholder: {
 				type: String,
 				default: ''
 			},

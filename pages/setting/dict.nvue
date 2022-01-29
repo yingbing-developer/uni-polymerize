@@ -30,6 +30,7 @@
 		<yb-modal-input
 		:visible.sync="createShow"
 		title="新增字典"
+		placeholder="请输入词汇"
 		v-model="dictTitle"
 		:checked-show="$store.getters['app/getAdult']"
 		:checked.sync="isAdult"

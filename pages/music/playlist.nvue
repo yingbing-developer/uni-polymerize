@@ -16,24 +16,26 @@
 					</view>
 				</view>
 			</view>
-			<scroll-view scroll-with-animation class="scroll" scroll-y="true" v-if="playList.length > 0">
-				<view class="list" v-for="(item, index) in playList" :key="item.id" @tap="play(item)">
-					<view>
-						<rd-icon v-if="currentId == item.id" name="music-fill" :color="skinColor.color_red"></rd-icon>
-						<rd-icon v-else name="music" :color="skinColor.color_1"></rd-icon>
+			<list ref="list" @loadmore="pullup" v-if="playList.length > 0">
+				<cell v-for="(item, index) in playList.slice(0, max)">
+					<view class="list" @tap="play(item)">
+						<view>
+							<rd-icon v-if="currentId == item.id" name="music-fill" :color="skinColor.color_red"></rd-icon>
+							<rd-icon v-else name="music" :color="skinColor.color_1"></rd-icon>
+						</view>
+						<text class="list-name" :style="{color: currentId == item.id ? skinColor.color_red : skinColor.color_1}">{{item.title}}</text>
+						<view class="list-right">
+							<view class="list-icon" @tap="toCollection(item)">
+								<rd-icon v-if="isCollection(item.id)" name="love-fill" size="30" :color="skinColor.color_red"></rd-icon>
+								<rd-icon v-else name="love" size="30" :color="skinColor.color_1"></rd-icon>
+							</view>
+							<view class="list-icon" @tap="remove(item)">
+								<rd-icon name="dustbin-fill" size="30" :color="skinColor.color_1"></rd-icon>
+							</view>
+						</view>	
 					</view>
-					<text class="list-name" :style="{color: currentId == item.id ? skinColor.color_red : skinColor.color_1}">{{item.title}}</text>
-					<view class="list-right">
-						<view class="list-icon" @tap="toCollection(item)">
-							<rd-icon v-if="isCollection(item.id)" name="love-fill" size="30" :color="skinColor.color_red"></rd-icon>
-							<rd-icon v-else name="love" size="30" :color="skinColor.color_1"></rd-icon>
-						</view>
-						<view class="list-icon" @tap="remove(item)">
-							<rd-icon name="dustbin-fill" size="30" :color="skinColor.color_1"></rd-icon>
-						</view>
-					</view>	
-				</view>
-			</scroll-view>
+				</cell>
+			</list>
 			<yb-no-data class="scroll" title="播放列表为空!" v-else></yb-no-data>
 			<view class="clear" v-if="playList.length > 0">
 				<yb-button @tap="clear" class="clear-btn" size="24" :themeColor="skinColor.color_1" :frontColor="skinColor.color_1" type="plain" round title="清除全部歌曲"></yb-button>
@@ -53,7 +55,9 @@
 					opac: 0.4,
 					duration: 400
 				},
-				height: 1000
+				height: 1000,
+				page: 1,
+				size: 20,
 			}
 		},
 		onReady() {
@@ -71,6 +75,12 @@
 			},
 			playList () {
 				return this.$store.getters['audio/getPlayList']
+			},
+			max () {
+				return this.page * this.size
+			},
+			isLastPage () {
+				return this.max >= this.playList.length
 			}
 		},
 		methods: {
@@ -138,6 +148,14 @@
 						}
 					}
 				})
+			},
+			pullup () {
+				this.page++
+				if ( !this.isLastPage ) {
+					setTimeout(() => {
+						this.$refs.list.resetLoadmore()
+					}, 100)
+				}
 			}
 		},
 		onBackPress (event) {

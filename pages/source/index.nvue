@@ -128,7 +128,7 @@
 			},
 			chooseFile () {
 				getApp().globalData.$modules.chooseFile({
-					title: '选择' + this.title,
+					title: '选择来源',
 					suffix: 'json',
 					multiple: true,
 					success: (res) => {

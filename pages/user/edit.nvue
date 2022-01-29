@@ -11,21 +11,18 @@
 				<yb-avatar enablePreview size="50" :src="avatar"></yb-avatar>
 			</view>
 		</scroll-view>
-		<yb-modal
+		<yb-modal-input
 		:visible.sync="editShow"
+		title="编辑昵称"
+		placeholder="请输入昵称"
+		v-model="nickName"
 		:bgColor="skinColor.color_bg_2"
 		:frontColor="skinColor.color_1"
 		:themeColor="skinColor.color_blue"
-		title="编辑昵称"
+		:tipColor="skinColor.color_2"
+		:gapColor="skinColor.color_gap_1"
 		@confirm="updateName"
-		@cancel="nickName = ''">
-			<view class="modal-input-box">
-				<input class="input" max-length="6" v-model="nickName"
-				:style="{'border-color': skinColor.color_gap_1, color: skinColor.color_2}"
-				type="text" placeholder="请输入昵称">
-				<text class="tip" :style="{color: skinColor.color_gap_1}">{{nickName.length}}/6</text>
-			</view>
-		</yb-modal>
+		@cancel="nickName = ''"></yb-modal-input>
 	</yb-page-anime>
 </template>
 

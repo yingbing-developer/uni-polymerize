@@ -164,7 +164,7 @@
 						<swiper-item v-for="(item, index) in hotTops" :key="item.id">
 							<view class="cell-item_4" :style="{'background-color': skinColor.color_bg_1}">
 								<view class="left" @tap="app.$Router.push({
-									path: '/pages/comic/shelf',
+									path: '/pages/book/shelf',
 									query: {
 										params: encodeURIComponent(JSON.stringify(item))
 									}

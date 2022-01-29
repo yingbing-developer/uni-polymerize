@@ -28,6 +28,7 @@
 		<yb-modal-input
 		:visible.sync="showCreate"
 		title="新建歌单"
+		placeholder="请输入歌单名称"
 		v-model="albumTitle"
 		:bgColor="skinColor.color_bg_2"
 		:frontColor="skinColor.color_1"
@@ -39,6 +40,7 @@
 		<yb-modal-input
 		:visible.sync="showEdit"
 		title="编辑歌单"
+		placeholder="请输入新的歌单名称"
 		v-model="albumTitle"
 		:bgColor="skinColor.color_bg_2"
 		:frontColor="skinColor.color_1"

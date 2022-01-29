@@ -1,6 +1,8 @@
 <template>
 	<view class="player" :style="{'background-color': skinColor.color_black}" @touchmove.stop.prevent="">
-		<rd-image style="opacity: 0.7;" class="background" enable-blur :src="cdImage" mode="aspectFill"></rd-image>
+		<view class="background">
+			<rd-image v-if="bgShow" style="opacity: 0.7;" class="bgImage" enable-blur :src="cdImage" mode="aspectFill"></rd-image>
+		</view>
 		<view class="wrapper">
 			<yb-gap-bar></yb-gap-bar>
 			<view class="top" ref="top">
@@ -114,7 +116,8 @@
 				animaDuration: 400,
 				delay: 200,
 				cdRotate: 0,
-				cdStart: 0
+				cdStart: 0,
+				bgShow: false
 			}
 		},
 		computed: {
@@ -255,6 +258,7 @@
 						if ( this.playStatus ) {
 							this.startRotate();
 						}
+						this.bgShow = true
 					})
 				})
 			},
@@ -380,6 +384,9 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
+	}
+	.player .background .bgImage {
+		flex: 1;
 	}
 	.player .wrapper {
 		position: absolute;

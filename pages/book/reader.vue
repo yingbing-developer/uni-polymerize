@@ -72,7 +72,7 @@
 			uni.$on('change-page', (data) => {
 				if ( this.reader.source == 'local' ) {
 					this.$refs.page.change({
-						start: data.percent ? (data.percent / 100) * this.bookContent.length : data.start
+						start: data.percent >= 0 ? (data.percent / 100) * this.bookContent.length : data.start
 					})
 				} else {
 					uni.showLoading({
