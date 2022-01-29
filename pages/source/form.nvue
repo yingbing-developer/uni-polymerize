@@ -322,50 +322,90 @@
 					suffix: 'json',
 					success: (res) => {
 						if ( res.confirm ) {
-							plus.io.resolveLocalFileSystemURL(res.data.file.path, ( entry ) => {
-								// 可通过entry对象操作test.html文件 
-								entry.file( (file) => {
-									let fileReader = new plus.io.FileReader();
-									fileReader.readAsText(file, 'UTF-8');
-									fileReader.onloadend = (evt) => {
-										try{
-											let data = evt.target.result.replace(/\r|\n|\t/g, '')
-											let requesValues = data.match(/\"value\": \"*([\s\S]*?)\"}/ig)
-											if ( requesValues ) {
-												requesValues.forEach((value, key) => {
-													let val = value.match(/\"value\": \"*([\s\S]*?)\"}/)[1]
-													data = data.replace(val, key)
-												})
-											}
-											let result = JSON.parse(data)
-											if ( result.type == this.type ) {
-												Object.keys(result.request).forEach(key => {
-													if ( result.request[key].value ) {
-														let val = requesValues[result.request[key].value].match(/\"value\": \"*([\s\S]*?)\"}/)[1]
-														result.request[key].value = val
-													}
-												})
-												this.loadData(result)
-											} else {
-												uni.showToast({
-													title: '错误的' + this.title,
-													icon: 'none'
-												})
-											}
-										}catch(e){
-											uni.showToast({
-												title: '错误的' + this.title,
-												icon: 'none'
-											})
+							try {
+							    // 获取输入流
+								let fs = plus.android.newObject("java.io.FileInputStream", res.data.file.path);
+								let isr = plus.android.newObject("java.io.InputStreamReader", fs, 'UTF-8');
+								let br = plus.android.newObject("java.io.BufferedReader", isr);
+								let sb = ''
+								let temp = ''
+							    while ((temp = plus.android.invoke(br, 'readLine')) != null) {
+							        sb += temp;
+							    }
+								plus.android.invoke(br, 'close')
+								let data = sb.replace(/\r|\n|\t/g, '')
+								let requesValues = data.match(/\"value\": \"*([\s\S]*?)\"}/ig)
+								if ( requesValues ) {
+									requesValues.forEach((value, key) => {
+										let val = value.match(/\"value\": \"*([\s\S]*?)\"}/)[1]
+										data = data.replace(val, key)
+									})
+								}
+								let result = JSON.parse(data)
+								if ( result.type == this.type ) {
+									Object.keys(result.request).forEach(key => {
+										if ( result.request[key].value ) {
+											let val = requesValues[result.request[key].value].match(/\"value\": \"*([\s\S]*?)\"}/)[1]
+											result.request[key].value = val
 										}
-									}
-								} );
-							}, ( err ) => {
+									})
+									this.loadData(result)
+								} else {
+									uni.showToast({
+										title: '错误的' + this.title,
+										icon: 'none'
+									})
+								}
+							} catch (e) {
 								uni.showToast({
 									title: '错误的' + this.title,
 									icon: 'none'
 								})
-							});
+							}
+							// plus.io.resolveLocalFileSystemURL(res.data.file.path, ( entry ) => {
+							// 	// 可通过entry对象操作test.html文件 
+							// 	entry.file( (file) => {
+							// 		let fileReader = new plus.io.FileReader();
+							// 		fileReader.readAsText(file, 'UTF-8');
+							// 		fileReader.onloadend = (evt) => {
+							// 			try{
+							// 				let data = evt.target.result.replace(/\r|\n|\t/g, '')
+							// 				let requesValues = data.match(/\"value\": \"*([\s\S]*?)\"}/ig)
+							// 				if ( requesValues ) {
+							// 					requesValues.forEach((value, key) => {
+							// 						let val = value.match(/\"value\": \"*([\s\S]*?)\"}/)[1]
+							// 						data = data.replace(val, key)
+							// 					})
+							// 				}
+							// 				let result = JSON.parse(data)
+							// 				if ( result.type == this.type ) {
+							// 					Object.keys(result.request).forEach(key => {
+							// 						if ( result.request[key].value ) {
+							// 							let val = requesValues[result.request[key].value].match(/\"value\": \"*([\s\S]*?)\"}/)[1]
+							// 							result.request[key].value = val
+							// 						}
+							// 					})
+							// 					this.loadData(result)
+							// 				} else {
+							// 					uni.showToast({
+							// 						title: '错误的' + this.title,
+							// 						icon: 'none'
+							// 					})
+							// 				}
+							// 			}catch(e){
+							// 				uni.showToast({
+							// 					title: '错误的' + this.title,
+							// 					icon: 'none'
+							// 				})
+							// 			}
+							// 		}
+							// 	} );
+							// }, ( err ) => {
+							// 	uni.showToast({
+							// 		title: '错误的' + this.title,
+							// 		icon: 'none'
+							// 	})
+							// });
 						}
 					}
 				})
