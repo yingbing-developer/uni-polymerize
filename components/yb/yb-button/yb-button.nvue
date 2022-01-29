@@ -1,7 +1,7 @@
 <template>
 	<view class="button" :class="btnClass" :style="{'background-color': type == 'normal' ? themeColor : '', 'border-color': type == 'plain' ? themeColor : ''}">
-		<view class="btn-mask white-mask" v-if="maskMode == 'white' && !disabled" @tap="onClick"></view>
-		<view class="btn-mask dark-mask" v-if="maskMode == 'dark' && !disabled" @tap="onClick"></view>
+		<view class="btn-mask white-mask" :class="maskClass" v-if="maskMode == 'white' && !disabled" @tap="onClick"></view>
+		<view class="btn-mask dark-mask" :class="maskClass" v-if="maskMode == 'dark' && !disabled" @tap="onClick"></view>
 		<slot><text class="button-text" :style="{color: type == 'normal' ? frontColor : themeColor, 'font-size': size + 'rpx'}">{{title}}</text></slot>
 	</view>
 </template>
@@ -47,6 +47,13 @@
 				return {
 					'normal': this.type == 'normal',
 					'plain': this.type == 'plain',
+					'round': this.round
+				}
+			},
+			maskClass () {
+				return {
+					'normal': this.type == 'normal',
+					'normal': this.type == 'plain',
 					'round': this.round
 				}
 			}

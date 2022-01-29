@@ -2,7 +2,7 @@
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<rd-search placeholder="搜索小说" :keywords="keywords" :records="records" :value="keyword" @input="change" @clearRecord="clearRecord" @removeRecord="removeRecord">
 			<view class="result" v-if="keyword" :style="{'background-color': skinColor.color_bg_1}">
-				<list class="list" v-if="results.length > 0 && !loading" :render-whole="true">
+				<list class="list" v-if="results.length > 0 && !loading">
 					<cell><view ref="listTop"></view></cell>
 					<cell v-for="(item, index) in results">
 						<view class="cell-item_3"

@@ -1,6 +1,6 @@
 <template>
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
-		<scroll-view style="flex: 1;" scroll-y="true" @scroll="onScroll" :render-whole="true">
+		<scroll-view style="flex: 1;" scroll-y="true" @scroll="onScroll">
 			<view class="top" ref="top">
 				<rd-image lazyLoad class="bg" enable-blur :src="params.cover" mode="aspectFill"></rd-image>
 				<yb-mask color="rgba(0,0,0,0.2)"></yb-mask>

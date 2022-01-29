@@ -1,5 +1,5 @@
 <template>
-	<view class="player" :style="{'background-color': skinColor.color_black}" @touchmove.stop.prevent="" :render-whole="true">
+	<view class="player" :style="{'background-color': skinColor.color_black}" @touchmove.stop.prevent="">
 		<rd-image style="opacity: 0.7;" class="background" enable-blur :src="cdImage" mode="aspectFill"></rd-image>
 		<view class="wrapper">
 			<yb-gap-bar></yb-gap-bar>

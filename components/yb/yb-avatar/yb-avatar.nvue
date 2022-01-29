@@ -15,13 +15,13 @@
 		}"></view>
 		<view class="circle_2" :style="{
 			width: (size / 1.5) + 'rpx',
-			height: (size / 1.5) + 'rpx',
+			height: (size / 3) + 'rpx',
 			'border-radius': (size / 1.5) + 'rpx',
 			'background-color': '#eee',
-			bottom: -(size / 3) + 'rpx',
+			bottom: 3 + 'rpx',
 			left: ((size / 2) - (size / 3)) + 'rpx'
 		}"></view>
-		<image class="cover" :lazy-load="lazyLoad" :src="src" mode="aspectFill"></image>
+		<image :style="{'border-radius': size + 'rpx'}" class="cover" :lazy-load="lazyLoad" :src="src" mode="aspectFill"></image>
 	</view>
 </template>
 
@@ -60,6 +60,7 @@
 <style scoped>
 	.yb-avatar {
 		position: relative;
+		overflow: hidden;
 	}
 	.yb-avatar .circle_1, .yb-avatar .circle_2 {
 		position: absolute;

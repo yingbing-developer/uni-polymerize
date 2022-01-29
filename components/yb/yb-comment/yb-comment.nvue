@@ -1,6 +1,6 @@
 <template>
 	<view class="yb-comment">
-		<list :render-whole="true">
+		<list>
 			<cell v-for="(item, index) in list">
 				<view class="list" :style="{'border-color': lineColor}">
 					<view class="top">

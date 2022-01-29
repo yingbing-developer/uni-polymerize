@@ -201,7 +201,6 @@
 			</template>
 		</list>
 		<yb-list-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></yb-list-loading>
-		<music-audio></music-audio>
 	</yb-page-anime>
 </template>
 

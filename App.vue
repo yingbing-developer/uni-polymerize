@@ -30,7 +30,7 @@
 			//重写toast方法如果内容为 ‘再次返回退出应用’ 就隐藏应用，其他正常toast
 			const toast = plus.nativeUI.toast;
 			plus.nativeUI.toast = (function(message, styles) {
-				if (message == '再按一次退出应用') {
+				if (message == '再按一次退出应用' || message == '再按一次退出應用') {
 					NativeUI.confirm({
 						content: '真的要退出app吗？',
 						confirmText: '隐藏至后台',

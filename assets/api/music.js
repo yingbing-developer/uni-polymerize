@@ -51,7 +51,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.search?.value && (!!source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.search?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{
@@ -76,7 +76,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'music');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.getHotKeyword?.value && (!!source.isAdult || adult) && source.isOpen ) {
+			if ( source.request.getHotKeyword?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{

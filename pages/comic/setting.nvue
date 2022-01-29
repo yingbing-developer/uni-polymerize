@@ -11,7 +11,7 @@
 			<yb-nav-bar ref="navbar" :bgColor="skinColor.color_black" :frontColor="skinColor.color_white" :title="title" />
 		</yb-popup>
 		<!-- 底部设置 -->
-		<yb-popup position="absolute" hideMask direction="bottom" :height="windowHeight - navHeight" :visible="show">
+		<yb-popup position="absolute" hideMask direction="bottom" height="184rpx" :visible="show">
 			<view class="board padding-gap" :style="{'background-color': skinColor.color_black}" @touchmove.stop.prevent="">
 				<view class="progress">
 					<rd-icon enableClick @click="prevPage" class="opac-actived" name="arrow-left-circle" size="35" :color="skinColor.color_white"></rd-icon>
@@ -33,56 +33,6 @@
 					</view>
 				</view>
 				<yb-gap></yb-gap>
-			</view>
-		</yb-popup>
-		<yb-popup hideMaskColor direction="bottom" :height="windowHeight - navHeight" :visible.sync="settingShow">
-			<view class="board setting" :style="{'background-color': skinColor.color_black}" @touchmove.stop.prevent="">
-				<view class="line">
-					<text class="label" :style="{color: skinColor.color_white}">字号</text>
-					<view class="right">
-						<view class="btn" @tap="downFontSize" :style="{'border-color': skinColor.color_white}">
-							<rd-icon name="font-down" size="30" :color="skinColor.color_white"></rd-icon>
-						</view>
-						<text class="text" :style="{color: skinColor.color_white}">{{fontSize}}</text>
-						<view class="btn" @tap="upFontSize" :style="{'border-color': skinColor.color_white}">
-							<rd-icon name="font-up" size="30" :color="skinColor.color_white"></rd-icon>
-						</view>
-					</view>
-				</view>
-				<view class="line">
-					<text class="label" :style="{color: skinColor.color_white}">排版</text>
-					<view class="right">
-						<view class="gap"
-						v-for="(item, index) in gap" :key="index"
-						:style="{'border-color': lineHeight == item.value ? skinColor.color_orange : skinColor.color_white}"
-						@tap="$store.dispatch('reader/changeLineHeight', item.value)">
-							<view class="w" v-for="(len, i) in item.length" :key="i">
-								<view class="h"
-								:style="{'background-color': lineHeight == item.value ? skinColor.color_orange : skinColor.color_white}"></view>
-								<yb-gap :height="(10 - item.length) + 'rpx'" v-if="i < (item.length - 1)"></yb-gap>
-							</view>
-						</view>
-					</view>
-				</view>
-				<view class="line">
-					<text class="label" :style="{color: skinColor.color_white}">翻页</text>
-					<view class="right">
-						<view class="btn"
-						@tap="$store.dispatch('reader/changePageType', item.value)"
-						v-for="(item, index) in pageTypes" :key="index"
-						:style="{
-							'border-color': item.value == pageType ? skinColor.color_orange : skinColor.color_white,
-							'margin-bottom': '20rpx',
-							'margin-right': '10rpx'
-						}">
-							<text class="text"
-							:style="{
-								color: item.value == pageType ? skinColor.color_orange : skinColor.color_white
-							}">{{item.label}}</text>
-						</view>
-					</view>
-				</view>
-				<yb-gap height="60rpx"></yb-gap>
 			</view>
 		</yb-popup>
 		<rd-catalog

@@ -71,13 +71,6 @@
 				return bg
 			}
 		},
-		onShow() {
-		    plus.navigator.setFullscreen(true);
-		},
-		//如果不加这句，会导致跳转到别的页面后也是全屏
-		onUnload() {
-		    plus.navigator.setFullscreen(false);
-		},
 		beforeCreate () {
 			//监听页面跳转
 			uni.$on('change-page', (data) => {

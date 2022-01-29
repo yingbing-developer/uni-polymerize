@@ -16,7 +16,7 @@
 					</view>
 				</view>
 			</view>
-			<scroll-view scroll-with-animation class="scroll" scroll-y="true" v-if="playList.length > 0" :render-whole="true">
+			<scroll-view scroll-with-animation class="scroll" scroll-y="true" v-if="playList.length > 0">
 				<view class="list" v-for="(item, index) in playList" :key="item.id" @tap="play(item)">
 					<view>
 						<rd-icon v-if="currentId == item.id" name="music-fill" :color="skinColor.color_red"></rd-icon>

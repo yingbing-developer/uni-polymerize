@@ -112,6 +112,11 @@
 			uni.$off('edit-page')
 			uni.$off('inc-mark')
 		},
+		onUnload() {
+		   uni.$off('change-page')
+		   uni.$off('edit-page')
+		   uni.$off('inc-mark')
+		},
 		onLoad() {
 			if ( !this.reader ) {
 				this.app.$Router.back()
