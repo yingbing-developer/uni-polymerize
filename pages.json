@@ -184,6 +184,10 @@
 		{
 			"path": "pages/setting/dict"
 		},
+		//防盗链设置
+		{
+			"path": "pages/setting/referer"
+		},
 		//网站来源
 		{
 			"path": "pages/source/index"

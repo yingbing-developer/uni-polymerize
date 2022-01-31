@@ -1,5 +1,5 @@
 <template>
-	<view class="yb-image">
+	<view class="yb-image" @appear="selectCache">
 		<image @load="load" @error="error" ref="image"
 			class="yb-img" :lazyLoad="lazyLoad" :src="url" :mode="mode"
 			:style="{borderRadius: borderRadius + 'rpx'}"></image>
@@ -86,16 +86,6 @@
 				type: String | Number,
 				default: 22
 			},
-			//开启防盗链处理
-			enableReferer: {
-				type: Boolean,
-				default: false
-			},
-			//开启预览图片
-			enablePreview: {
-				type: Boolean,
-				default: false
-			},
 			//开启点击事件
 			enableClick: {
 				type: Boolean,
@@ -110,6 +100,9 @@
 		computed: {
 			maskOpac () {
 				return this.skinMode == 'night' ? 0.2 : 0
+			},
+			enableReferer () {
+				return this.$store.getters['referer/get'].findIndex(referer => this.src.indexOf(referer) > -1) > -1
 			}
 		},
 		data() {
@@ -121,15 +114,7 @@
 				isError: false
 			}
 		},
-		created() {
-			if (this.src) {
-				this.selectCache()
-			}
-		},
 		watch: {
-			src(newVal) {
-				this.selectCache()
-			},
 			isError(newVal) {
 				if (newVal && this.defaultSrc) {
 					this.url = this.defaultSrc;
@@ -144,27 +129,29 @@
 				}
 			},
 			async selectCache () {
-				const caches = this.$store.getters['cache/getCache'];
-				const id = this.src + (this.enableBlur ? '_blur' : this.enableReferer ? '_base' : '')
-				const index = caches.findIndex(cache => cache.parentId == id)
-				if ( index > -1 ) {
-					const url = plus.io.convertLocalFileSystemURL(caches[index].src);
-					const file = plus.android.newObject('java.io.File', url);
-					if ( plus.android.invoke(file, 'exists') ) {
-						this.url = caches[index].src
-						return
-					} else {
-						this.$store.dispatch('cache/removeCache', id)
+				if (this.src && !this.url) {
+					const caches = this.$store.getters['cache/getCache'];
+					const id = this.src + (this.enableBlur ? '_blur' : this.enableReferer ? '_base' : '')
+					const index = caches.findIndex(cache => cache.parentId == id)
+					if ( index > -1 ) {
+						const url = plus.io.convertLocalFileSystemURL(caches[index].src);
+						const file = plus.android.newObject('java.io.File', url);
+						if ( plus.android.invoke(file, 'exists') ) {
+							this.url = caches[index].src
+							return
+						} else {
+							this.$store.dispatch('cache/removeCache', id)
+						}
 					}
+					let path = ''
+					if ( this.enableReferer ) {
+						path = this.src.indexOf('http') > -1 ? await this.baseImage(this.src) : this.src
+					}
+					if ( this.enableBlur  ) {
+						path = path ? await this.blurImage(path) : await this.blurImage(this.src)
+					}
+					this.url = path ? path : this.src;
 				}
-				let path = ''
-				if ( this.enableReferer ) {
-					path = await this.baseImage(this.src)
-				}
-				if ( this.enableBlur ) {
-					path = path ? await this.blurImage(path) : await this.blurImage(this.src)
-				}
-				this.url = path ? path : this.src;
 			},
 			blurImage (src) {
 				return new Promise(resolve => {
@@ -189,15 +176,15 @@
 					}
 				})
 			},
-			baseImage(e) {
+			baseImage(src) {
 				return new Promise(resolve => {
 					const BaseImage = uni.requireNativePlugin('YingBingNativePlugin-BaseImage');
-					const base64 = BaseImage ? BaseImage.getImgStr(encodeURI(this.url)) : null;
+					const base64 = BaseImage ? BaseImage.getImgStr(encodeURI(src)) : null;
 					if (base64) {
 						base64ToPath(base64)
 							.then(path => {
 								this.$store.dispatch('cache/addCache', {
-									id: this.src + '_blur',
+									id: this.src + '_base',
 									src: path,
 									type: 'image'
 								})

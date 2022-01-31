@@ -5,7 +5,7 @@
 		<list>
 			<template v-if="params.style == 'top'">
 				<cell v-for="(item, index) in params.book">
-					<view class="cell-item_2"
+					<view class="cell-item_2 margin-gap"
 					:style="{'border-color': skinColor.color_gap_1}"
 					@tap="playSong(item)">
 						<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>

@@ -116,7 +116,15 @@
 				})
 			},
 			remove (id) {
-				this.$store.dispatch('source/remove', id)
+				getApp().globalData.$nativeUI.confirm({
+					title: '提示',
+					content: '确认要删除该来源吗？',
+					success: (res) => {
+						if ( res.confirm ) {
+							this.$store.dispatch('source/remove', id)
+						}
+					}
+				})
 			},
 			onChange (e, id) {
 				let index = this.$store.getters['source/get'].findIndex(source => source.id == id)
@@ -133,6 +141,9 @@
 					multiple: true,
 					success: (res) => {
 						if ( res.confirm ) {
+							uni.showLoading({
+								title: '加载中'
+							})
 							res.data.files.forEach(ff => {
 								try {
 								    // 获取输入流
@@ -212,6 +223,7 @@
 								// 	throw new Error('错误的文件来源');
 								// });
 							})
+							uni.hideLoading();
 						}
 					}
 				})

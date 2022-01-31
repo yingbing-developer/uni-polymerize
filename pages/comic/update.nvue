@@ -10,17 +10,41 @@
 			<template v-slot="{swiperSlot}">
 				<list v-if="list.filter(up => up.source == tabs[swiperSlot.index].source).length > 0">
 					<cell v-for="(item, index) in list.filter(up => up.source == tabs[swiperSlot.index].source)">
-						<view class="cell-item_5 opac-actived padding-gap"
+						<view class="cell-item_3"
 						@tap="app.$Router.push({
-							path: '/pages/book/detail',
+							path: '/pages/comic/detail',
 							query: {
 								params: encodeURIComponent(JSON.stringify(item))
 							}
 						})"
-						:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-							<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
-							<text class="title" :style="{color: skinColor.color_1}"> | {{item.title}}</text>
-							<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
+						:style="{
+							'border-bottom-color': skinColor.color_gap_1,
+							'background-color': skinColor.color_bg_1
+						}">
+							<view elevation="3">
+								<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+							</view>
+							<view class="info">
+								<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
+								<view class="subtitles">
+									<text class="subtitle" :style="{
+										'color': skinColor.color_3
+									}">作者：{{item.author}}</text>
+									<text class="subtitle" :style="{
+										'color': skinColor.color_3
+									}">题材：{{item.style || '未知题材'}}</text>
+									<text class="subtitle" :style="{
+										'color': skinColor.color_3
+									}">来源：{{filterSource(item.source)}}</text>
+								</view>
+								<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
+								<text class="tip" :style="{'color': skinColor.color_red}" v-if="item.lastChapter">更新至：{{item.lastChapter}}</text>
+								<view class="badges" v-else>
+									<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
+									<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
+									<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
+								</view>
+							</view>
 						</view>
 					</cell>
 				</list>

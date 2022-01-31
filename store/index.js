@@ -7,6 +7,7 @@ import search from './modules/search.js'
 import cache from './modules/cache.js'
 import record from './modules/record.js'
 import source from './modules/source.js'
+import referer from './modules/referer.js'
 import collection from './modules/collection.js'
 import custom from './modules/custom.js'
 import path from './modules/path.js'
@@ -23,6 +24,7 @@ const store = new Vuex.Store({
 		cache,
 		record,
 		source,
+		referer,
 		collection,
 		custom,
 		path,

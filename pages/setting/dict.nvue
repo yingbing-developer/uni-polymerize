@@ -104,7 +104,6 @@
 					})
 					return
 				}
-				console.log(this.isAdult);
 				this.$store.dispatch('dict/add', new Dict({
 					title: this.dictTitle,
 					type: this.tabs[this.current].value,

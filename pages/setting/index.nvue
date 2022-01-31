@@ -14,6 +14,12 @@
 				<text class="label" :style="{color: skinColor.color_1}">字典设置</text>
 				<rd-icon name="arrow-right" size="40" :color="skinColor.color_1"></rd-icon>
 			</view>
+			<view class="list padding-gap" :class="skinMode + '-actived'" :style="{'border-color': skinColor.color_gap_1}" @tap="app.$Router.push({
+				path: '/pages/setting/referer'
+			})">
+				<text class="label" :style="{color: skinColor.color_1}">防盗链设置</text>
+				<rd-icon name="arrow-right" size="40" :color="skinColor.color_1"></rd-icon>
+			</view>
 		</scroll-view>
 	</yb-page-anime>
 </template>

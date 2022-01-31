@@ -57,7 +57,7 @@
 		<yb-popup direction="right" width="750rpx" :visible.sync="showDetail">
 			<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" :title="detail.title"></yb-nav-bar>
 			<scroll-view scroll-y="true" :style="{'background-color': skinColor.color_bg_1, flex: 1}">
-				<view class="cell-item_2"
+				<view class="cell-item_2 margin-gap"
 				:style="{'border-color': skinColor.color_gap_1}"
 				v-for="(item, index) in detail.song" :key="index"
 				@tap="playSong(item)">

@@ -10,6 +10,8 @@ import Chapter from '@/assets/constructor/chapter.js'
 import Comment from '@/assets/constructor/comment.js'
 import { replaceHTML, htmlDecodeByRegExp, getTag } from '@/assets/api/global.js'
 
+import { getRecomeDmzj } from './dmzj.js'
+
 const { getters } = Store;
 const { ERR_OK, ERR_FALSE } = Config;
 const { dateFormat, time2seconds } = Utils;
@@ -82,6 +84,9 @@ export default {
 	
 	//获取热门推荐
 	getRecome (data = {}) {
+		// data.baseUrl = 'https://www.dmzj.com'
+		// data.source = 'dmzj'
+		// let newArr = [getRecomeDmzj(context, data)];
 		let newArr = [];
 		const sources = getters['source/get'].filter(source => source.type == 'comic');
 		const adult = getters['app/getAdult'];

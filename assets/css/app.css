@@ -30,7 +30,6 @@
 .cell-item_2 {
 	flex-direction: row;
 	align-items: center;
-	margin: 0 30rpx;
 	height: 120rpx;
 	border-bottom-width: 1rpx;
 }
@@ -139,6 +138,7 @@
 	position: relative;
 	align-items: center;
 	justify-content: center;
+	padding: 0 20rpx;
 }
 .cell-item_4 .left .cover {
 	position: absolute;
@@ -149,9 +149,12 @@
 }
 .cell-item_4 .left .title {
 	font-weight: bold;
+	text-align: center;
 	font-size: 44rpx;
 	font-family: KUHEI;
 	margin-bottom: 80rpx;
+	lines: 2;
+	text-overflow: ellipsis;
 }
 .cell-item_4 .top {
 	flex: 1;

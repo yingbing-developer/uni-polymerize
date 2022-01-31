@@ -15,7 +15,7 @@ export default class Bookshelf {
 		this.tag = tag || []//标签
 		this.isAdult = isAdult || false//是否青壮年内容
 		this.extra = extra || {} //附加字段
-		this.type = type || 'story' //type包含 story:<小说> comic: <漫画>
+		this.type = type || 'story' //type包含 story:<小说> comic: <漫画> book: <书籍>
 		this.source = source //来源
 	}
 }

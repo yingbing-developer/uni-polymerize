@@ -10,6 +10,7 @@ export const PATH = 'UNI_READER_PATH'//本地资源路径
 export const CUSTOM = 'UNI_READER_CUSTOM'//自定义分组
 export const RECORD = 'UNI_READER_RECORD'//记录列表
 export const SOURCE = 'UNI_READER_SOURCE'//来源控制
+export const REFERER = 'UNI_READER_EFERER'//需要处理防盗链的图片域名
 export const PLAYMODE = 'UNI_READER_PLAY_MODE'//音乐播放模式 <round | 顺序播放> <loop | 单曲循环> <random | 随机播放>
 export const LYRICSHOW = 'UNI_READER_LYRIC_SHOW'//是否显示全局歌词
 export const READFONTSIZE = 'UNI_READER_READ_FONT_SIZE'//小说阅读字体大小

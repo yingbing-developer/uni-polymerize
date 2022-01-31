@@ -19,7 +19,7 @@
 				</view>
 			</view>
 			<view :style="{'background-color': skinColor.color_bg_1}" v-if="list.length > 0">
-				<view class="cell-item_2"
+				<view class="cell-item_2 margin-gap"
 				:style="{'border-color': skinColor.color_gap_1}"
 				v-for="(item, index) in list" :key="index"
 				@tap="playSong(item)">

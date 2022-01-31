@@ -49,24 +49,67 @@
 						@more="app.$Router.push({
 							path: '/pages/book/type'
 						})"></rd-title>
-						<yb-grid :data="hotBooks" :column="4">
-							<template v-slot="{gridItem}">
-								<view class="grid_item_1" @tap="app.$Router.push({
-									path: '/pages/book/detail',
-									query: {
-										params: encodeURIComponent(JSON.stringify(gridItem.detail))
-									}
-								})">
-									<view elevation="3">
-										<rd-image lazyLoad class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
-									</view>
-									<text class="title" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
-								</view>
-							</template>
-						</yb-grid>
-						<yb-gap></yb-gap>
 					</view>
 				</cell>
+				<cell v-for="(tab, i) in tabs">
+					<yb-grid :style="{'background-color': skinColor.color_bg_1}" class="padding-gap" :data="hotBooks.filter(book => book.source == tab.source)" :column="4" :count="hotBooks.filter(book => book.source == tab.source).length >= 8 ? 8 : 4">
+						<template v-slot="{gridItem}">
+							<view class="grid_item_1" @tap="app.$Router.push({
+								path: '/pages/comic/detail',
+								query: {
+									params: encodeURIComponent(JSON.stringify(gridItem.detail))
+								}
+							})">
+								<view elevation="3">
+									<rd-image lazyLoad class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
+								</view>
+								<text class="title" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+							</view>
+						</template>
+					</yb-grid>
+				</cell>
+				<template v-if="populars.length > 0">
+					<cell>
+						<yb-gap></yb-gap>
+						<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
+							<rd-title title="人气推荐" titleSize="25" :moreShow="false"></rd-title>
+						</view>
+					</cell>
+					<cell v-for="(item, index) in populars">
+						<view class="cell-item_3"
+						@tap="app.$Router.push({
+							path: '/pages/book/detail',
+							query: {
+								params: encodeURIComponent(JSON.stringify(item))
+							}
+						})"
+						:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
+							<view elevation="3">
+								<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+							</view>
+							<view class="info">
+								<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
+								<view class="subtitles">
+									<text class="subtitle" :style="{
+										'color': skinColor.color_3
+									}">作者：{{item.author}}</text>
+									<text class="subtitle" :style="{
+										'color': skinColor.color_3
+									}">题材：{{item.style || '未知题材'}}</text>
+									<text class="subtitle" :style="{
+										'color': skinColor.color_3
+									}">来源：{{filterSource(item.source)}}</text>
+								</view>
+								<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
+								<view class="badges">
+									<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
+									<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
+									<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
+								</view>
+							</view>
+						</view>
+					</cell>
+				</template>
 				<cell>
 					<yb-gap></yb-gap>
 					<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
