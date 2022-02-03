@@ -10,8 +10,6 @@ import Chapter from '@/assets/constructor/chapter.js'
 import Comment from '@/assets/constructor/comment.js'
 import { replaceHTML, htmlDecodeByRegExp, getTag } from '@/assets/api/global.js'
 
-import { getRecomeDmzj, getHotKeywordDmzj, searchDmzj, getTypeList, getTypeDetail, getDetail, getContent, getComment } from './dmzj.js'
-
 const { getters } = Store;
 const { ERR_OK, ERR_FALSE } = Config;
 const { dateFormat, time2seconds } = Utils;
@@ -39,7 +37,7 @@ export default {
 		const sources = getters['source/get'].filter(source => source.type == 'comic');
 		const adult = getters['app/getAdult'];
 		sources.forEach(source => {
-			if ( source.request.search?.value && (!source.isAdult || adult) && source.isOpen ) {
+			if ( !data.isLastPage[source.id] && source.request.search?.value && (!source.isAdult || adult) && source.isOpen ) {
 				data.baseUrl = source.href
 				data.source = source.id
 				try{

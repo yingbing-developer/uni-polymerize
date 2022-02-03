@@ -1,41 +1,44 @@
 <template>
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
-		<scroll-view style="flex: 1;" scroll-y="true" @scroll="onScroll">
-			<view class="top" ref="top">
-				<rd-image lazyLoad class="bg" enable-blur :src="params.cover" mode="aspectFill"></rd-image>
-				<yb-mask color="rgba(0,0,0,0.2)"></yb-mask>
-				<yb-nav-bar :backShow="false" bgColor="rgba(0,0,0,0)"></yb-nav-bar>
-				<view class="info" :style="{'justify-content': params.desc ? 'flex-start' : 'center'}">
-					<rd-image lazyLoad borderRadius="12" class="cover" :src="params.cover" mode="aspectFill"></rd-image>
-					<view class="info-right" v-if="params.desc">
-						<rich-text class="desc" :nodes="topDesc"></rich-text>
-						<view style="align-items: flex-start;">
-							<text class="more opac-actived" :style="{color: skinColor.color_blue}" @tap="infoShow = true">[更多]</text>
+		<list ref="list" @loadmore="pullup" @scroll="onScroll">
+			<cell>
+				<view class="top">
+					<rd-image lazyLoad class="bg" enable-blur :src="params.cover" mode="aspectFill"></rd-image>
+					<yb-mask color="rgba(0,0,0,0.2)"></yb-mask>
+					<yb-nav-bar :backShow="false" bgColor="rgba(0,0,0,0)"></yb-nav-bar>
+					<view class="info" :style="{'justify-content': params.desc ? 'flex-start' : 'center'}">
+						<rd-image lazyLoad borderRadius="12" class="cover" :src="params.cover" mode="aspectFill"></rd-image>
+						<view class="info-right" v-if="params.desc">
+							<rich-text class="desc" :nodes="topDesc"></rich-text>
+							<view style="align-items: flex-start;">
+								<text class="more opac-actived" :style="{color: skinColor.color_blue}" @tap="infoShow = true">[更多]</text>
+							</view>
 						</view>
 					</view>
-				</view>
-				<view class="play-line">
-					<yb-button @tap="playAlbum(list)" class="play" size="20" type="plain" round :themeColor="skinColor.color_red" title="播放全部" />
-				</view>
-			</view>
-			<view :style="{'background-color': skinColor.color_bg_1}" v-if="list.length > 0">
-				<view class="cell-item_2 margin-gap"
-				:style="{'border-color': skinColor.color_gap_1}"
-				v-for="(item, index) in list" :key="index"
-				@tap="playSong(item)">
-					<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>
-					<image v-if="index == 0" class="trophy" src="/static/music/trophy_1.png" mode="aspectFill"></image>
-					<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
-					<image v-if="index == 2" class="trophy" src="/static/music/trophy_3.png" mode="aspectFill"></image>
-					<rd-icon name="music-fill" size="30" :color="skinColor.color_green"></rd-icon>
-					<view class="info">
-						<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-						<text class="label" :style="{color: skinColor.color_3}">{{item.singer}}</text>
+					<view class="play-line">
+						<yb-button @tap="playAlbum(list)" class="play" size="20" type="plain" round :themeColor="skinColor.color_red" title="播放全部" />
 					</view>
-					<rd-icon enableClick @click="musicPanel(item)" class="more opac-actived" name="more-vertical" :color="skinColor.color_3"></rd-icon>
 				</view>
-			</view>
-		</scroll-view>
+			</cell>
+			<cell v-for="(item, index) in list.slice(0, max)">
+				<view :style="{'background-color': skinColor.color_bg_1}" v-if="list.length > 0">
+					<view class="cell-item_2 margin-gap"
+					:style="{'border-color': skinColor.color_gap_1}"
+					@tap="playSong(item)">
+						<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>
+						<image v-if="index == 0" class="trophy" src="/static/music/trophy_1.png" mode="aspectFill"></image>
+						<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
+						<image v-if="index == 2" class="trophy" src="/static/music/trophy_3.png" mode="aspectFill"></image>
+						<rd-icon name="music-fill" size="30" :color="skinColor.color_green"></rd-icon>
+						<view class="info">
+							<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+							<text class="label" :style="{color: skinColor.color_3}">{{item.singer}}</text>
+						</view>
+						<rd-icon enableClick @click="musicPanel(item)" class="more opac-actived" name="more-vertical" :color="skinColor.color_3"></rd-icon>
+					</view>
+				</view>
+			</cell>
+		</list>
 		<yb-page-anime-fixed v-if="list.length == 0">
 			<yb-list-no-data top="490rpx" title="暂无歌曲" v-if="list.length == 0 && !loading" />
 			<yb-list-loading top="490rpx" size="80" :color="skinColor.color_3" title="加载中" v-if="loading" />
@@ -76,6 +79,8 @@
 				bgImage: '',
 				loading: true,
 				list: [],
+				page: 1,
+				size: 20,
 				infoShow: false
 			}
 		},
@@ -115,6 +120,12 @@
 			},
 			title () {
 				return this.params.type == 'banner' && !this.params.title ? '独家首发' : this.params.title
+			},
+			max () {
+				return this.page * this.size
+			},
+			isLastPage () {
+				return this.max >= this.list.length
 			}
 		},
 		onLoad () {
@@ -157,7 +168,15 @@
 		},
 		methods: {
 			onScroll (e) {
-				this.navOpac = (e.detail.scrollTop / 150) > 1 ? 1 : (e.detail.scrollTop / 150)
+				this.navOpac = (Math.abs(e.contentOffset.y) / 150) > 1 ? 1 : (Math.abs(e.contentOffset.y) / 150)
+			},
+			pullup () {
+				this.page++
+				if ( !this.isLastPage ) {
+					setTimeout(() => {
+						this.$refs.list.resetLoadmore()
+					}, 100)
+				}
 			},
 			async getSingerDetail () {
 				return await getApp().globalData.$api.music.getSingerDetail({

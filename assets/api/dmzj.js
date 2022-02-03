@@ -1,150 +1,92 @@
-export function getRecomeDmzj(context, params) {
+export function getRecome(context, params) {
 	return new Promise(resolve => {
 		const {
 			baseUrl,
 			source
 		} = params;
 		const {
-			http,
+			xhr,
 			ERR_OK,
 			ERR_FALSE,
 			Book,
 			Bookshelf,
 			replaceHTML
 		} = context;
-		http.get(baseUrl, {
+		xhr.get(baseUrl, {
+			mimeType: 'text/html;charset=gb2312',
 			headers: {
+				Referer: baseUrl,
+				Host: baseUrl.replace('https://', ''),
 				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
 			}
 		}).then(res => {
 			let str = replaceHTML(res.data);
-			let inner = str.match(/<div[^>]*class=([""]?)banner_inner\1[^>]*>*([\s\S]*?)<\/ul>/)[0];
-			let astr = inner.match(/<a[^>]*([\s\S]*?)<\/a>/ig);
+			let inners = str.match(/<div[^>]*class=([""]?)titletop\1[^>]*>*([\s\S]*?)<\/div>/ig);
 			let hotBooks = [];
-			if (astr) {
-				astr.forEach(a => {
-					hotBooks.push(
-						new Book({
-							bookId: a.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,
-								''),
-							title: a.match(/title=\"*([\s\S]*?)\"/)[1],
-							cover: a.match(/src=\"*([\s\S]*?)\"/)[1],
-							type: 'comic',
-							source: source
-						})
-					)
-				})
-			}
-			let updates = [];
-			let upcons = str.match(/<ul[^>]*class=([""]?)update_con\1[^>]*>*([\s\S]*?)<\/ul>/ig);
-			if (upcons) {
-				upcons.forEach(upcon => {
-					let lis = upcon.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-					if (lis) {
-						lis.forEach(li => {
-							updates.push(
-								new Book({
-									bookId: li.match(/href=\"*([\s\S]*?)\"/)[1]
-										.replace(baseUrl, ''),
-									title: li.match(/title=\"*([\s\S]*?)\"/)[1],
-									cover: 'https:' + li.match(
-										/src=\"*([\s\S]*?)\"/)[1],
-									author: li.match(
-										/<p[^>]*class=([""]?)auth\1[^>]*>*([\s\S]*?)<\/p>/
-										)[2],
-									lastChapter: li.match(
-											/<span[^>]*class=([""]?)tip\1[^>]*>*([\s\S]*?)<\/span>/
-											)[0].match(
-											/<p[^>]*>*([\s\S]*?)<\/p>/)[1]
-										.replace('更新至', ''),
-									type: 'comic',
-									source: source
-								})
-							)
-						})
-					}
-				})
-			}
 			let hotTops = [];
-			let tabs = str.match(
-				/<div[^>]*class=([""]?)(banner_rank widthEigRight con_right|youn_mh_r con_right widthEigRight)\1[^>]*>*([\s\S]*?)<\/div>/ig
-				);
-			if (tabs) {
-				tabs.forEach((tab, key) => {
-					hotTops.push(
-						new Bookshelf({
-							shelfId: 'rank_' + key + '_' + source,
-							title: tab.match(/<h2[^>]*>*([\s\S]*?)<\/h2>/)[1],
-							style: 'top',
-							type: 'comic',
-							source: source
-						})
-					);
-					let content = tab.match(
-						/<div[^>]*class=([""]?)tab-content tab-content-selected\1[^>]*>*([\s\S]*?)<\/div>/
-						)[0];
-					let lis = content.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+			inners.forEach((inner, key) => {
+				if ( key < 3 ) {
+					let lis = inner.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
 					if (lis) {
 						lis.forEach(li => {
-							let img = li.match(/<img[^>]*>/);
-							let cover = img ? 'https:' + img[0].match(
-								/src=\"*([\s\S]*?)\"/)[1] : '';
-							let rankCon = li.match(
-								/<span[^>]*class=([""]?)rank_first_con\1[^>]*>*([\s\S]*?)<\/span>/
-								);
-							let author = rankCon ? rankCon[0].match(
-									/<p[^>]*>*([\s\S]*?)<\/p>/ig)[0].match(
-									/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('作者：', '') :
-								'';
-							let lastChapter = rankCon ? rankCon[0].match(
-									/<p[^>]*>*([\s\S]*?)<\/p>/ig)[1].match(
-									/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('更新至', '') :
-								li.match(
-									/<span[^>]*class=([""]?)rank_tabs_sec\1[^>]*>*([\s\S]*?)<\/span>/
-									)[2];
-							hotTops[key].book.push(
+							hotBooks.push(
 								new Book({
-									bookId: li.match(/href=\"*([\s\S]*?)\"/)[1]
-										.replace(baseUrl, ''),
-									title: li.match(/title=\"*([\s\S]*?)\"/)[1],
-									cover: cover,
-									author: author,
-									lastChapter: lastChapter,
-									type: 'comic',
+									bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,''),
+									title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
+									type: 'story',
 									source: source
 								})
 							);
 						})
 					}
-				})
-			}
-			let populars = [];
-			let popcons = str.match(
-				/<div[^>]*class=([""]?)youn_cn_b con_left\1[^>]*>*([\s\S]*?)<\/div>/ig);
-			if (popcons) {
-				popcons.forEach(con => {
-					let desc = con.match(
-						/<p[^>]*class=([""]?)con_intro\1[^>]*>*([\s\S]*?)<\/p>/)[2];
-					let ad = desc.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[0];
-					desc = desc.replace(ad, '');
-					populars.push(
-						new Book({
-							bookId: con.match(/href=\"*([\s\S]*?)\"/)[1].replace(
-								baseUrl, ''),
-							title: con.match(/title=\"*([\s\S]*?)\"/)[1],
-							cover: con.match(/src=\"*([\s\S]*?)\"/)[1],
-							author: con.match(
-								/<span[^>]*class=([""]?)con_author\1[^>]*>*([\s\S]*?)<\/span>/
-								)[2].replace('作者：', ''),
-							desc: desc,
-							lastChapter: con.match(
-								/<span[^>]*class=([""]?)tip\1[^>]*>*([\s\S]*?)<\/span>/
-								)[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace(
-								'更新至', ''),
-							type: 'comic',
+				}
+				if ( key == 5 ){
+					let title = inner.match(/<h3[^>]*>*([\s\S]*?)<\/h3>/)[1];
+					if ( key == 5 ) {
+						title = title.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1];
+					} else {
+						let span = title.match(/<span[^>]*>*([\s\S]*?)<\/span>/ig)[0];
+						title = title.replace(span, '');
+					}
+					hotTops.push(
+						new Bookshelf({
+							shelfId: 'rank_' + key + '_' + source,
+							title: title,
+							style: 'top',
+							type: 'story',
 							source: source
 						})
 					);
+					let lis = inner.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+					if (lis) {
+						lis.forEach(li => {
+							hotTops[hotTops.length - 1].book.push(
+								new Book({
+									bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,''),
+									title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
+									type: 'story',
+									source: source
+								})
+							);
+						})
+					}
+				}
+			});
+			let updates = [];
+			let lis = str.match(/<ul[^>]*class=([""]?)titlelist\1[^>]*>*([\s\S]*?)<\/ul>/)[0].match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+			if (lis) {
+				lis.forEach(li => {
+					let name = li.match(/<a[^>]*class=([""]?)name\1[^>]*>*([\s\S]*?)<\/a>/)[0];
+					updates.push(
+						new Book({
+							bookId: name.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
+							title: name.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
+							author: li.match(/<div[^>]*class=([""]?)zz\1[^>]*>*([\s\S]*?)<\/div>/)[2],
+							style: li.match(/<div[^>]*class=([""]?)lb\1[^>]*>*([\s\S]*?)<\/div>/)[0].match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
+							type: 'story',
+							source: source
+						})
+					)
 				})
 			}
 			resolve({
@@ -152,7 +94,7 @@ export function getRecomeDmzj(context, params) {
 				data: {
 					banners: [],
 					hotBooks: hotBooks,
-					populars: populars,
+					populars: [],
 					updates: updates,
 					hotTops: hotTops,
 					source: source
@@ -222,21 +164,29 @@ export function getHotKeywordDmzj(context, params) {
 	})
 }
 
-export function searchDmzj(context, params) {
+export function search(context, params) {
 	return new Promise(resolve => {
 		const {
 			baseUrl,
 			source
 		} = params;
 		const {
-			http,
+			xhr,
 			ERR_OK,
 			ERR_FALSE,
 			replaceHTML,
+			gb2312,
 			Book
 		} = context;
-		http.get(baseUrl + '/dynamic/o_search/index/' + params.keyword + '/' + params.page[source], {
+		xhr.postget(baseUrl + '/modules/article/search.php', {
+			mimeType: 'text/html;charset=gb2312',
+			params: {
+				searchtype: 'articlename',
+				searchkey: gb2312(params.keyword),
+				page: params.page[source]
+			},
 			headers: {
+				Charset: 'gb2312',
 				Referer: baseUrl,
 				Host: baseUrl.replace('https://', ''),
 				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
@@ -244,37 +194,32 @@ export function searchDmzj(context, params) {
 		}).then((res) => {
 			let list = [];
 			let str = replaceHTML(res.data);
-			let con = str.match(/<ul[^>]*class=([""]?)update_con autoHeight\1[^>]*>*([\s\S]*?)<\/ul>/)[
-				0];
-			let lis = con.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-			if (lis) {
-				lis.forEach(li => {
-					let href = li.match(/href=\"*([\s\S]*?)\"/)[1];
-					let bookId = href.indexOf('manhua.dmzj') > -1 ? '/info/' + href.slice(href
-						.lastIndexOf('/') + 1) + '.html' : href.replace(
-						'https://www.dmzj.com', '');
-					list.push(
-						new Book({
-							bookId: bookId,
-							title: li.match(/title=\"*([\s\S]*?)\"/)[1],
-							cover: li.match(/src=\"*([\s\S]*?)\"/)[1],
-							author: li.match(
-								/<p[^>]*class=([""]?)auth\1[^>]*>*([\s\S]*?)<\/p>/)[
-								2],
-							lastChapter: li.match(
-								/<p[^>]*class=([""]?)newPage\1[^>]*>*([\s\S]*?)<\/p>/
-								)[2].replace('最新：', ''),
-							type: 'comic',
-							source: source
-						})
-					)
+			let con = str.match(/<table[^>]*class=([""]?)grid\1[^>]*>*([\s\S]*?)<\/table>/)[0];
+			let trs = con.match(/<tr[^>]*>*([\s\S]*?)<\/tr>/ig);
+			if (trs) {
+				trs.forEach((tr, key) => {
+					if ( key > 0 ) {
+						let tds = tr.match(/<td[^>]*>*([\s\S]*?)<\/td>/ig);
+						list.push(
+							new Book({
+								bookId: tds[0].match(/href=\"*([\s\S]*?)\"/)[1],
+								title: tds[0].match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
+								author: tds[2].match(/<td[^>]*>*([\s\S]*?)<\/td>/)[1],
+								lastChapter: tds[1].match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
+								size: tds[4].match(/<td[^>]*>*([\s\S]*?)<\/td>/)[1],
+								isEnd: tds[5].match(/<td[^>]*>*([\s\S]*?)<\/td>/)[1] != '连载',
+								type: 'story',
+								source: source
+							})
+						)
+					}
 				})
 			}
 			resolve({
 				code: ERR_OK,
 				data: {
 					list: list,
-					isLastPage: list.length < 20,
+					isLastPage: list.length < 30,
 					currentPage: params.page[source],
 					source: source
 				}
@@ -300,31 +245,32 @@ export function getTypeList(context, params) {
 			source
 		} = params;
 		const {
-			http,
+			xhr,
 			ERR_OK,
 			ERR_FALSE,
 			replaceHTML
 		} = context;
-		http.get('https://manhua.dmzj.com/tags/search.shtml', {
+		xhr.get(baseUrl, {
+			mimeType: 'text/html;charset=gb2312',
 			headers: {
 				Referer: baseUrl,
+				Host: baseUrl.replace('https://', ''),
 				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
 			}
 		}).then((res) => {
 			let list = [];
 			let str = replaceHTML(res.data);
-			let con = str.match(/<div[^>]*class=([""]?)search_list_m\1[^>]*>*([\s\S]*?)<\/div>/ig)[0];
-			let li = con.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig)[4];
-			if (li) {
-				let as = li.match(/<a[^>]*>*([\s\S]*?)<\/a>/ig);
-				as.forEach(a => {
-					let value = a.match(/onclick=\"*([\s\S]*?)\"/)[1];
-					value = value.match(/changeType\(\'type\',*([\s\S]*?)\)/)[1];
-					list.push({
-						label: a.match(/title=\'*([\s\S]*?)\'/)[1],
-						value: value.indexOf('all') > -1 ? '0' : value,
-						source: source
-					})
+			let con = str.match(/<div[^>]*class=([""]?)head_t\1[^>]*>*([\s\S]*?)<\/div>/)[0];
+			let lis = con.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+			if (lis) {
+				lis.forEach((li, key) => {
+					if ( key > 0 ) {
+						list.push({
+							label: li.match(/title=\"*([\s\S]*?)\"/)[1],
+							value: li.match(/href=\"*([\s\S]*?)\"/)[1].replace('1/', ''),
+							source: source
+						})
+					}
 				})
 			}
 			resolve({
@@ -349,52 +295,37 @@ export function getTypeList(context, params) {
 export function getTypeDetail(context, params) {
 	return new Promise(resolve => {
 		const {
+			baseUrl,
 			source
 		} = params;
 		const {
-			http,
+			xhr,
 			ERR_OK,
 			ERR_FALSE,
-			Book
+			Book,
+			replaceHTML,
 		} = context;
-		let renderResult = function(e) {
-			return e
-		};
-		http.get('http://sacg.dmzj.com/mh/index.php', {
-			params: {
-				c: 'category',
-				m: 'doSearch',
-				status: 0,
-				reader_group: 0,
-				zone: 0,
-				initial: 'all',
-				type: params.id,
-				p: params.page,
-				callback: 'renderResult'
-			},
+		xhr.get(baseUrl + params.id + params.page + '/', {
+			mimeType: 'text/html;charset=gb2312',
 			headers: {
-				Referer: 'http://manhua.dmzj.com',
-				'Upgrade-Insecure-Requests': 1,
+				Referer: baseUrl,
+				Host: baseUrl.replace('https://', ''),
 				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
 			}
 		}).then((res) => {
 			let list = [];
-			let results = eval('(' + res.data.slice(0, res.data.length - 1) + ')');
-			results.result.forEach(result => {
+			let str = replaceHTML(res.data);
+			let cons = str.match(/<div[^>]*id=([""]?)alistbox\1[^>]*>*([\s\S]*?)<\/li>/ig);
+			cons.forEach(con => {
 				list.push(
 					new Book({
-						bookId: result.comic_url.indexOf('www.dmzj.com') > -1 ? result
-							.comic_url.replace('http://www.dmzj.com', '') : '/info' +
-							result.comic_url.slice(0, result.comic_url.lastIndexOf(
-							'/')) + '.html',
-						title: result.name,
-						cover: result.comic_cover.indexOf('http') > -1 ? result
-							.comic_cover : 'http:' + result.comic_cover,
-						author: result.author,
-						lastChapter: result.last_chapter,
-						style: result.type,
-						isEnd: result.status ? true : false,
-						type: 'comic',
+						bookId: con.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
+						title: con.match(/alt=\"*([\s\S]*?)\"/)[1],
+						cover: con.match(/src=\"*([\s\S]*?)\"/)[1],
+						author: con.match(/作者：*([\s\S]*?)<\/span/)[1],
+						desc: con.match(/<div[^>]*class=([""]?)intro\1[^>]*>*([\s\S]*?)<\/div>/)[2],
+						style: params.title,
+						type: 'story',
 						source: source
 					})
 				)
@@ -646,30 +577,31 @@ export function getComment(context, params) {
 			let comments = results.comments;
 			results.commentIds.forEach((item, key) => {
 				let ids = item.split(',');
-				ids.reverse();
 				ids.forEach((id, i) => {
-					if ( i == 0 ) {
-						list.push(
-							new Comment({
-								id: id,
-								avatar: comments[id].avatar_url,
-								title: comments[id].nickname,
-								subtitle: dateFormat(parseInt(comments[id].create_time) * 1000),
-								content: comments[id].content,
-								source: source
-							})
-						)
-					} else {
-						list[key].subComment.push(
-							new Comment({
-								id: id,
-								avatar: comments[id].avatar_url,
-								title: comments[id].nickname,
-								subtitle: dateFormat(parseInt(comments[id].create_time) * 1000),
-								content: comments[id].content,
-								source: source
-							})
-						)
+					if ( comments[id] ) {
+						if ( i == 0 ) {
+							list.push(
+								new Comment({
+									id: id,
+									avatar: comments[id].avatar_url,
+									title: comments[id].nickname,
+									subtitle: dateFormat(parseInt(comments[id].create_time) * 1000),
+									content: comments[id].content,
+									source: source
+								})
+							)
+						} else {
+							list[key].subComment.push(
+								new Comment({
+									id: id,
+									avatar: comments[id].avatar_url,
+									title: comments[id].nickname,
+									subtitle: dateFormat(parseInt(comments[id].create_time) * 1000),
+									content: comments[id].content,
+									source: source
+								})
+							)
+						}
 					}
 				})
 			});
