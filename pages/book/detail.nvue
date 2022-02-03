@@ -208,7 +208,7 @@
 			},
 			record () {
 				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.params.id)
-				return index > -1 ? this.$store.getters['record/getRecord'][index].extra.record : null
+				return index > -1 ? this.$store.getters['record/getRecord'][index].record : null
 			}
 		},
 		onLoad() {
@@ -227,6 +227,7 @@
 				uni.stopPullDownRefresh()
 				if ( res.code == this.app.$config.ERR_OK ) {
 					this.params.title = res.data.bookInfo.title || this.params.title
+					this.params.commentId = res.data.bookInfo.commentId || this.params.commentId
 					this.params.cover = res.data.bookInfo.cover || this.params.cover 
 					this.params.author = res.data.bookInfo.author || this.params.author 
 					this.params.style = res.data.bookInfo.style || this.params.style 
@@ -234,10 +235,15 @@
 					this.params.desc = res.data.bookInfo.desc || this.params.desc 
 					this.params.tag = res.data.bookInfo.tag.length > 0 ? res.data.bookInfo.tag : this.params.tag 
 					this.params.createTime = res.data.bookInfo.createTime || this.params.createTime 
-					this.chapters = res.data.chapters
-					this.guess = res.data.guess
-					this.sames = res.data.sames
-					this.other = res.data.other
+					this.params.updateTime = res.data.bookInfo.updateTime || this.params.updateTime
+					this.params.lastChapter = res.data.bookInfo.lastChapter || this.params.lastChapter
+					this.params.isEnd = res.data.bookInfo.isEnd || this.params.isEnd
+					this.params.extra = res.data.bookInfo.extra || this.params.extra
+					this.params.isAdult = res.data.bookInfo.isAdult || this.params.isAdult
+					this.chapters = res.data.chapters || []
+					this.guess = res.data.guess || []
+					this.sames = res.data.sames || []
+					this.other = res.data.other || []
 					this.$nextTick(() => {
 						this.isShowCover = true
 					})
@@ -266,7 +272,7 @@
 					chapters: this.chapters
 				}))
 				this.app.$Router.push({
-					path: '/pages/book/reader',
+					path: this.params.type == 'story' ? '/pages/book/reader' : '/pages/comic/reader',
 					query: {
 						currentChapter: chapter || 1
 					}
@@ -291,7 +297,7 @@
 			},
 			searchTo (keyword) {
 				this.app.$Router.push({
-					path: '/pages/book/search',
+					path: this.params.type == 'story' ? '/pages/book/search' : '/pages/comic/search',
 					query: {
 						keyword: keyword
 					}

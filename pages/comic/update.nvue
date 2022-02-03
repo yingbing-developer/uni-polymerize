@@ -12,7 +12,7 @@
 					<cell v-for="(item, index) in list.filter(up => up.source == tabs[swiperSlot.index].source)">
 						<view class="cell-item_3"
 						@tap="app.$Router.push({
-							path: '/pages/comic/detail',
+							path: '/pages/book/detail',
 							query: {
 								params: encodeURIComponent(JSON.stringify(item))
 							}

@@ -60,7 +60,7 @@
 		methods: {
 			pullup () {
 				this.currentPage++
-				this.params.source == 'qqmusic' ? this.params.extra.seqNo = this.comments[this.comments.length - 1].id : null
+				this.params.extra.seqNo = this.comments[this.comments.length - 1].id
 				this.getComment().then(data => {
 					this.currentPage = data.currentPage
 					data.isLastPage ? this.$refs.pullup.finish() : this.$refs.pullup.success()

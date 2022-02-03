@@ -56,9 +56,19 @@
 			lineHeight () {
 				return this.$store.getters['reader/getLineHeight']
 			},
-			record () {
+			recorder () {
 				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
-				return index > -1 ? this.$store.getters['record/getRecord'][index].extra.record : ''
+				return index > -1 ? this.$store.getters['record/getRecord'][index] : null
+			},
+			record () {
+				return this.recorder?.record || {}
+			},
+			mark () {
+				return this.recorder?.mark || []
+			},
+			mark () {
+				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
+				return index > -1 ? this.$store.getters['record/getRecord'][index].mark : []
 			},
 			progressBg () {
 				let bg = this.$utils.hex2rgb(this.skinColor.color_black);
@@ -79,7 +89,8 @@
 						title: '加载中',
 						mask: true
 					})
-					this.getOnlineContent(data.chapter).then((res) => {
+					let chapters = this.reader.chapters.filter(item => data.chapter == item.chapter || data.chapter + 1 == item.chapter  || data.chapter - 1 == item.chapter)
+					this.getOnlineContent(chapters).then((res) => {
 						uni.hideLoading()
 						if ( res.code == this.$config.ERR_OK ) {
 							this.$refs.page.change({
@@ -252,9 +263,8 @@
 			},
 			//添加书签
 			addBookmark () {
-				let index = this.$store.getters['record/getRecord'].findIndex(record => this.reader.id == record.id)
-				let book = index > -1 ? this.$store.getters['record/getRecord'][index] : {...this.reader.book}
-				let mark = book.extra.mark || []
+				let book = {...this.recorder}
+				let mark = [...this.mark]
 				if ( this.reader.source == 'local' ) {
 					if ( mark.findIndex(item => item.start == this.pageStart) > -1 ) {
 						uni.showToast({
@@ -267,7 +277,7 @@
 							start: this.pageStart,
 							chapter: this.record.chapter
 						})
-						book.extra.mark = mark
+						book.mark = mark
 						this.$store.dispatch('record/addRecord', book)
 						uni.showToast({
 							title: '添加书签成功',
@@ -286,7 +296,7 @@
 							start: this.pageStart,
 							chapter: this.record.chapter
 						})
-						book.extra.mark = mark
+						book.mark = mark
 						this.$store.dispatch('record/addRecord', book)
 						uni.showToast({
 							title: '添加书签成功',
@@ -295,7 +305,6 @@
 					}
 				}
 				book = null
-				index = null
 				mark = null
 			},
 			savePageRecord (e) {
@@ -306,10 +315,9 @@
 				this.pageStart = e.start
 				this.pageEnd = e.end
 				this.currentContent = e.text
-				let index = this.$store.getters['record/getRecord'].findIndex(record => this.reader.id == record.id)
-				let book = index > -1 ? this.$store.getters['record/getRecord'][index] : {...this.reader.book}
+				let book = this.recorder ? {...this.recorder} : {...this.reader.book}
 				let chapterIndex = this.reader.chapters.findIndex(item => item.chapter == e.chapter)
-				book.extra.record = {
+				book.record = {
 					chapter: e.chapter,
 					start: e.start,
 					title: e.title,
@@ -317,7 +325,6 @@
 				}
 				this.$store.dispatch('record/addRecord', book)
 				book = null
-				index = null
 			},
 			setCatalog (e) {
 				let reader = {...this.reader}

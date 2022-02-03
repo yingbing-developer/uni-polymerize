@@ -13,6 +13,7 @@
 				</cell>
 				<cell v-for="(item, index) in contents" @appear="appear(index)" @disappear="disappear(index)">
 					<rd-image ref="content"
+					enablePreview
 					:style="{
 						'border-color': skinColor.color_gap_1,
 						width: $store.getters['reader/getDirection'] == 'vertical' ? windowWidth + 'px' : windowHeight + 'px'
@@ -60,9 +61,12 @@
 			title () {
 				return this.reader?.book.title || '设置窗口'
 			},
-			record () {
+			recorder () {
 				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
-				return index > -1 ? this.$store.getters['record/getRecord'][index].extra.record : ''
+				return index > -1 ? this.$store.getters['record/getRecord'][index] : null
+			},
+			record () {
+				return this.recorder?.record || {}
 			},
 			progressBg () {
 				let bg = this.app.$utils.hex2rgb(this.skinColor.color_black);
@@ -181,10 +185,9 @@
 				})
 			},
 			savePageRecord () {
-				let index = this.$store.getters['record/getRecord'].findIndex(record => this.reader.id == record.id)
-				let book = index > -1 ? this.$store.getters['record/getRecord'][index] : {...this.reader.book}
+				let book = this.recorder ? {...this.recorder} : {...this.reader.book}
 				let chapterIndex = this.reader.chapters.findIndex(item => item.chapter == this.currentChapter)
-				book.extra.record = {
+				book.record = {
 					chapter: parseInt(this.currentChapter),
 					start: this.currentPage,
 					title: chapterIndex > -1 ? this.reader.chapters[chapterIndex].title : '',

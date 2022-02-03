@@ -298,7 +298,7 @@
 					isAdult: this.isAdult,
 					isOpen: true,
 					request: this.request,
-					type: this.current == 0 ? 'story' : this.current == 1 ? 'comic' : 'music'
+					type: this.type
 				})
 				if ( index > -1 ) {
 					getApp().globalData.$nativeUI.confirm({
@@ -312,8 +312,15 @@
 						}
 					})
 				} else {
-					this.$store.dispatch('source/add', source)
-					getApp().globalData.$Router.back()
+					if ( this.$store.getters['source/get'].filter(source => source.type == this.type).length < 10 ) {
+						this.$store.dispatch('source/add', source)
+						getApp().globalData.$Router.back()
+					} else {
+						uni.showToast({
+							title: '最多添加10个' + this.title,
+							icon: 'none'
+						})
+					}
 				}
 			},
 			chooseFile () {

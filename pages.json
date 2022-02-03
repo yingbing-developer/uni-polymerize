@@ -73,13 +73,6 @@
 		{
 			"path": "pages/comic/update"
 		},
-		//漫画详情
-		{
-			"path": "pages/comic/detail",
-			"style": {
-				"enablePullDownRefresh": true
-			}
-		},
 		//漫画阅读
 		{
 			"path": "pages/comic/reader"

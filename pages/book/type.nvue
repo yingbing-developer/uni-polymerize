@@ -38,7 +38,7 @@
 							}">来源：{{filterSource(item.source)}}</text>
 						</view>
 						<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
-						<text class="desc" :style="{'color': skinColor.color_orange}" v-if="item.lastChapter">更新：{{item.lastChapter}}</text>
+						<text class="tip" :style="{'color': skinColor.color_red}" v-if="item.lastChapter">更新至：{{item.lastChapter}}</text>
 						<view class="badges" v-else>
 							<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
 							<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>

@@ -30,7 +30,7 @@
 					:interval="3000"
 					:duration="1000">
 						<swiper-item v-for="(item, index) in banners" :key="index" @tap="app.$Router.push({
-							path: '/pages/comic/detail',
+							path: '/pages/book/detail',
 							query: {
 								params: encodeURIComponent(JSON.stringify(item))
 							}
@@ -58,7 +58,7 @@
 					<yb-grid :style="{'background-color': skinColor.color_bg_1}" class="padding-gap" :data="hotBooks.filter(book => book.source == tab.source)" :column="4" :count="hotBooks.filter(book => book.source == tab.source).length >= 8 ? 8 : 4">
 						<template v-slot="{gridItem}">
 							<view class="grid_item_1" @tap="app.$Router.push({
-								path: '/pages/comic/detail',
+								path: '/pages/book/detail',
 								query: {
 									params: encodeURIComponent(JSON.stringify(gridItem.detail))
 								}
@@ -81,7 +81,7 @@
 					<cell v-for="(item, index) in populars">
 						<view class="cell-item_3"
 						@tap="app.$Router.push({
-							path: '/pages/comic/detail',
+							path: '/pages/book/detail',
 							query: {
 								params: encodeURIComponent(JSON.stringify(item))
 							}
@@ -104,7 +104,8 @@
 									}">来源：{{filterSource(item.source)}}</text>
 								</view>
 								<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
-								<view class="badges">
+								<text class="tip" :style="{'color': skinColor.color_red}" v-if="item.lastChapter">更新至：{{item.lastChapter}}</text>
+								<view class="badges" v-else>
 									<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
 									<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
 									<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
@@ -144,7 +145,7 @@
 									v-for="(item, index) in updates.filter(up => up.source == tabs[swiperSlot.index].source).slice(0, 4)"
 									:style="{'border-color': skinColor.color_gap_1}"
 									@tap="app.$Router.push({
-										path: '/pages/comic/detail',
+										path: '/pages/book/detail',
 										query: {
 											params: encodeURIComponent(JSON.stringify(item))
 										}
@@ -186,7 +187,7 @@
 									v-for="(top, i) in item.book.slice(0, 5)" :key="i"
 									:style="{'border-color': skinColor.color_gap_1}"
 									@tap="app.$Router.push({
-										path: '/pages/comic/detail',
+										path: '/pages/book/detail',
 										query: {
 											params: encodeURIComponent(JSON.stringify(top))
 										}

@@ -1,25 +1,9 @@
 export default {
 	//小说网站链接
 	BOOKURL: {
-		'baoshuu': {
-			title: '手机宝书',
-			href: 'http://m.baoshuu.com',
-			search: true,//是否有搜索功能
-			hotKey: false,//是否有热门搜索关键词功能
-			recome: true,//是否有热门推荐功能
-			isAdult: false//是否属于青壮年内容
-		},
 		'xquge': {
 			title: '笔趣阁',
 			href: 'https://www.xquge.com',
-			isAdult: false//是否属于青壮年内容
-		},
-		'linovel': {
-			title: '轻之文库',
-			href: 'https://www.linovel.net',
-			search: true,//是否有搜索功能
-			hotKey: false,//是否有热门搜索关键词功能
-			recome: true,//是否有热门推荐功能
 			isAdult: false//是否属于青壮年内容
 		},
 		'xyushu5': {
@@ -31,25 +15,9 @@ export default {
 	
 	//漫画网站链接
 	COMICURL: {
-		'mangabz': {
-			title: 'mangaBz',
-			href: 'http://www.mangabz.com',
-			search: true,//是否有搜索功能
-			hotKey: false,//是否有热门搜索关键词功能
-			recome: true,//是否有热门推荐功能
-			isAdult: false//是否属于青壮年内容
-		},
 		'sixmh': {
 			title: '6漫画',
 			href: 'http://m.sixmh7.com',
-			search: true,//是否有搜索功能
-			hotKey: true,//是否有热门搜索关键词功能
-			recome: true,//是否有热门推荐功能
-			isAdult: false//是否属于青壮年内容
-		},
-		'dmzj': {
-			title: '动漫之家',
-			href: 'https://www.dmzj.com',
 			search: true,//是否有搜索功能
 			hotKey: true,//是否有热门搜索关键词功能
 			recome: true,//是否有热门推荐功能
@@ -85,25 +53,6 @@ export default {
 			hotKey: false,//是否有热门搜索关键词功能
 			recome: false,//是否有热门推荐功能
 			isAdult: true//是否属于青壮年内容
-		}
-	},
-	//音乐网站链接
-	MUSICURL: {
-		'163music': {
-			title: '网易云音乐',
-			href: 'https://autumnfish.cn',
-			search: true,//是否有搜索功能
-			hotKey: true,//是否有热门搜索关键词功能
-			recome: true,//是否有热门推荐功能
-			newSong: true//是否有新歌首发功能
-		},
-		'qqmusic': {
-			title: 'QQ音乐',
-			href: 'https://u.y.qq.com',
-			search: true,//是否有搜索功能
-			hotKey: true,//是否有热门搜索关键词功能
-			recome: true,//是否有热门推荐功能
-			newSong: true//是否有新歌首发功能
 		}
 	},
 	

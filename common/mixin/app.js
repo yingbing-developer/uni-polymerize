@@ -219,38 +219,20 @@ const appMixin = {
 			})
 		},
 		readBook (params) {
-			if ( params.type == 'story' ) {
-				if ( params.source == 'local' ) {
-					this.$store.dispatch('reader/init', new Reader({
-						book: params
-					}))
-					this.app.$Router.push({
-						path: '/pages/book/reader'
-					})
-				} else {
-					this.app.$Router.push({
-						path: '/pages/book/detail',
-						query: {
-							params: encodeURIComponent(JSON.stringify(params))
-						}
-					})
-				}
+			if ( params.source == 'local' ) {
+				this.$store.dispatch('reader/init', new Reader({
+					book: params
+				}))
+				this.app.$Router.push({
+					path: params.type == 'story' ? '/pages/book/reader' : '/pages/comic/reader'
+				})
 			} else {
-				if ( params.source == 'local' ) {
-					this.$store.dispatch('reader/init', new Reader({
-						book: params
-					}))
-					this.app.$Router.push({
-						path: '/pages/comic/reader'
-					})
-				} else {
-					this.app.$Router.push({
-						path: '/pages/comic/detail',
-						query: {
-							params: encodeURIComponent(JSON.stringify(params))
-						}
-					})
-				}
+				this.app.$Router.push({
+					path: '/pages/book/detail',
+					query: {
+						params: encodeURIComponent(JSON.stringify(params))
+					}
+				})
 			}
 		},
 		toCollection (params) {

@@ -91,10 +91,10 @@
 			},
 			recorder () {
 				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
-				return index > -1 ? this.$store.getters['record/getRecord'][index].extra : null
+				return index > -1 ? this.$store.getters['record/getRecord'][index] : null
 			},
 			record () {
-				return this.recorder ? this.recorder.record : null
+				return this.recorder?.record || null
 			}
 		},
 		onLoad () {

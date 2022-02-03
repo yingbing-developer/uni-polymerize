@@ -42,7 +42,7 @@
 			</template>
 		</yb-swiper-list>
 		<view class="fixed-bottom">
-			<yb-button @click="app.$Router.push({
+			<yb-button v-if="tabs[current].data.length < 10" @click="app.$Router.push({
 				path: '/pages/source/form',
 				query: {
 					current: current,
@@ -171,15 +171,18 @@
 											result.request[key].value = val
 										}
 									})
-									this.$store.dispatch('source/add', new Source({
-										id: result.id,
-										title: result.title,
-										href: result.href,
-										isAdult: result.isAdult,
-										isOpen: true,
-										request: result.request,
-										type: result.type
-									}))
+									let index = this.$store.getters['source/get'].findIndex(source => source.id == result.id);
+									if ( this.$store.getters['source/get'].filter(source => source.type == result.type).length < 10 || index > -1 ) {
+										this.$store.dispatch('source/add', new Source({
+											id: result.id,
+											title: result.title,
+											href: result.href,
+											isAdult: result.isAdult,
+											isOpen: true,
+											request: result.request,
+											type: result.type
+										}))
+									}
 								} catch (e) {
 									throw new Error('错误的文件来源');
 								}

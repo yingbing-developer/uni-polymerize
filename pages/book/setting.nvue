@@ -108,7 +108,6 @@
 				navHeight: 0,
 				chapterShow: false,
 				markShow: false,
-				mark: [],
 				settingShow: false,
 				gap: [{
 					value: 10,
@@ -145,10 +144,13 @@
 			},
 			recorder () {
 				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
-				return index > -1 ? this.$store.getters['record/getRecord'][index].extra : null
+				return index > -1 ? this.$store.getters['record/getRecord'][index] : null
 			},
 			record () {
-				return this.recorder ? this.recorder.record : null
+				return this.recorder?.record || {}
+			},
+			mark () {
+				return this.recorder?.mark || []
 			},
 			fontSize () {
 				return this.$store.getters['reader/getFontSize']
@@ -165,7 +167,6 @@
 		},
 		onReady () {
 			this.show = true
-			this.mark = [...this.recorder.mark || []]
 			setTimeout(() => {
 				this.navHeight = this.$refs.navbar.height
 			}, 20)
@@ -272,13 +273,12 @@
 				}, 100)
 			},
 			deleteMark (e) {
-				let index = this.$store.getters['record/getRecord'].findIndex(record => record.id == this.reader.id)
-				let book = index > -1 ? this.$store.getters['record/getRecord'][index] : {...this.reader.book}
-				let mark = book.extra.mark || []
-				let markIndex = mark.findIndex(item => item.start == e.start)
-				if ( markIndex > -1 ) {
-					mark.splice(markIndex, 1)
-					book.extra.mark = mark
+				let book = {...this.recorder}
+				let mark = [...this.mark]
+				let index = mark.findIndex(item => item.start == e.start)
+				if ( index > -1 ) {
+					mark.splice(index, 1)
+					book.mark = mark
 					this.$store.dispatch('record/addRecord', book)
 				} else {
 					uni.showToast({
@@ -293,14 +293,6 @@
 			//打开编辑窗口
 			toEdit () {
 				uni.$emit('edit-page');
-			}
-		},
-		watch: {
-			recorder: {
-				deep: true,
-				handler: function (newVal) {
-					this.mark = [...newVal.mark || []]
-				}
 			}
 		},
 		onBackPress (event) {

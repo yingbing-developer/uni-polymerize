@@ -1,12 +1,12 @@
 <template>
-	<view class="yb-image" @appear="selectCache">
+	<view class="yb-image">
 		<image @load="load" @error="error" ref="image"
 			class="yb-img" :lazyLoad="lazyLoad" :src="url" :mode="mode"
 			:style="{borderRadius: borderRadius + 'rpx'}"></image>
 			<view class="img-mask" :style="{opacity: maskOpac, borderRadius: borderRadius + 'rpx'}"
 				v-if="enableMask"></view>
-		<template v-if="mode != 'widthFix'">
 			<view class="longpress" @longpress="preview" @tap="onTap" v-if="enablePreview || enableClick"></view>
+		<template v-if="mode != 'widthFix'">
 			<view class="error" v-if="isError">
 				<text class="error-text"
 					:style="{'font-size': frontSize + 'rpx', color: skinColor.color_1}">加载失败!</text>
@@ -91,6 +91,11 @@
 				type: Boolean,
 				default: false
 			},
+			//开启预览
+			enablePreview: {
+				type: Boolean,
+				default: false
+			},
 			//mode为widthFix时的占位高度
 			minHeight: {
 				type: String | Number,
@@ -105,6 +110,10 @@
 				return this.$store.getters['referer/get'].findIndex(referer => this.src.indexOf(referer) > -1) > -1
 			}
 		},
+		created () {
+			//给url一个字符串触发error事件，以此利用uni-app提供的lazyLoad
+			this.url = 'default';
+		},
 		data() {
 			return {
 				url: '',
@@ -115,6 +124,9 @@
 			}
 		},
 		watch: {
+			src (newVal) {
+				this.url = 'default';
+			},
 			isError(newVal) {
 				if (newVal && this.defaultSrc) {
 					this.url = this.defaultSrc;
@@ -129,7 +141,7 @@
 				}
 			},
 			async selectCache () {
-				if (this.src && !this.url) {
+				if (this.src) {
 					const caches = this.$store.getters['cache/getCache'];
 					const id = this.src + (this.enableBlur ? '_blur' : this.enableReferer ? '_base' : '')
 					const index = caches.findIndex(cache => cache.parentId == id)
@@ -150,7 +162,7 @@
 					if ( this.enableBlur  ) {
 						path = path ? await this.blurImage(path) : await this.blurImage(this.src)
 					}
-					this.url = path ? path : this.src;
+					this.url = path || this.src;
 				}
 			},
 			blurImage (src) {
@@ -204,8 +216,12 @@
 				this.$emit('load', e);
 			},
 			error(e) {
-				this.isError = true;
-				this.$emit('error', e);
+				if ( this.url == 'default' ) {
+					this.selectCache();
+				} else {
+					this.isError = true;
+					this.$emit('error', e);
+				}
 			},
 			//预览图片
 			preview() {

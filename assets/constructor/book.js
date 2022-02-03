@@ -4,7 +4,7 @@ import Utils from '@/assets/js/util.js'
 const { dateFormat } = Utils;
 
 export default class Book {
-	constructor({title, bookId, commentId, src, cover, author, desc, payread, readnum, isEnd, lastChapter, size, style, tag, isAdult, extra, type, createTime, updateTime, source }) {
+	constructor({title, bookId, commentId, src, cover, author, desc, payread, readnum, isEnd, lastChapter, size, style, tag, isAdult, record, mark, extra, type, createTime, updateTime, source }) {
 		this.id = (bookId || '') + '_' + source
 	  	this.title = title || ''//名称
 	  	this.bookId = bookId || ''//书籍ID
@@ -21,6 +21,8 @@ export default class Book {
 		this.style = style || ''//风格
 		this.tag = tag || []//标签
 		this.isAdult = isAdult || false//是否青壮年内容
+		this.record = record || {}//阅读记录
+		this.mark = mark || []//书签
 	  	this.extra = extra || {}//附加字段
 	  	this.type = type || 'story'//书籍类型 <story | 小说> <comic | 漫画>
 		this.createTime = createTime || dateFormat(new Date().getTime())

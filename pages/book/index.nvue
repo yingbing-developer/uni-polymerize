@@ -55,7 +55,7 @@
 					<yb-grid :style="{'background-color': skinColor.color_bg_1}" class="padding-gap" :data="hotBooks.filter(book => book.source == tab.source)" :column="4" :count="hotBooks.filter(book => book.source == tab.source).length >= 8 ? 8 : 4">
 						<template v-slot="{gridItem}">
 							<view class="grid_item_1" @tap="app.$Router.push({
-								path: '/pages/comic/detail',
+								path: '/pages/book/detail',
 								query: {
 									params: encodeURIComponent(JSON.stringify(gridItem.detail))
 								}
