@@ -36,7 +36,7 @@ export default {
 		},
 		'nightpic': {
 			title: '深夜图鉴',
-			href: 'https://nightpics1.xyz',
+			href: 'https://nightpics2.xyz',
 			search: false,//是否有搜索功能
 			recome: true,//是否有热门推荐功能
 			isAdult: true//是否属于青壮年内容

@@ -259,7 +259,6 @@ export function getTypeList(context, params) {
 			headers: {
 				Referer: baseUrl,
 				Host: baseUrl.replace('https://', ''),
-				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
 			}
 		}).then((res) => {
 			let list = [];
@@ -274,6 +273,23 @@ export function getTypeList(context, params) {
 							value: li.match(/href=\"*([\s\S]*?)\"/)[1].replace('1/', ''),
 							source: source
 						})
+					}
+				})
+			}
+			let titles = str.match(/<div[^>]*class=([""]?)titletop\1[^>]*>*([\s\S]*?)<\/div>/ig);
+			if ( titles ) {
+				titles.forEach((title, key) => {
+					if ( key < 3 ) {
+						let h3 = title.match(/<h3[^>]*>*([\s\S]*?)<\/h3>/)[1];
+						let span = title.match(/<span[^>]*>*([\s\S]*?)<\/span>/)[0];
+						let value = span.match(/href=\"*([\s\S]*?)\"/)[1].replace('1/', '');
+						if ( list.findIndex(item => item.value == value) == -1 ) {
+							list.push({
+								label: h3.replace(span, ''),
+								value: value,
+								source: source
+							})
+						}
 					}
 				})
 			}
