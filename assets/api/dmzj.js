@@ -34,6 +34,7 @@ export function getRecome(context, params) {
 									bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,''),
 									title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
 									type: 'story',
+									isAdult: true,
 									source: source
 								})
 							);
@@ -54,6 +55,7 @@ export function getRecome(context, params) {
 							title: title,
 							style: 'top',
 							type: 'story',
+							isAdult: true,
 							source: source
 						})
 					);
@@ -65,6 +67,7 @@ export function getRecome(context, params) {
 									bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,''),
 									title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
 									type: 'story',
+									isAdult: true,
 									source: source
 								})
 							);
@@ -84,6 +87,7 @@ export function getRecome(context, params) {
 							author: li.match(/<div[^>]*class=([""]?)zz\1[^>]*>*([\s\S]*?)<\/div>/)[2],
 							style: li.match(/<div[^>]*class=([""]?)lb\1[^>]*>*([\s\S]*?)<\/div>/)[0].match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
 							type: 'story',
+							isAdult: true,
 							source: source
 						})
 					)
@@ -209,6 +213,7 @@ export function search(context, params) {
 								size: tds[4].match(/<td[^>]*>*([\s\S]*?)<\/td>/)[1],
 								isEnd: tds[5].match(/<td[^>]*>*([\s\S]*?)<\/td>/)[1] != '连载',
 								type: 'story',
+								isAdult: true,
 								source: source
 							})
 						)
@@ -321,11 +326,12 @@ export function getTypeDetail(context, params) {
 					new Book({
 						bookId: con.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
 						title: con.match(/alt=\"*([\s\S]*?)\"/)[1],
-						cover: con.match(/src=\"*([\s\S]*?)\"/)[1],
+						cover: con.match(/src=\"*([\s\S]*?)\"/)[1].indexOf('http') > -1 ? con.match(/src=\"*([\s\S]*?)\"/)[1] : baseUrl + con.match(/src=\"*([\s\S]*?)\"/)[1],
 						author: con.match(/作者：*([\s\S]*?)<\/span/)[1],
 						desc: con.match(/<div[^>]*class=([""]?)intro\1[^>]*>*([\s\S]*?)<\/div>/)[2],
 						style: params.title,
 						type: 'story',
+						isAdult: true,
 						source: source
 					})
 				)
@@ -360,15 +366,15 @@ export function getDetail(context, params) {
 			source
 		} = params;
 		const {
-			http,
+			xhr,
 			ERR_OK,
 			ERR_FALSE,
 			replaceHTML,
 			getTag,
-			Book,
 			Chapter
 		} = context;
-		http.get(baseUrl + params.id, {
+		xhr.get(baseUrl + params.id, {
+			mimeType: 'text/html;charset=gb2312',
 			headers: {
 				Referer: baseUrl,
 				Host: baseUrl.replace('https://', ''),
@@ -376,109 +382,58 @@ export function getDetail(context, params) {
 			}
 		}).then((res) => {
 			let str = replaceHTML(res.data);
-			let title = str.match(/<h1[^>]*>*([\s\S]*?)<\/h1>/)[0].match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1];
-			let commentId = str.match(/obj_id = \"*([\s\S]*?)\";/)[1];
-			let cover = str.match(/<div[^>]*class=([""]?)comic_i_img\1[^>]*>*([\s\S]*?)<\/div>/)[0]
-				.match(/src=\"*([\s\S]*?)\"/)[1];
-			let info = str.match(/<ul[^>]*class=([""]?)comic_deCon_liO\1[^>]*>*([\s\S]*?)<\/ul>/)[0]
-				.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-			let author = info[0].match(/<li[^>]*>*([\s\S]*?)<\/li>/)[1].replace('作者：', '');
-			let isEnd = info[1].match(/<li[^>]*>*([\s\S]*?)<\/li>/)[1].indexOf('连载中') == -1;
-			let style = info[3].match(/<li[^>]*>*([\s\S]*?)<\/li>/)[1].replace('类型：', '');
-			let desc = str.match(/<p[^>]*class=([""]?)comic_deCon_d\1[^>]*>*([\s\S]*?)<\/p>/)[2];
-			let spans = desc.match(/<span[^>]*>*([\s\S]*?)<\/span>/ig);
-			if (spans) {
-				spans.forEach(span => {
-					desc = desc.replace(span, '');
-				})
-			}
-			let updateTime = str.match(
-				/<span[^>]*class=([""]?)zj_list_head_dat\1[^>]*>*([\s\S]*?)<\/span>/)[2];
-			updateTime = updateTime.match(/更新时间：*([\s\S]*?)\]/)[1];
+			let title = str.match(/alt=\"*([\s\S]*?)\"/)[1];
+			let author = str.match(/<a[^>]*href=([""]?)#\1[^>]*>*([\s\S]*?)<\/a>/)[2];
+			let updateTime = str.match(/<time[^>]*>*([\s\S]*?)<\/time>/)[1];
+			let desc = str.match(/<div[^>]*id=([""]?)aboutbook\1[^>]*>*([\s\S]*?)<\/div>/)[2];
+			let cover = str.match(/<img[^>]*id=([""]?)novelPic\1[^>]*>/)[0].match(/src=\"*([\s\S]*?)\"/)[1];
+			cover = cover.indexOf('http') > -1 ? cover : baseUrl + cover;
+			let style = str.match(/<a[^>]*class=([""]?)typename\1[^>]*>*([\s\S]*?)<\/a>/)[2];
 			let tag = getTag(source, desc + '_' + style + '_' + title);
 			let chapters = [];
-			let lis = str.match(
-				/<ul[^>]*class=([""]?)list_con_li autoHeight\1[^>]*>*([\s\S]*?)<\/ul>/ig)[1].match(
-				/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-			if (lis) {
-				lis.forEach((li, key) => {
-					chapters.push(
-						new Chapter({
-							id: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,
-								''),
-							chapter: key + 1,
-							title: li.match(/title=\"*([\s\S]*?)\"/)[1].slice(0, li
-								.match(/title=\"*([\s\S]*?)\"/)[1].length - 11),
-							isStart: key == 0,
-							isEnd: key == lis.length - 1,
-							source: source
-						})
-					)
-				})
-			}
-			let guess = [];
-			lis = str.match(/<ul[^>]*class=([""]?)update_con\1[^>]*>*([\s\S]*?)<\/ul>/)[0].match(
-				/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-			if (lis) {
-				lis.forEach(li => {
-					guess.push(
-						new Book({
-							bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,
-								''),
-							cover: li.match(/src=\"*([\s\S]*?)\"/)[1],
-							title: li.match(/title=\"*([\s\S]*?) href/)[1],
-							author: li.match(
-								/<p[^>]*class=([""]?)auth\1[^>]*>*([\s\S]*?)<\/p>/)[
-								2],
-							lastChapter: li.match(
-								/<span[^>]*class=([""]?)tip\1[^>]*>*([\s\S]*?)<\/span>/
-								)[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace(
-								'更新至', ''),
-							type: 'comic',
-							source: source
-						})
-					)
-				})
-			}
-			let sames = [];
-			let views = str.match(/<div[^>]*class=([""]?)viewpoint_con\1[^>]*>*([\s\S]*?)<\/div>/ig);
-			lis = views[views.length - 1].match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-			if (lis) {
-				lis.forEach(li => {
-					sames.push(
-						new Book({
-							bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,
-								''),
-							cover: li.match(/src=\"*([\s\S]*?)\"/)[1],
-							title: li.match(/title=\"*([\s\S]*?) href/)[1],
-							author: li.match(
-								/<p[^>]*class=([""]?)v_de_author\1[^>]*>*([\s\S]*?)<\/p>/
-								)[2].replace('作者：', ''),
-							lastChapter: li.match(
-								/<p[^>]*class=([""]?)v_de_new\1[^>]*>*([\s\S]*?)<\/p>/
-								)[2].replace('最新：', ''),
-							type: 'comic',
-							source: source
-						})
-					)
-				})
+			let dds = str.match(/<dt[^>]*id=(['']?)chapter_list\1[^>]*>*([\s\S]*?)<\/dl>/)[2].match(/<dd[^>]*class=(['']?)chapter_list\1[^>]*>*([\s\S]*?)<\/dd>/ig);
+			if (dds) {
+				let len = Math.ceil(dds.length / 3);
+				let k = 0;
+				for ( let i = 0; i < len; i++ ) {
+					let lis = dds.slice(i * 3, (i + 1) * 3);
+					lis.reverse();
+					lis.forEach(li => {
+						let id = li.match(/href=\'*([\s\S]*?)\'/)[1];
+						if ( id.indexOf('javascript:Chapter') > -1 ) {
+							let ids = id.match(/javascript:Chapter\(*([\s\S]*?)\);/)[1];
+							ids = ids.split(',');
+							id = '/read/' + ids[1] + '/' + ids[0] + '/';
+						}
+						if ( id.indexOf('http') > -1 ) {
+							id = id.replace(baseUrl, '');
+						}
+						chapters.push(
+							new Chapter({
+								id: id,
+								chapter: k + 1,
+								title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],
+								isStart: k == 0,
+								isEnd: k == dds.length - 1,
+								source: source
+							})
+						);
+						k++;
+					})
+				}
 			}
 			resolve({
 				code: ERR_OK,
 				data: {
 					bookInfo: {
 						title: title,
-						commentId: commentId,
 						cover: cover,
 						desc: desc,
 						author: author,
 						tag: tag,
 						style: style,
-						updateTime: updateTime,
-						isEnd: isEnd
+						updateTime: updateTime
 					},
-					guess: guess,
-					sames: sames,
 					chapters: chapters,
 					source: source
 				}
@@ -502,34 +457,37 @@ export function getContent(context, params) {
 			source
 		} = params;
 		const {
-			http,
+			xhr,
 			ERR_OK,
 			ERR_FALSE,
 			replaceHTML
 		} = context;
-		http.get(baseUrl + params.id, {
+		xhr.get(baseUrl + params.id, {
+			mimeType: 'text/html;charset=gb2312',
 			headers: {
 				Referer: baseUrl,
 				Host: baseUrl.replace('https://', ''),
 				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
 			}
 		}).then((res) => {
-			let contents = [];
-			let head = res.data.match(/<head[^>]*>*([\s\S]*?)<\/head>/)[0];
-			let script = head.match(/<script[^>]*>*([\s\S]*?)<\/script>/ig)[0];
-			script = script.match(/eval\(*([\s\S]*?)<\/script>/)[1];
-			script = script.slice(0, script.lastIndexOf(')'));
-			let pages = eval('(' + script + ')');
-			pages = pages.match(/var pages=\'*([\s\S]*?)\';/)[1];
-			let func = eval('(' + 'function () {return ' + pages + '}' + ')');
-			let urls = func().page_url.split('\r\n');
-			urls.forEach(url => {
-				contents.push('https://images.dmzj.com/' + url)
-			});
+			let content = '';
+			let main = res.data.match(/<div[^>]*id=([""]?)main\1[^>]*>*([\s\S]*?)<div[^>]*id=([""]?)navup\1[^>]*>/)[0];
+			let ps = main.match(/<p[^>]*>*([\s\S]*?)<\/p>/ig);
+			if ( ps ) {
+				ps.forEach(p => {
+					content += p.match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace(/<br>|<br\/>|<br \/>/ig, '').replace(/&nbsp;/ig, ' ');
+				})
+			}
 			resolve({
 				code: ERR_OK,
 				data: {
-					contents: contents,
+					content: {
+						title: params.title,
+						chapter: params.chapter,
+						content: content,
+						isStart: params.isStart,
+						isEnd: params.isEnd
+					},
 					source: source
 				}
 			})
@@ -537,7 +495,7 @@ export function getContent(context, params) {
 			resolve({
 				code: ERR_FALSE,
 				data: {
-					contents: [],
+					content: '',
 					source: source
 				}
 			})

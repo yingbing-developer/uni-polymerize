@@ -35,15 +35,15 @@
 								<input class="input" :style="{'border-color': skinColor.color_gap_1, color: skinColor.color_1}" type="text" v-model="info.href" placeholder="请输入网站链接">
 							</view>
 						</cell>
-						<cell>
+						<cell v-if="$store.getters['app/getAdult']">
 							<view class="column">
 								<text class="label" :style="{color: skinColor.color_orange}">是否包含青壮年内容</text>
 								<radio-group class="radioGroup">
-									<label class="radio-label">
-										<radio class="radio" :checked="info.isAdult" /><text class="name">是</text>
+									<label class="radio-label" @tap="info.isAdult = true">
+										<radio class="radio" @tap="info.isAdult = true" :checked="info.isAdult" /><text class="name">是</text>
 									</label>
-									<label class="radio-label">
-										<radio class="radio" :checked="!info.isAdult" /><text class="name">否</text>
+									<label class="radio-label" @tap="info.isAdult = false">
+										<radio class="radio" @tap="info.isAdult = false" :checked="!info.isAdult" /><text class="name">否</text>
 									</label>
 								</radio-group>
 							</view>
@@ -295,7 +295,7 @@
 					id: this.info.id,
 					title: this.info.title,
 					href: this.info.href,
-					isAdult: this.isAdult,
+					isAdult: this.info.isAdult,
 					isOpen: true,
 					request: this.request,
 					type: this.type

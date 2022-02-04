@@ -5,11 +5,6 @@ export default {
 			title: '笔趣阁',
 			href: 'https://www.xquge.com',
 			isAdult: false//是否属于青壮年内容
-		},
-		'xyushu5': {
-			title: '新御书屋',
-			href: 'https://www.xyushu5.com',
-			isAdult: true
 		}
 	},
 	

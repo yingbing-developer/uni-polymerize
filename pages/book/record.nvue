@@ -16,7 +16,7 @@
 						@tap="readBook(item)"
 						:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
 							<view elevation="3">
-								<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+								<rd-image defaultSrc="/static/cover/cover_default.jpg" lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
 							</view>
 							<view class="info">
 								<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>

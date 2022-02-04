@@ -13,7 +13,7 @@
 						<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
 						<image v-if="index == 2" class="trophy" src="/static/music/trophy_3.png" mode="aspectFill"></image>
 						<rd-icon v-if="item.type == 'story'" name="read-fill" size="30" :color="skinColor.color_green"></rd-icon>
-						<rd-image v-else class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+						<rd-image defaultSrc="/static/cover/cover_default.jpg" v-else class="cover" :src="item.cover" mode="aspectFill"></rd-image>
 						<view class="info">
 							<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
 							<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
@@ -27,7 +27,7 @@
 					@tap="readBook(item)"
 					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
 						<view elevation="3">
-							<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+							<rd-image defaultSrc="/static/cover/cover_default.jpg" lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
 						</view>
 						<view class="info">
 							<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>

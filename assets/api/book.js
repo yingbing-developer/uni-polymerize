@@ -10,8 +10,6 @@ import Chapter from '@/assets/constructor/chapter.js'
 import Comment from '@/assets/constructor/comment.js'
 import { replaceHTML, htmlDecodeByRegExp, getTag } from '@/assets/api/global.js'
 
-import { getRecome, getTypeList, getTypeDetail, search } from './dmzj.js'
-
 const { getters } = Store;
 const { ERR_OK, ERR_FALSE } = Config;
 const { dateFormat, time2seconds } = Utils;
@@ -35,9 +33,6 @@ const context = {
 export default {
 	//搜索列表
 	search (data = {}) {
-		// data.source = 'xyushu5'
-		// data.baseUrl = 'https://www.xyuzhaiwu.xyz'
-		// let newArr = [search(context, data)]
 		let newArr = [];
 		const sources = getters['source/get'].filter(source => source.type == 'story');
 		const adult = getters['app/getAdult'];
@@ -135,8 +130,6 @@ export default {
 	},
 	//获取分类详情
 	getTypeDetail (data = {}) {
-		// data.baseUrl = 'https://www.xyuzhaiwu.xyz'
-		// return getTypeDetail(context, data)
 		const sources = getters['source/get'];
 		let index = sources.findIndex(source => source.id == data.source)
 		try{

@@ -2,11 +2,11 @@
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<scroll-view style="flex: 1;" scroll-y="true" @scroll="onScroll">
 			<view class="top">
-				<rd-image lazyLoad class="bg" enable-blur :src="params.cover" mode="aspectFill" v-if="isShowCover"></rd-image>
+				<rd-image lazyLoad class="bg" enable-blur default-src="/static/cover/cover_default.jpg" :src="params.cover" mode="aspectFill" v-if="isShowCover"></rd-image>
 				<yb-mask color="rgba(0,0,0,0.2)"></yb-mask>
 				<yb-nav-bar :backShow="false" bgColor="rgba(0,0,0,0)"></yb-nav-bar>
 				<view class="info">
-					<rd-image lazyLoad class="cover" :src="params.cover" mode="aspectFill"></rd-image>
+					<rd-image lazyLoad class="cover" default-src="/static/cover/cover_default.jpg" :src="params.cover" mode="aspectFill"></rd-image>
 					<view class="info-right">
 						<text class="title" :style="{color: skinColor.color_white}">{{params.title}}</text>
 						<text class="label" :style="{color: skinColor.color_white}">作者：{{params.author}} / 著</text>
@@ -59,6 +59,9 @@
 			<view class="box">
 				<view class="column" :style="{'border-color': skinColor.color_2}">
 					<text class="text" :style="{color: skinColor.color_1}">最新章节</text>
+					<view class="more opac-actived" v-if="params.updateTime">
+						<text class="text" :style="{color: skinColor.color_2}">（更新时间：{{params.updateTime}}）</text>
+					</view>
 				</view>
 				<view class="chapter" @tap="createReader(item.chapter)" :class="skinMode + '-actived'" v-for="(item, index) in chapters.filter(cha => cha.id).slice(-5).reverse()" :key="index">
 					<rd-icon class="icon" name="lock" :color="skinColor.color_orange" size="30" v-if="item.payread"></rd-icon>
