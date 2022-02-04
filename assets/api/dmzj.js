@@ -16,8 +16,7 @@ export function getRecome(context, params) {
 			mimeType: 'text/html;charset=gb2312',
 			headers: {
 				Referer: baseUrl,
-				Host: baseUrl.replace('https://', ''),
-				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
+				Host: baseUrl.replace('https://', '')
 			}
 		}).then(res => {
 			let str = replaceHTML(res.data);
@@ -104,7 +103,7 @@ export function getRecome(context, params) {
 					source: source
 				}
 			})
-		}).catch(() => {
+		}).catch((err) => {
 			resolve({
 				code: ERR_FALSE,
 				data: {

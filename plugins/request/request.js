@@ -9,6 +9,7 @@ function request (type = 'GET', url, options) {
 			url: url,
 			data: options.params || {},
 			method: type || 'GET',
+			mimeType: options.mimeType || null,
 			header: options.headers || {},
 			responseType: options.responseType || 'text',
 			timeout: TIMEOUT,
