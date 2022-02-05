@@ -8,8 +8,8 @@
 		:borderColor="skinColor.color_3"
 		:activedColor="skinColor.color_actived_1">
 			<template v-slot="{swiperSlot}">
-				<list v-if="list.filter(up => up.source == tabs[swiperSlot.index].source).length > 0">
-					<cell v-for="(item, index) in list.filter(up => up.source == tabs[swiperSlot.index].source)">
+				<list>
+					<cell v-for="(item, index) in swiperSlot.detail.book">
 						<view class="cell-item_5 opac-actived padding-gap"
 						@tap="app.$Router.push({
 							path: '/pages/book/detail',
@@ -24,9 +24,6 @@
 						</view>
 					</cell>
 				</list>
-				<template v-else>
-					<rd-no-data title="暂无数据" /></rd-no-data>
-				</template>
 			</template>
 		</yb-swiper-list>
 	</yb-page-anime>
@@ -38,7 +35,6 @@
 		mixins: [appMixin],
 		data () {
 			return {
-				list: [],
 				tabs: [],
 				current: 0
 			}
@@ -50,7 +46,6 @@
 		},
 		onLoad() {
 			this.tabs = JSON.parse(decodeURIComponent(this.app.$Route.query.tabs))
-			this.list = JSON.parse(decodeURIComponent(this.app.$Route.query.list))
 		}
 	}
 </script>

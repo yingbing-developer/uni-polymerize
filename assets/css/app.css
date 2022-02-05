@@ -152,9 +152,14 @@
 	text-align: center;
 	font-size: 44rpx;
 	font-family: KUHEI;
-	margin-bottom: 80rpx;
 	lines: 2;
 	text-overflow: ellipsis;
+}
+.cell-item_4 .left .source {
+	font-size: 20rpx;
+	font-family: KUHEI;
+	margin-bottom: 80rpx;
+	margin-top: 10rpx;
 }
 .cell-item_4 .top {
 	flex: 1;
@@ -189,6 +194,11 @@
 }
 .cell-item_5 .value {
 	font-size: 22rpx;
+}
+
+.scroller-book {
+	flex-direction: row;
+	align-items: center;
 }
 
 .grid_item_1 {

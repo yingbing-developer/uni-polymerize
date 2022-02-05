@@ -90,7 +90,7 @@
 				weex.requireModule('dom').getComponentRect(this.$refs.ybTabs, (e) => {
 					this.fullWidth = e.size.width
 				})
-			}, 200)
+			}, 100)
 		},
 		methods: {
 			changeTab (index) {

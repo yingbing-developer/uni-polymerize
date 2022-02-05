@@ -40,13 +40,13 @@
 					style="height: 700rpx;"
 					type="card"
 					:size="24"
-					:column="tabs.length < 5 ? tabs.length : 'auto'"
-					:tabs="tabs"
+					:column="hotSingers.length < 5 ? hotSingers.length : 'auto'"
+					:tabs="hotSingers"
 					:frontColor="skinColor.color_white"
 					:activedColor="skinColor.color_red">
 						<template v-slot="{swiperSlot}">
 							<yb-gap></yb-gap>
-							<yb-grid :data="hotSingers.filter(singer => singer.source == tabs[swiperSlot.index].source)" :count="8" :column="4">
+							<yb-grid :data="swiperSlot.detail.list" :count="8" :column="4">
 								<template v-slot="{gridItem}">
 									<view class="singer" @tap="goDetail(gridItem.detail)">
 										<rd-image lazyLoad border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
@@ -66,22 +66,20 @@
 					@more="app.$Router.push({
 						path: '/pages/music/rank',
 						query: {
-							title: '最近更新',
-							tabs: encodeURIComponent(JSON.stringify(tabs)),
-							list: encodeURIComponent(JSON.stringify(hotTops))
+							tabs: encodeURIComponent(JSON.stringify(hotTops)),
 						}
 					})"></rd-title>
 					<yb-swiper-list
 					style="height: 380rpx;"
 					type="card"
 					:size="24"
-					:column="tabs.length < 5 ? tabs.length : 'auto'"
-					:tabs="tabs"
+					:column="hotTops.length < 5 ? hotTops.length : 'auto'"
+					:tabs="hotTops"
 					:frontColor="skinColor.color_white"
 					:activedColor="skinColor.color_red">
 						<template v-slot="{swiperSlot}">
 							<yb-gap></yb-gap>
-							<yb-grid :data="hotTops.filter(top => top.source == tabs[swiperSlot.index].source)" :column="4" :count="12">
+							<yb-grid :data="swiperSlot.detail.list.filter(top => top.title.length < 6)" :column="4" :count="12">
 								<template v-slot="{gridItem}">
 									<view class="topItem opac-actived"
 									@tap="goRank(gridItem.detail)"
@@ -105,10 +103,10 @@
 					})"></rd-title>
 				</view>
 			</cell>
-			<cell v-for="(tab, i) in tabs">
-				<yb-grid class="padding-gap" :data="hotAlbums.filter(al => al.source == tab.source)" :count="6">
+			<cell v-for="(hotAlbum, i) in hotAlbums">
+				<yb-grid class="padding-gap" :data="hotAlbum.list" :count="6">
 					<template v-slot="{gridItem}">
-						<view class="gridItem" @tap="goDetail(gridItem.detail)">
+						<view class="gridItem" @tap="playSong(gridItem.detail)">
 							<rd-image  border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
 							<view class="bottom">
 								<view class="num">
@@ -131,8 +129,8 @@
 					})"></rd-title>
 				</view>
 			</cell>
-			<cell v-for="(tab, i) in tabs">
-				<yb-grid class="padding-gap" :data="newSongs.filter(al => al.source == tab.source)" :count="6">
+			<cell v-for="(newSong, i) in newSongs">
+				<yb-grid class="padding-gap" :data="newSong.list" :count="6">
 					<template v-slot="{gridItem}">
 						<view class="gridItem" @tap="playSong(gridItem.detail)">
 							<rd-image  border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
@@ -161,7 +159,6 @@
 			return {
 				statusBarHeight: 0,
 				windowHeight: 0,
-				tabs: [],
 				hotSingers: [],
 				hotTops: [],
 				banners: [],
@@ -180,14 +177,30 @@
 				ress.forEach(res => {
 					if ( res.code == getApp().globalData.$config.ERR_OK ) {
 						this.banners = this.banners.concat(res.data.banners)
-						this.hotSingers = this.hotSingers.concat(res.data.hotSingers)
-						this.hotTops = this.hotTops.concat(res.data.hotTops.filter(top => top.title.length < 6))
-						this.hotAlbums = this.hotAlbums.concat(res.data.hotAlbums)
-						this.tabs.push({
-							label: this.filterSource(res.data.source),
-							value: res.data.source,
-							source: res.data.source
-						})
+						if ( res.data.hotSingers?.length > 0 ) {
+							this.hotSingers.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source,
+								list: res.data.hotSingers
+							})
+						}
+						if ( res.data.hotTops?.length > 0 ) {
+							this.hotTops.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source,
+								list: res.data.hotTops
+							})
+						}
+						if ( res.data.hotAlbums?.length > 0 ) {
+							this.hotAlbums.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source,
+								list: res.data.hotAlbums
+							})
+						}
 					}
 				})
 			})
@@ -203,18 +216,33 @@
 					this.hotSingers = []
 					this.hotTops = []
 					this.hotAlbums = []
-					this.tabs = []
 					ress.forEach((res, index) => {
 						if ( res.code == getApp().globalData.$config.ERR_OK ) {
 							this.banners = this.banners.concat(res.data.banners)
-							this.hotSingers = this.hotSingers.concat(res.data.hotSingers)
-							this.hotTops = this.hotTops.concat(res.data.hotTops.filter(top => top.title.length < 6))
-							this.hotAlbums = this.hotAlbums.concat(res.data.hotAlbums)
-							this.tabs.push({
-								label: this.filterSource(res.data.source),
-								value: res.data.source,
-								source: res.data.source
-							})
+							if ( res.data.hotSingers?.length > 0 ) {
+								this.hotSingers.push({
+									label: this.filterSource(res.data.source),
+									value: res.data.source,
+									source: res.data.source,
+									list: res.data.hotSingers
+								})
+							}
+							if ( res.data.hotTops?.length > 0 ) {
+								this.hotTops.push({
+									label: this.filterSource(res.data.source),
+									value: res.data.source,
+									source: res.data.source,
+									list: res.data.hotTops
+								})
+							}
+							if ( res.data.hotAlbums?.length > 0 ) {
+								this.hotAlbums.push({
+									label: this.filterSource(res.data.source),
+									value: res.data.source,
+									source: res.data.source,
+									list: res.data.hotAlbums
+								})
+							}
 						}
 					})
 				})
@@ -223,7 +251,14 @@
 				getApp().globalData.$api.music.getNewSongList().then((ress) => {
 					ress.forEach(res => {
 						if ( res.code == getApp().globalData.$config.ERR_OK ) {
-							this.newSongs = this.newSongs.concat(res.data.list)
+							if ( res.data.list?.length > 0 ) {
+								this.newSongs.push({
+									label: this.filterSource(res.data.source),
+									value: res.data.source,
+									source: res.data.source,
+									list: res.data.list
+								})
+							}
 						}
 					})
 					this.newSongs.length > 0 ? this.$refs.pullup.success() : this.$refs.pullup.fail()

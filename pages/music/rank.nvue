@@ -8,9 +8,9 @@
 		:borderColor="skinColor.color_3"
 		:activedColor="skinColor.color_actived_1">
 			<template v-slot="{swiperSlot}">
-				<list v-if="list.filter(top => top.source == tabs[swiperSlot.index].source).length > 0">
+				<list>
 					<cell><yb-gap></yb-gap></cell>
-					<cell v-for="(item, index) in list.filter(top => top.source == tabs[swiperSlot.index].source)">
+					<cell v-for="(item, index) in swiperSlot.detail.list">
 						<view class="item" :style="{'background-color': skinColor.color_black}" @tap="app.$Router.push({
 							path: '/pages/music/detail',
 							query: {
@@ -24,9 +24,6 @@
 						</view>
 					</cell>
 				</list>
-				<template v-else>
-					<rd-no-data title="暂无数据" /></rd-no-data>
-				</template>
 			</template>
 		</yb-swiper-list>
 	</yb-page-anime>
@@ -38,14 +35,12 @@
 		mixins: [appMixin],
 		data() {
 			return {
-				list: [],
 				tabs: [],
 				current: 0
 			}
 		},
 		onLoad() {
 			this.tabs = JSON.parse(decodeURIComponent(this.app.$Route.query.tabs))
-			this.list = JSON.parse(decodeURIComponent(this.app.$Route.query.list))
 		}
 	}
 </script>
