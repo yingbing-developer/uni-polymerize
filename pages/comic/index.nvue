@@ -210,7 +210,22 @@
 							params: encodeURIComponent(JSON.stringify(type))
 						}
 					})"></rd-title>
-					<scroll-view class="scroller-book" :show-scrollbar="false" scroll-x="true">
+					<yb-grid :style="{'background-color': skinColor.color_bg_1}" :data="type.book" :column="4" :count="8" v-if="i % 3 == 0">
+						<template v-slot="{gridItem}">
+							<view class="grid_item_1" @tap="app.$Router.push({
+								path: '/pages/book/detail',
+								query: {
+									params: encodeURIComponent(JSON.stringify(gridItem.detail))
+								}
+							})">
+								<view elevation="3">
+									<rd-image lazyLoad class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
+								</view>
+								<text class="title" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+							</view>
+						</template>
+					</yb-grid>
+					<scroll-view class="scroller-book" :show-scrollbar="false" scroll-x="true" v-else>
 						<view class="grid_item_1"
 						style="margin-right: 40rpx;"
 						v-for="(item, index) in type.book.slice(0, 8)"

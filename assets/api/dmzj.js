@@ -1,92 +1,204 @@
-export function getRecome (context, params) {
+export function getRecome(context, params) {
 	return new Promise(resolve => {
 		const {
 			baseUrl,
 			source
 		} = params;
 		const {
+			http,
 			ERR_OK,
 			ERR_FALSE,
-			xhr,
-			http,
-			gb2312,
 			Book,
 			Bookshelf,
-			replaceHTML,
-			htmlDecodeByRegExp
+			replaceHTML
 		} = context;
-		xhr.get(baseUrl, {
-			mimeType: 'text/html;charset=gb2312',
+		http.get(baseUrl, {
 			headers: {
-				Referer: baseUrl,
-				Host: baseUrl.replace('http://', '')
+				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
 			}
-		}).then((res) => {
+		}).then(res => {
 			let str = replaceHTML(res.data);
-			let hotBook = str.match(/<div[^>]*class=([""]?)tp\1[^>]*>*([\s\S]*?)<\/div>/ig);
+			let inner = str.match(/<div[^>]*class=([""]?)banner_inner\1[^>]*>*([\s\S]*?)<\/ul>/)[0];
+			let astr = inner.match(/<a[^>]*([\s\S]*?)<\/a>/ig);
 			let hotBooks = [];
-			hotBook.forEach(book => {
-				const lis = book.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-				lis.forEach(li => {
-					const bookId = li.match(/href=\"*(\S*)\"/)[1];
-					const title = li.match(/title=\"*([\s\S]*?)\"/)[1];
-					const cover = li.match(/<img[^>]*>/)[0].match(/src=\"*(\S*)\"/)[1];
-					hotBooks.push(new Book({
-						bookId: bookId,
-						title: htmlDecodeByRegExp(title),
-						style: '热门',
-						cover: baseUrl + cover,
-						isEnd: true,
-						source: source
-					}))
+			if (astr) {
+				astr.forEach(a => {
+					hotBooks.push(
+						new Book({
+							bookId: a.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl,''),
+							title: a.match(/title=\"*([\s\S]*?)\"/)[1],
+							cover: a.match(/src=\"*([\s\S]*?)\"/)[1],
+							type: 'comic',
+							source: source
+						})
+					)
 				})
-			});
-			let uzs = str.match(/<ul[^>]*class=([""]?)wz\1[^>]*>*([\s\S]*?)<\/ul>/ig);
+			}
 			let updates = [];
-			let hotTops = [];
-			uzs.forEach((uz, key) => {
-				const lis = uz.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
-				let top = new Bookshelf({
-					title: key == 1 ? '男生频道' : key == 3 ? '女生频道' : '耽美频道',
-					shelfId: key == 1 ? '/TXT/list1_1.html' : key == 3 ?
-						'/TXT/list2_1.html' : '/TXT/list26_1.html',
-					cover: '/static/book/rank_' + Math.floor(Math.random() * 6 + 1) +
-						'.jpg',
-					style: 'top',
-					type: 'story',
-					source: source
-				});
-				lis.forEach(li => {
-					const bookId = li.match(/href=\"*([\s\S]*?)\"/ig)[1].match(
-						/href=\"*([\s\S]*?)\"/)[1];
-					const title = li.match(/title=\"*([\s\S]*?)\"/)[1];
-					const style = li.match(/<b[^>]*>*([\s\S]*?)<\/b>/)[1];
-					const book = new Book({
-						bookId: bookId,
-						title: htmlDecodeByRegExp(title),
-						style: style,
-						isEnd: true,
-						source: source
-					});
-					if (key % 2 == 0) {
-						updates.push(book);
-					} else {
-						top.book.push(book);
+			let upcons = str.match(/<ul[^>]*class=([""]?)update_con\1[^>]*>*([\s\S]*?)<\/ul>/ig);
+			if (upcons) {
+				upcons.forEach((upcon, key) => {
+					let lis = upcon.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+					if (lis) {
+						lis.forEach(li => {
+							let book = new Book({
+								bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
+								title: li.match(/title=\"*([\s\S]*?)\"/)[1],
+								cover: 'https:' + li.match(/src=\"*([\s\S]*?)\"/)[1],
+								author: li.match(/<p[^>]*class=([""]?)auth\1[^>]*>*([\s\S]*?)<\/p>/)[2],
+								lastChapter: li.match(/<span[^>]*class=([""]?)tip\1[^>]*>*([\s\S]*?)<\/span>/)[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('更新至', ''),
+								type: 'comic',
+								source: source
+							});
+							if ( key == 0 ) {
+								updates.push(book);
+							} else {
+								hotBooks.push(book);
+							}
+						})
 					}
-				});
-				if (key % 2 != 0) {
-					hotTops.push(top);
-				}
-			});
+				})
+			}
+			let hotTops = [];
+			let tabs = str.match(/<div[^>]*class=([""]?)(banner_rank widthEigRight con_right|youn_mh_r con_right widthEigRight)\1[^>]*>*([\s\S]*?)<\/div>/ig);
+			if (tabs) {
+				tabs.forEach((tab, key) => {
+					hotTops.push(
+						new Bookshelf({
+							shelfId: 'rank_' + key + '_' + source,
+							title: tab.match(/<h2[^>]*>*([\s\S]*?)<\/h2>/)[1],
+							style: 'top',
+							type: 'comic',
+							source: source
+						})
+					);
+					let content = tab.match(/<div[^>]*class=([""]?)tab-content tab-content-selected\1[^>]*>*([\s\S]*?)<\/div>/)[0];
+					let lis = content.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+					if (lis) {
+						lis.forEach((li, index)=> {
+							let img = li.match(/<img[^>]*>/);
+							let cover = img ? 'https:' + img[0].match(/src=\"*([\s\S]*?)\"/)[1] : '';
+							let rankCon = li.match(/<span[^>]*class=([""]?)rank_first_con\1[^>]*>*([\s\S]*?)<\/span>/);
+							let author = rankCon ? rankCon[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/ig)[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('作者：', '') : '';
+							let lastChapter = rankCon ? rankCon[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/ig)[1].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('更新至', '') : li.match(/<span[^>]*class=([""]?)rank_tabs_sec\1[^>]*>*([\s\S]*?)<\/span>/)[2];
+							if ( index == 0 ) {
+								hotTops[key].cover = cover;
+							}
+							hotTops[key].book.push(
+								new Book({
+									bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
+									title: li.match(/title=\"*([\s\S]*?)\"/)[1],
+									cover: cover,
+									author: author,
+									lastChapter: lastChapter,
+									type: 'comic',
+									source: source
+								})
+							);
+						})
+					}
+				})
+			}
+			let populars = [];
+			let popcons = str.match(/<div[^>]*class=([""]?)youn_cn_b con_left\1[^>]*>*([\s\S]*?)<\/div>/ig);
+			if (popcons) {
+				popcons.forEach(con => {
+					let desc = con.match(/<p[^>]*class=([""]?)con_intro\1[^>]*>*([\s\S]*?)<\/p>/)[2];
+					let ad = desc.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[0];
+					desc = desc.replace(ad, '');
+					populars.push(new Book({
+						bookId: con.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
+						title: con.match(/title=\"*([\s\S]*?)\"/)[1],
+						cover: con.match(/src=\"*([\s\S]*?)\"/)[1],
+						author: con.match(/<span[^>]*class=([""]?)con_author\1[^>]*>*([\s\S]*?)<\/span>/)[2].replace('作者：', ''),
+						desc: desc,
+						lastChapter: con.match(/<span[^>]*class=([""]?)tip\1[^>]*>*([\s\S]*?)<\/span>/)[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('更新至', ''),
+						type: 'comic',
+						source: source
+					}));
+				})
+			}
+			let hotTypes = [];
+			let comics = str.match(/<div[^>]*class=([""]?)youn_mh_l widthEigLeft con_left\1[^>]*>*([\s\S]*?)<!--/ig);
+			if ( comics ) {
+				comics.forEach(comic => {
+					let title = comic.match(/<h2[^>]*>*([\s\S]*?)<\/h2>/)[1];
+					let em = title.match(/<em[^>]*>*([\s\S]*?)<\/em>/);
+					title = title.replace(em[0], em[1]);
+					let shelfId = comic.match(/<a[^>]*class=([""]?)more con_right\1[^>]*>*([\s\S]*?)<\/a>/)[0];
+					shelfId = shelfId.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, '');
+					hotTypes.push(
+						new Bookshelf({
+							shelfId: shelfId,
+							title: title,
+							style: 'type',
+							type: 'comic',
+							source: source
+						})
+					);
+					let liss = comic.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+					liss.forEach(li => {
+						hotTypes[hotTypes.length - 1].book.push(
+							new Book({
+								bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
+								title: li.match(/title=\"*([\s\S]*?)\"/)[1],
+								cover: 'https:' + li.match(/src=\"*([\s\S]*?)\"/)[1],
+								author: li.match(/<p[^>]*class=([""]?)auth\1[^>]*>*([\s\S]*?)<\/p>/)[2],
+								lastChapter: li.match(/<span[^>]*class=([""]?)tip\1[^>]*>*([\s\S]*?)<\/span>/)[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('更新至', ''),
+								type: 'comic',
+								source: source
+							})
+						)
+					})
+				})
+			}
+			let comicTabs = str.match(/<ul[^>]*class=([""]?)comic_tabs tabs\1[^>]*>*([\s\S]*?)<\/ul>/)[0].match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+			comics = str.match(/<ul[^>]*class=([""]?)comic_con update_con\1[^>]*>*([\s\S]*?)<\/ul>/ig);
+			if ( comicTabs ) {
+				comicTabs.forEach((tab, key) => {
+					let title = tab.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1];
+					let shelfId = tab.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, '');
+					hotTypes.push(
+						new Bookshelf({
+							shelfId: shelfId,
+							title: title,
+							style: 'type',
+							type: 'comic',
+							source: source
+						})
+					);
+					if ( comics[key] ) {
+						let liss = comics[key].match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);
+						if ( liss ) {
+							liss.forEach(li => {
+								hotTypes[hotTypes.length - 1].book.push(
+									new Book({
+										bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].replace(baseUrl, ''),
+										title: li.match(/title=\"*([\s\S]*?)\"/)[1],
+										cover: 'https:' + li.match(/src=\"*([\s\S]*?)\"/)[1],
+										author: li.match(/<p[^>]*class=([""]?)auth\1[^>]*>*([\s\S]*?)<\/p>/)[2],
+										lastChapter: li.match(/<span[^>]*class=([""]?)tip\1[^>]*>*([\s\S]*?)<\/span>/)[0].match(/<p[^>]*>*([\s\S]*?)<\/p>/)[1].replace('更新至', ''),
+										type: 'comic',
+										source: source
+									})
+								)
+							})
+						}
+					}
+				})
+			}
 			resolve({
 				code: ERR_OK,
 				data: {
 					hotBooks: hotBooks,
+					populars: populars,
+					updates: updates,
 					hotTops: hotTops,
+					hotTypes: hotTypes,
 					source: source
 				}
 			})
-		}).catch((err) => {
+		}).catch(() => {
 			resolve({
 				code: ERR_FALSE,
 				data: {

@@ -1,5 +1,5 @@
 <template>
-	<view class="yb-grid">
+	<view class="yb-grid" @appear="onAppear">
 		<view class="list" v-for="(child, i) in list" :key="i">
 			<view v-for="(item, index) in child" :key="index" ref="item" class="item">
 				<slot v-if="item" :gridItem="{
@@ -58,31 +58,38 @@
 			}
 		},
 		mounted () {
-			this.getSize()
+			setTimeout(() => {
+				this.getSize()
+			}, 50)
 		},
 		methods: {
+			onAppear () {
+				if ( this.width == 0 && this.list.length > 0 ) {
+					this.getSize();
+				}
+			},
 			getSize () {
 				if ( this.list.length > 0 && this.width == 0 ) {
-					setTimeout(() => {
-						// #ifdef APP-NVUE
-						const element = this.$refs['item'][0];
-						dom.getComponentRect(element,(ret) => {
-						  this.width = ret.size.width
-						});
-						// #endif
-						// #ifndef APP-NVUE
-						const query = uni.createSelectorQuery().in(this);
-						query.select('.item').boundingClientRect(data => {
-							this.width = data.width
-						}).exec();
-						// #endif
-					}, 50)
+					// #ifdef APP-NVUE
+					const element = this.$refs['item'][0];
+					dom.getComponentRect(element,(ret) => {
+					  this.width = ret.size.width
+					});
+					// #endif
+					// #ifndef APP-NVUE
+					const query = uni.createSelectorQuery().in(this);
+					query.select('.item').boundingClientRect(data => {
+						this.width = data.width
+					}).exec();
+					// #endif
 				}
 			}
 		},
 		watch: {
 			list (newVal) {
-				this.getSize()
+				setTimeout(() => {
+					this.getSize()
+				}, 50)
 			}
 		}
 	}
