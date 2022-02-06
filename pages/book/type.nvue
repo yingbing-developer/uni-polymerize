@@ -145,7 +145,8 @@
 					let hotBooks = []
 					ress.forEach(res => {
 						if ( res.code == this.app.$config.ERR_OK ) {
-							hotBooks = hotBooks.concat(res.data.hotBooks)
+							hotBooks = hotBooks.concat(res.data.hotBooks || [])
+							hotBooks = hotBooks.concat(res.data.populars || [])
 						}
 					})
 					this.isLastPage = true

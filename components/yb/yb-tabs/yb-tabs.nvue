@@ -1,5 +1,6 @@
 <template>
 	<scroll-view
+	@appear="onAppear"
 	scroll-with-animation
 	:scroll-into-view="scrollId"
 	:show-scrollbar="false"
@@ -93,6 +94,13 @@
 			}, 100)
 		},
 		methods: {
+			onAppear () {
+				if ( !this.fullWidth ) {
+					weex.requireModule('dom').getComponentRect(this.$refs.ybTabs, (e) => {
+						this.fullWidth = e.size.width
+					})
+				}
+			},
 			changeTab (index) {
 				if ( this.currentSync != index ) {
 					this.$emit('change', {

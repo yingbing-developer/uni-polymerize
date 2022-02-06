@@ -159,7 +159,7 @@
 					},{
 						label: '书籍内容',
 						value: 'getContent',
-						required: true
+						required: false
 					},{
 						label: '评论',
 						value: 'getComment',

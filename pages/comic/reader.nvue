@@ -172,12 +172,22 @@
 			//获取在线小说内容
 			async getOnlineContent (chapter) {
 				let index = this.reader.chapters.findIndex(item => item.chapter == chapter)
-				return await this.app.$api.comic.getContent({
-					id: this.reader.chapters[index].id,
-					source: this.reader.source
-				}).then((res) => {
-					return res
-				})
+				if ( this.reader.chapters[index].content ) {
+					return {
+						code: this.app.$config.ERR_OK,
+						data: {
+							contents: this.reader.chapters[index].content,
+							source: this.reader.chapters[index].source
+						}
+					}
+				} else {
+					return await this.app.$api.comic.getContent({
+						id: this.reader.chapters[index].id,
+						source: this.reader.source
+					}).then((res) => {
+						return res
+					})
+				}
 			},
 			openSettingNvue () {
 				this.app.$Router.push({

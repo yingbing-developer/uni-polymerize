@@ -114,9 +114,18 @@
 			nextPage () {
 				const index = this.reader.chapters.findIndex(item => item.chapter == this.record.chapter + 1)
 				if ( index > -1 ) {
-					uni.$emit('change-page', {
-						chapter: this.reader.chapters[index].chapter
-					})
+					if ( this.reader.chapters[index].payread ) {
+						this.app.$nativeUI.alert({
+							title: '友情提示',
+							content: '该章节需要付费或VIP才能阅读',
+							dark: this.skinMode == 'night',
+							themeColor: this.skinColor.color_blue
+						})
+					} else {
+						uni.$emit('change-page', {
+							chapter: this.reader.chapters[index].chapter
+						})
+					}
 				} else {
 					uni.showToast({
 						icon: 'none',
@@ -127,9 +136,18 @@
 			prevPage () {
 				const index = this.reader.chapters.findIndex(item => item.chapter == this.record.chapter - 1)
 				if ( index > -1 ) {
-					uni.$emit('change-page', {
-						chapter: this.reader.chapters[index].chapter
-					})
+					if ( this.reader.chapters[index].payread ) {
+						this.app.$nativeUI.alert({
+							title: '友情提示',
+							content: '该章节需要付费或VIP才能阅读',
+							dark: this.skinMode == 'night',
+							themeColor: this.skinColor.color_blue
+						})
+					} else {
+						uni.$emit('change-page', {
+							chapter: this.reader.chapters[index].chapter
+						})
+					}
 				} else {
 					uni.showToast({
 						icon: 'none',

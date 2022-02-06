@@ -26,14 +26,6 @@ export default {
 			recome: true,//是否有热门推荐功能
 			isAdult: true//是否属于青壮年内容
 		},
-		'wnacg': {
-			title: '绅士漫画',
-			href: 'https://hentaicomic.org',
-			search: true,//是否有搜索功能
-			hotKey: false,//是否有热门搜索关键词功能
-			recome: true,//是否有热门推荐功能
-			isAdult: true//是否属于青壮年内容
-		},
 		'nightpic': {
 			title: '深夜图鉴',
 			href: 'https://nightpics2.xyz',
