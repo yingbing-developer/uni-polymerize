@@ -106,7 +106,7 @@
 			<cell v-for="(hotAlbum, i) in hotAlbums">
 				<yb-grid class="padding-gap" :data="hotAlbum.list" :count="6">
 					<template v-slot="{gridItem}">
-						<view class="gridItem" @tap="playSong(gridItem.detail)">
+						<view class="gridItem" @tap="goDetail(gridItem.detail)">
 							<rd-image  border-radius="12" class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
 							<view class="bottom">
 								<view class="num">
