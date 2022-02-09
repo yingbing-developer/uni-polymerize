@@ -50,7 +50,8 @@
 						<rd-icon v-if="isCollection(params.id)" name="love-fill" size="40" :color="skinColor.color_red"></rd-icon>
 						<rd-icon v-else name="love" size="40" :color="skinColor.color_white"></rd-icon>
 					</view>
-					<rd-icon v-if="params.commentId" enableClick @click="showComment(params)" name="comment" size="40" :color="skinColor.color_white"></rd-icon>
+					<rd-icon class="opac-actived" v-if="params.commentId" enableClick @click="showComment(params)" name="comment" size="40" :color="skinColor.color_white"></rd-icon>
+					<rd-icon class="opac-actived" v-if="list.length > 0" enableClick @click="allToAlbum(list)" name="inc-rect" size="40" :color="skinColor.color_white"></rd-icon>
 				</view>
 			</template>
 		</yb-nav-bar>
@@ -242,6 +243,36 @@
 				}).catch(() => {
 					return []
 				})
+			},
+			allToAlbum (songs) {
+				let list = this.$store.getters['custom/get'].filter(item => item.type == 'album')
+				if ( list.length == 0 ) {
+					this.app.$nativeUI.alert({
+						title: '友情提示',
+						content: '未创建自定义歌单',
+						dark: this.skinMode == 'night'
+					})
+				} else {
+					this.app.$modules.showActionSheet({
+						title: '选择歌单',
+						itemList: list.map(item => item.title),
+						success: (res) => {
+							if ( res.confirm ) {
+								songs.forEach(song => {
+									let index = list[res.data.index].song.findIndex(item => item.id == song.id)
+									if ( index == -1 ) {
+										list[res.data.index].song.push(song)
+									}
+								})
+								this.$store.dispatch('custom/add', list[res.data.index])
+								uni.showToast({
+									title: '所有歌曲已加入歌单',
+									icon: 'none'
+								})
+							}
+						}
+					})
+				}
 			}
 		},
 		onBackPress (e) {

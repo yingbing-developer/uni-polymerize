@@ -3,21 +3,24 @@
 		<yb-nav-bar :bgColor="skinColor.color_theme_1" :frontColor="skinColor.color_4" title="最近听的"></yb-nav-bar>
 		<list>
 			<cell v-for="(item, index) in list.slice(0, max)">
-				<view class="cell-item_2 margin-gap"
-				:style="{'border-color': skinColor.color_gap_1}"
-				@tap="playSong(item)">
-					<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>
-					<image v-if="index == 0" class="trophy" src="/static/music/trophy_1.png" mode="aspectFill"></image>
-					<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
-					<image v-if="index == 2" class="trophy" src="/static/music/trophy_3.png" mode="aspectFill"></image>
-					<rd-icon name="music-fill" size="30" :color="skinColor.color_green"></rd-icon>
-					<view class="info">
-						<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-						<text class="label" :style="{color: skinColor.color_3}">{{item.singer}}</text>
-					</view>
-					<rd-icon enableClick @click="musicPanel(item)" class="more opac-actived" name="more-vertical" :color="skinColor.color_3"></rd-icon>
-					<rd-icon enableClick @click="removeRecord(item)" class="more opac-actived" name="dustbin" :color="skinColor.color_3"></rd-icon>
-				</view>
+				<uni-swipe-action>
+					<uni-swipe-action-item :right-options="options" :left-options="options" @click="onClick($event, item)">
+				        <view class="cell-item_2 margin-gap"
+				        :style="{'border-color': skinColor.color_gap_1}"
+				        @tap="playSong(item)">
+				        	<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>
+				        	<image v-if="index == 0" class="trophy" src="/static/music/trophy_1.png" mode="aspectFill"></image>
+				        	<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
+				        	<image v-if="index == 2" class="trophy" src="/static/music/trophy_3.png" mode="aspectFill"></image>
+				        	<rd-icon name="music-fill" size="30" :color="skinColor.color_green"></rd-icon>
+				        	<view class="info">
+				        		<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+				        		<text class="label" :style="{color: skinColor.color_3}">{{item.singer}}</text>
+				        	</view>
+				        	<rd-icon enableClick @click="musicPanel(item)" class="more opac-actived" name="more-vertical" :color="skinColor.color_3"></rd-icon>
+				        </view>
+				    </uni-swipe-action-item>
+				</uni-swipe-action>
 			</cell>
 			<yb-page-anime-fixed>
 				<yb-list-no-data :color="skinColor.color_3" v-if="list.length == 0"></yb-list-no-data>
@@ -40,7 +43,13 @@
 		data () {
 			return {
 				page: 1,
-				size: 20
+				size: 20,
+				options:[{
+				    text: '删除',
+				    style: {
+				        backgroundColor: '#dd524d'
+				    }
+				}]
 			}
 		},
 		computed: {
@@ -58,6 +67,11 @@
 			pullup () {
 				this.page++
 				this.$refs.pullup.success()
+			},
+			onClick (e, params) {
+				if ( e.index == 0 ) {
+					this.removeRecord(params)
+				}
 			}
 		}
 	}

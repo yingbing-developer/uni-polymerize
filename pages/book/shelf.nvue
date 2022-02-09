@@ -23,35 +23,39 @@
 			</template>
 			<template v-else>
 				<cell v-for="(item, index) in params.book">
-					<view class="cell-item_3"
-					@tap="readBook(item)"
-					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-						<view elevation="3">
-							<rd-image defaultSrc="/static/cover/cover_default.jpg" lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
-						</view>
-						<view class="info">
-							<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
-							<view class="subtitles">
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">作者：{{item.author}}</text>
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">题材：{{item.style || '未知题材'}}</text>
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">来源：{{filterSource(item.source)}}</text>
-							</view>
-							<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc.replace(/\n/g, '') || '暂无简介'}}</text>
-							<text class="tip" :style="{'color': skinColor.color_red}" v-if="item.lastChapter">更新至：{{item.lastChapter}}</text>
-							<view class="badges" v-else>
-								<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
-								<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
-								<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
-							</view>
-						</view>
-						<rd-icon v-if="params.source == 'local'" enableClick @click="removeCustom(item)" class="delete opac-actived" name="dustbin" :color="skinColor.color_3"></rd-icon>
-					</view>
+					<uni-swipe-action>
+					    <!-- 基础用法 -->
+					    <uni-swipe-action-item :right-options="options" :left-options="options" @click="onClick($event, item)">
+					       <view class="cell-item_3"
+					       @tap="readBook(item)"
+					       :style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
+								<view elevation="3">
+									<rd-image defaultSrc="/static/cover/cover_default.jpg" lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+								</view>
+								<view class="info">
+									<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
+									<view class="subtitles">
+										<text class="subtitle" :style="{
+											'color': skinColor.color_3
+										}">作者：{{item.author}}</text>
+										<text class="subtitle" :style="{
+											'color': skinColor.color_3
+										}">题材：{{item.style || '未知题材'}}</text>
+										<text class="subtitle" :style="{
+											'color': skinColor.color_3
+										}">来源：{{filterSource(item.source)}}</text>
+									</view>
+									<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc.replace(/\n/g, '') || '暂无简介'}}</text>
+									<text class="tip" :style="{'color': skinColor.color_red}" v-if="item.lastChapter">更新至：{{item.lastChapter}}</text>
+									<view class="badges" v-else>
+										<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
+										<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
+										<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
+									</view>
+								</view>
+					       </view>
+					    </uni-swipe-action-item>
+					</uni-swipe-action>
 				</cell>
 			</template>
 			<yb-page-anime-fixed>
@@ -76,12 +80,27 @@
 		computed: {
 			title () {
 				return this.params?.title || '书架信息'
+			},
+			options () {
+				return [{
+					text: this.params.source == 'local' ? '删除' : '查看',
+					style: {
+						backgroundColor: '#dd524d'
+					}
+				}]
 			}
 		},
 		onLoad() {
 			this.params = JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.params))
 		},
 		methods: {
+			onClick (e, params) {
+				if ( e.content.text == '删除' ) {
+					this.removeCustom(params)
+				} else {
+					this.readBook(params)
+				}
+			},
 			removeCustom (params) {
 				let index = this.params.book.findIndex(item => item.id == params.id)
 				if ( index > -1 ) {

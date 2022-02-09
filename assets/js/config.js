@@ -3,7 +3,7 @@ export default {
 	BOOKURL: {
 		'xquge': {
 			title: '笔趣阁',
-			href: 'https://www.xquge.com',
+			href: ['https://www.nhxmm4.top', 'https://www.ppxydh168.xyz'],
 			isAdult: false//是否属于青壮年内容
 		}
 	},
