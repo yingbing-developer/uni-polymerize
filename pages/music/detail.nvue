@@ -16,7 +16,7 @@
 						</view>
 					</view>
 					<view class="play-line">
-						<yb-button @tap="playAlbum(list)" class="play" size="20" type="plain" round :themeColor="skinColor.color_red" title="播放全部" />
+						<yb-button @tap="allToAlbum(list)" v-if="list.length > 0" class="play" size="20" type="plain" round :themeColor="skinColor.color_red" title="加入歌单" />
 					</view>
 				</view>
 			</cell>
@@ -51,7 +51,6 @@
 						<rd-icon v-else name="love" size="40" :color="skinColor.color_white"></rd-icon>
 					</view>
 					<rd-icon class="opac-actived" v-if="params.commentId" enableClick @click="showComment(params)" name="comment" size="40" :color="skinColor.color_white"></rd-icon>
-					<rd-icon class="opac-actived" v-if="list.length > 0" enableClick @click="allToAlbum(list)" name="inc-rect" size="40" :color="skinColor.color_white"></rd-icon>
 				</view>
 			</template>
 		</yb-nav-bar>
@@ -65,6 +64,9 @@
 				<rd-icon enableClick size="35":color="skinColor.color_2" name="fork" class="close" @click="infoShow = false"></rd-icon>
 			</view>
 		</yb-popup>
+		<view class="fixed-bottom">
+			<yb-button @click="playAlbum(list)" v-if="list.length > 0" class="button" title="播放全部" size="22" round />
+		</view>
 	</yb-page-anime>
 </template>
 
