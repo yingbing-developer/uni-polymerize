@@ -41,7 +41,8 @@
 <script>
 	const dom = weex.requireModule('dom');
 	import appMixin from '@/common/mixin/app.js'
-	import History from '@/assets/constructor/search.js' 
+	import History from '@/assets/constructor/search.js'
+	let that;
 	export default {
 		mixins: [appMixin],
 		data () {
@@ -67,6 +68,7 @@
 			}
 		},
 		onLoad () {
+			that = this
 			this.sources.forEach(source => {
 				if ( source.request.search?.value && source.isOpen && (!source.isAdult || this.$store.getters['app/getAdult']) ) {
 					this.nowPages[source.id] = 1 ;
@@ -191,6 +193,13 @@
 					}
 				})
 			}
+		},
+		onBackPress(event) {
+			if ( event.from == 'backbutton' && that.keyword ) {
+				that.keyword = '';
+				return true;
+			}
+			return false
 		}
 	}
 </script>
