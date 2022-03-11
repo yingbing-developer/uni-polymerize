@@ -10,6 +10,8 @@ import Chapter from '@/assets/constructor/chapter.js'
 import Comment from '@/assets/constructor/comment.js'
 import { replaceHTML, htmlDecodeByRegExp, getTag } from '@/assets/api/global.js'
 
+import { test } from './dmzj.js'
+
 const { getters } = Store;
 const { ERR_OK, ERR_FALSE } = Config;
 const { dateFormat, time2seconds } = Utils;

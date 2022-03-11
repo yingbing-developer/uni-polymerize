@@ -2,7 +2,7 @@
 	<yb-popup :position="position" :popout="popout" direction="right" :width="width" :visible="visible" @hide="hide">
 		<view class="rd-catalog" :style="{'background-color': skinColor.color_bg_1}" @touchmove.stop.prevent="">
 			<yb-gap :height="windowHeight - windowWidth" v-if="topGapShow"></yb-gap>
-			<yb-nav-bar class="nav-bar" :title="'共' + catalog.length + unit" :bg-color="skinColor.color_bg_1" :front-color="skinColor.color_1"></yb-nav-bar>
+			<yb-nav-bar class="nav-bar" :title="'共' + catalog.filter(ca => ca.chapter).length + unit" :bg-color="skinColor.color_bg_1" :front-color="skinColor.color_1"></yb-nav-bar>
 			<list ref="list" @loadmore="pullup" v-if="catalog.length > 0">
 				<header>
 					<view class="header padding-gap" :style="{'background-color': skinColor.color_gap_2}">

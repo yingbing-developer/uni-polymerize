@@ -12,7 +12,7 @@
 			<text class="tip" :style="{color: gapColor}">{{value.length}}/{{max}}</text>
 		</view>
 		<view class="yb-modal-check" @tap="changeChecked" v-if="checkedShow">
-			<checkbox class="checkbox" :checked="checked" />
+			<checkbox class="checkbox" @tap.stop="changeChecked" :checked="checked" />
 			<text class="text" :style="{color: tipColor}">{{checkedText}}</text>
 		</view>
 	</yb-modal>

@@ -172,7 +172,7 @@
 					return
 				}
 				let index = this.list.findIndex(item => item.title == this.shelfTitle)
-				if ( index > -1 ) {
+				if ( index > -1 && this.isAdult == this.list[index].isAdult ) {
 					uni.showToast({
 						title: '书单标题重复',
 						icon: 'none'
