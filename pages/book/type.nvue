@@ -7,7 +7,7 @@
 				</view>
 			</template>
 		</yb-nav-bar>
-		<list>
+		<list v-if="list.length > 0 && !loading">
 			<yb-pulldown v-if="!loading" ref="pulldown" @pulldown="pulldown"></yb-pulldown>
 			<cell v-for="(item, index) in list">
 				<cell>
@@ -47,15 +47,15 @@
 					</view>
 				</view>
 			</cell>
-			<yb-page-anime-fixed>
-				<yb-list-loading :color="skinColor.color_3" size="70" v-if="loading" title="加载中"></yb-list-loading>
-				<yb-list-no-data :color="skinColor.color_3" v-if="list.length == 0 && !loading"></yb-list-no-data>
-			</yb-page-anime-fixed>
 			<cell v-if="isLastPage && list.length > 0">
 				<yb-no-more :color="skinColor.color_3"></yb-no-more>
 			</cell>
 			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage"></yb-pullup>
 		</list>
+		<template v-else>
+			<rd-loading :color="skinColor.color_3" size="70" v-if="loading" title="加载中"></rd-loading>
+			<rd-no-data :color="skinColor.color_3" v-if="list.length == 0 && !loading"></rd-no-data>
+		</template>
 		<yb-filter-menu
 		:visible.sync="dropShow"
 		:bgColor="skinColor.color_bg_1"
