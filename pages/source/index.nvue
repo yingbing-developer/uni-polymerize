@@ -171,18 +171,15 @@
 											result.request[key].value = val
 										}
 									})
-									let index = this.$store.getters['source/get'].findIndex(source => source.id == result.id);
-									if ( index > -1 ) {
-										this.$store.dispatch('source/add', new Source({
-											id: result.id,
-											title: result.title,
-											href: result.href,
-											isAdult: result.isAdult,
-											isOpen: true,
-											request: result.request,
-											type: result.type
-										}))
-									}
+									this.$store.dispatch('source/add', new Source({
+										id: result.id,
+										title: result.title,
+										href: result.href,
+										isAdult: result.isAdult,
+										isOpen: true,
+										request: result.request,
+										type: result.type
+									}))
 								} catch (e) {
 									throw new Error('错误的文件来源');
 								}
