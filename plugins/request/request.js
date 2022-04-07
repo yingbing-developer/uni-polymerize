@@ -10,6 +10,7 @@ function request (type = 'GET', url, options) {
 			data: options.params || {},
 			method: type || 'GET',
 			mimeType: options.mimeType || null,
+			dataType: options.dataType || 'json',
 			header: options.headers || {},
 			responseType: options.responseType || 'text',
 			timeout: TIMEOUT,

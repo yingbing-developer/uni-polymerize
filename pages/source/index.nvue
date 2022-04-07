@@ -172,7 +172,7 @@
 										}
 									})
 									let index = this.$store.getters['source/get'].findIndex(source => source.id == result.id);
-									if ( this.$store.getters['source/get'].filter(source => source.type == result.type).length < 10 || index > -1 ) {
+									if ( index > -1 ) {
 										this.$store.dispatch('source/add', new Source({
 											id: result.id,
 											title: result.title,

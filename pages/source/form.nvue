@@ -312,15 +312,17 @@
 						}
 					})
 				} else {
-					if ( this.$store.getters['source/get'].filter(source => source.type == this.type).length < 10 ) {
-						this.$store.dispatch('source/add', source)
-						getApp().globalData.$Router.back()
-					} else {
-						uni.showToast({
-							title: '最多添加10个' + this.title,
-							icon: 'none'
-						})
-					}
+					this.$store.dispatch('source/add', source)
+					getApp().globalData.$Router.back()
+					// if ( this.$store.getters['source/get'].filter(source => source.type == this.type).length < 10 ) {
+					// 	this.$store.dispatch('source/add', source)
+					// 	getApp().globalData.$Router.back()
+					// } else {
+					// 	uni.showToast({
+					// 		title: '最多添加10个' + this.title,
+					// 		icon: 'none'
+					// 	})
+					// }
 				}
 			},
 			chooseFile () {

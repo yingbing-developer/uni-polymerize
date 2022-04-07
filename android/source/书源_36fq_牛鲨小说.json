@@ -1,0 +1,37 @@
+{
+	"id": "36fq",
+	"title": "牛鲨小说",
+	"href": "http://www.36fq.com",
+	"isAdult": true,
+	"type": "story",
+	"request": {
+		"getRecome": {
+			"label": "获取热门推荐",
+			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {http,ERR_OK,ERR_FALSE,Book,replaceHTML} = context;http.get(baseUrl, {headers: {Referer: baseUrl,UserAgent: 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}}).then(res => {let str = replaceHTML(res.data);let lis = str.match(/<li[^>]*class=([""]?)last_li\1[^>]*>*([\s\S]*?)<\/li>/ig);let updates = [];if (lis) {lis.forEach(li => {updates.push(new Book({bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].match(/book\/*([\s\S]*?).html/)[1],title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],author: li.match(/<span[^>]*class=([""]?)author\1[^>]*>*([\s\S]*?)<\/span>/)[2],updateTime: li.match(/<time[^>]*>*([\s\S]*?)<\/time>/)[1],style: li.match(/<span[^>]*class=([""]?)words\1[^>]*>*([\s\S]*?)<\/span>/)[2].replace('类型：', ''),type: 'story',isAdult: true,source: source}))})}resolve({code: ERR_OK,data: {updates: updates,source: source}})}).catch(() => {resolve({code: ERR_FALSE,data: {source: source}})})})}"
+		},
+		"search": {
+			"label": "搜索功能",
+			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {ERR_OK,ERR_FALSE,http,Book,replaceHTML} = context;http.post(baseUrl + '/search.php', {params: {keyword: params.keyword},headers: {'Content-Type': 'application/x-www-form-urlencoded',Referer: baseUrl}}).then((res) => {let str = replaceHTML(res.data);let lis = str.match(/<div[^>]*class=([""]?)common-bookele\1[^>]*>*([\s\S]*?)<\/div>/ig);let list = [];if (lis) {lis.forEach(li => {list.push(new Book({bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].match(/book\/*([\s\S]*?).html/)[1],title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],style: li.match(/<p[^>]*class=([""]?)lastupdate\1[^>]*>*([\s\S]*?)<\/p>/)[2].replace('栏目：', ''),author: li.match(/<strong[^>]*>*([\s\S]*?)<\/strong>/)[1],isAdult: true,source: source}))})}resolve({code: ERR_OK,data: {list: list,isLastPage: true,currentPage: params.page[source],source: source}})}).catch((err) => {resolve({code: ERR_FALSE,data: {list: [],isLastPage: true,currentPage: params.page[source] - 1,source: source}})})})}"
+		},
+		"getHotKeyword": {
+			"label": "热门关键词",
+			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {http,ERR_OK,ERR_FALSE,replaceHTML} = context;http.get(baseUrl, {headers: {Referer: baseUrl,UserAgent: 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}}).then(res => {let str = replaceHTML(res.data);let list = [];let words = str.match(/<div[^>]*class=([""]?)keys\1[^>]*>*([\s\S]*?)<\/div>/)[0].match(/<a[^>]*>*([\s\S]*?)<\/a>/ig);if (words) {words.forEach((word, key) => {if (key > 0) {list.push(word.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1])}})}resolve({code: ERR_OK,data: {list: list,source: source}})}).catch(() => {resolve({code: ERR_FALSE,data: {list: [],source: source}})})})}"
+		},
+		"getTypeList": {
+			"label": "分类列表",
+			"value": "function (context, params) {return new Promise(resolve => {const {source} = params;const {ERR_OK} = context;resolve({code: ERR_OK,data: {list: [{label: '玄幻魔法',value: 1,source: source},{label: '武侠修真',value: 2,source: source},{label: '都市言情',value: 3,source: source},{label: '历史军事',value: 4,source: source},{label: '侦探推理',value: 5,source: source},{label: '网游动漫',value: 6,source: source},{label: '其他类型',value: 10,source: source}],source: source}})})}"
+		},
+		"getTypeDetail": {
+			"label": "分类详情",
+			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {http,ERR_OK,ERR_FALSE,Book,replaceHTML,} = context;http.get(baseUrl + '/list/' + params.id + '-' + params.page + '.html', {headers: {Referer: baseUrl}}).then((res) => {let list = [];let str = replaceHTML(res.data);let lis = str.match(/<div[^>]*class=([""]?)common-bookele\1[^>]*>*([\s\S]*?)<\/div>/ig);if (lis) {lis.forEach(li => {list.push(new Book({bookId: li.match(/href=\"*([\s\S]*?)\"/)[1].match(/book\/*([\s\S]*?).html/)[1],title: li.match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],style: params.title,author: li.match(/<strong[^>]*>*([\s\S]*?)<\/strong>/)[1],updateTime: li.match(/<time[^>]*>*([\s\S]*?)<\/time>/)[1],desc: li.match(/<span[^>]*class=([""]?)abstract\1[^>]*>*([\s\S]*?)<\/span>/)[0].match(/<a[^>]*>*([\s\S]*?)<\/a>/)[1],isAdult: true,source: source}))})}resolve({code: ERR_OK,data: {list: list,isLastPage: list.length < 30,currentPage: params.page,source: source}})}).catch((err) => {resolve({code: ERR_FALSE,data: {list: [],isLastPage: true,currentPage: params.page - 1,source: source}})})})}"
+		},
+		"getDetail": {
+			"label": "书籍详情",
+			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {http,ERR_OK,ERR_FALSE,replaceHTML,getTag,Chapter,Book} = context;http.get(baseUrl + '/book/' + params.id + '.html', {headers: {Referer: baseUrl,}}).then(async (res) => {let str = replaceHTML(res.data);let title = str.match(/<li[^>]*style=([""]?)background:none;\1[^>]*>*([\s\S]*?)<\/li>/)[2];let table = str.match(/<div[^>]*class=([""]?)lb_fm\1[^>]*>*([\s\S]*?)<\/table>/)[0];let author = table.match(/<h2[^>]*>*([\s\S]*?)<\/h2>/)[1];let style = table.match(/title=\"*([\s\S]*?)\"/)[1];let updateTime = table.match(/<time[^>]*>*([\s\S]*?)<\/time>/)[1];let size = table.match(/总字数：*([\s\S]*?)<\/div>/)[1] + '字';let desc = str.match(/<pre[^>]*>*([\s\S]*?)<\/pre>/)[1];let tag = getTag(source, desc + '_' + style + '_' + title);let charterUrl = str.match(/<a[^>]*style=([""]?)color:red;\1[^>]*>*([\s\S]*?)<\/a>/)[0].match(/href=\"*([\s\S]*?)\"/)[1];let chapters = await http.get(baseUrl + charterUrl, {headers: {Referer: baseUrl,}}).then((ret) => {let cc = replaceHTML(ret.data);let arr = [];let lis = cc.match(/<li[^>]*>*([\s\S]*?)<\/li>/ig);if ( lis ) {lis.forEach((li, key) => {if ( key < lis.length - 1 ) {arr.push(new Chapter({id: li.match(/href=\"*([\s\S]*?)\"/)[1],chapter: key + 1,title: li.match(/title=\"*([\s\S]*?)\"/)[1],isStart: key == 0,isEnd: key == lis.length - 2,source: source}));}})}return arr;});resolve({code: ERR_OK,data: {bookInfo: {title: title,desc: desc,author: author,tag: tag,style: style,size: size,updateTime: updateTime,},chapters: chapters,source: source}})}).catch((err) => {resolve({code: ERR_FALSE,data: {bookInfo: {},source: source}})})})}"
+		},
+		"getContent": {
+			"label": "书籍内容",
+			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {http,ERR_OK,ERR_FALSE,replaceHTML,htmlDecodeByRegExp} = context;http.get(baseUrl + params.id, {headers: {Referer: baseUrl,}}).then((res) => {let str = replaceHTML(res.data);let content = str.match(/<div[^>]*id=([""]?)nr1\1[^>]*>*([\s\S]*?)<\/div>/)[2];resolve({code: ERR_OK,data: {content: {title: params.title,chapter: params.chapter,content: htmlDecodeByRegExp(content),isStart: params.isStart,isEnd: params.isEnd},source: source}})}).catch((err) => {resolve({code: ERR_FALSE,data: {content: '',source: source}})})})}"
+		}
+	}
+}
