@@ -5,6 +5,8 @@
 			<cell v-for="(item, index) in list.slice(0, max)">
 				<view class="dict padding-gap" :style="{'border-color': skinColor.color_gap_2}">
 					<text class="value" :style="{color: skinColor.color_2}">{{item}}</text>
+					<rd-icon enableClick @click="showEdit(item)" name="edit-rect" :color="skinColor.color_2" size="30"></rd-icon>
+					<view style="width: 10rpx;"></view>
 					<rd-icon enableClick @click="remove(item)" name="dustbin" :color="skinColor.color_2" size="30"></rd-icon>
 				</view>
 			</cell>
@@ -29,6 +31,18 @@
 		:gapColor="skinColor.color_gap_1"
 		@confirm="createReferer"
 		@cancel="onCancel"></yb-modal-input>
+		<yb-modal-input
+		:visible.sync="editShow"
+		title="编辑防盗链"
+		placeholder="请输入域名"
+		v-model="domain"
+		:bgColor="skinColor.color_bg_2"
+		:frontColor="skinColor.color_1"
+		:themeColor="skinColor.color_blue"
+		:tipColor="skinColor.color_2"
+		:gapColor="skinColor.color_gap_1"
+		@confirm="createReferer"
+		@cancel="onCancel"></yb-modal-input>
 	</yb-page-anime>
 </template>
 
@@ -41,7 +55,9 @@
 				size: 20,
 				currentPage: 1,
 				createShow: false,
+				editShow: false,
 				domain: '',
+				domainCurrent: ''
 			}
 		},
 		computed: {
@@ -76,17 +92,28 @@
 					return
 				}
 				this.$store.dispatch('referer/add', this.domain)
-				this.createShow = false
+				if ( this.editShow ) {
+					this.remove(this.domainCurrent)
+				}
 				uni.showToast({
-					title: '新增防盗链成功',
+					title: this.createShow ? '新增防盗链成功' : '修改防盗链成功',
 					icon: 'none'
 				})
+				this.createShow = false
+				this.editShow = false
 				this.$nextTick(() => {
 					this.domain = ''
+					this.domainCurrent = ''
 				})
+			},
+			showEdit (url) {
+				this.domain = url
+				this.domainCurrent = url
+				this.editShow = true
 			},
 			onCancel () {
 				this.domain = ''
+				this.domainCurrent = ''
 			},
 			remove (referer) {
 				this.$store.dispatch('referer/remove', referer)

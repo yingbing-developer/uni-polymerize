@@ -44,7 +44,7 @@
 					    styles: {
 							transform: 'rotateZ(360deg)'
 					    },
-					    duration: 1500, //ms
+					    duration: 1000, //ms
 					    timingFunction: 'linear',
 					    needLayout:false,
 					    delay: 0 //ms

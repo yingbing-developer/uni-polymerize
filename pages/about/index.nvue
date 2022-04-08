@@ -42,6 +42,7 @@
 
 <script>
 	import appMixin from '@/common/mixin/app.js'
+	let that;
 	export default {
 		mixins:[appMixin],
 		data () {
@@ -92,6 +93,7 @@
 			}
 		},
 		onLoad() {
+			that = this
 			plus.runtime.getProperty( plus.runtime.appid, ( wgtinfo ) => {
 				this.version = wgtinfo.version
 				this.versionCode = wgtinfo.versionCode
@@ -162,6 +164,13 @@
 					this.tip = '密码输入错误'
 				}
 			}
+		},
+		onBackPress(event) {
+			if ( event.from == 'backbutton' && that.securityShow ) {
+				that.securityShow = false
+				return true
+			}
+			return false
 		}
 	}
 </script>

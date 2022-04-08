@@ -1,10 +1,17 @@
 import Config from '@/assets/js/config.js'
 const { TIMEOUT } = Config
+let requestTasks = [];
 
 //xhr封装
 function xhrRequest (type = 'GET', url, options) {
 	return new Promise((resolve,reject) => {
 		let xhrHttp = new plus.net.XMLHttpRequest();
+		let d = new Date();
+		let taskId = options.taskId || (d.getMinutes().toString() + d.getSeconds() + d.getMilliseconds() + Math.round(Math.random() * 10000))
+		requestTasks.push({
+			id: taskId,
+			request: xhrHttp
+		})
 		try {
 			xhrHttp.onreadystatechange = function () {
 				// console.log(xhrHttp.readyState);
@@ -16,8 +23,12 @@ function xhrRequest (type = 'GET', url, options) {
 						reject({code: xhrHttp.status, data: ''});
 					}
 					xhrHttp.abort()
-					xhrHttp = null
 				}
+			}
+			xhrHttp.onabort = function () {
+				let index = requestTasks.findIndex(task => task.id == taskId)
+				index > -1 ? requestTasks.splice(index, 1) : null
+				xhrHttp = null
 			}
 			xhrHttp.open(type, url);
 			if ( options.mimeType ) {
@@ -31,7 +42,6 @@ function xhrRequest (type = 'GET', url, options) {
 			xhrHttp.send(options.params || {});
 		} catch (e) {
 			xhrHttp.abort()
-			xhrHttp = null
 			reject({code: xhrHttp.status, data: ''});
 		}
 	})
@@ -48,6 +58,14 @@ export default class Xhr {
 	}
 	post(url, options = {}) {
 		return xhrRequest('POST', url, options)
+	}
+	abort(taskId) {
+		let index = requestTasks.findIndex(task => task.id == taskId)
+		if ( index > -1 ) {
+			requestTasks[index].request.abort()
+		} else {
+			throw new Error('The requested task with taskid ' + taskId + ' is not defined')
+		}
 	}
 }
 

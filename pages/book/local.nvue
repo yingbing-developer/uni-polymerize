@@ -55,7 +55,7 @@
 							style: '本地小说',
 							source: 'local'
 						})
-						let list = this.$store.getters['custom/get'].filter(item => item.type == 'book')
+						let list = this.$store.getters['custom/get'].filter(item => item.type == 'book' && (!item.isAdult || this.$store.getters['app/getAdult']))
 						if ( list.length == 0 ) {
 							this.app.$nativeUI.alert({
 								title: '友情提示',
