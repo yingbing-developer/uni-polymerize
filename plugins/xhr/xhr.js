@@ -29,6 +29,7 @@ function xhrRequest (type = 'GET', url, options) {
 				let index = requestTasks.findIndex(task => task.id == taskId)
 				index > -1 ? requestTasks.splice(index, 1) : null
 				xhrHttp = null
+				reject({"errMsg":"request:fail abort"});
 			}
 			xhrHttp.open(type, url);
 			if ( options.mimeType ) {

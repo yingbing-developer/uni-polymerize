@@ -2,7 +2,7 @@
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
 		<rd-search placeholder="搜索小说" :keywords="keywords" :records="records" :value="keyword" @input="change" @clearRecord="clearRecord" @removeRecord="removeRecord">
 			<view class="result" v-if="keyword" :style="{'background-color': skinColor.color_bg_1}">
-				<list class="list" v-if="results.length > 0 && !loading">
+				<list class="list">
 					<cell><view ref="listTop"></view></cell>
 					<cell v-for="(item, index) in results">
 						<view class="cell-item_3"
@@ -42,15 +42,13 @@
 							</view>
 						</view>
 					</cell>
-					<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage"></yb-pullup>
+					<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="!isLastPage && results.length > 0"></yb-pullup>
 					<cell v-if="isLastPage && results.length > 0">
 						<yb-no-more :color="skinColor.color_3"></yb-no-more>
 					</cell>
 				</list>
-				<template v-else>
-					<rd-no-data title="暂无搜索数据" v-if="results.length == 0 && !loading" />
-					<rd-loading size="80" :color="skinColor.color_3" title="搜索中" v-if="loading" />
-				</template>
+				<rd-no-data title="暂无搜索数据" v-if="results.length == 0 && !loading" />
+				<rd-loading size="80" :color="skinColor.color_3" title="搜索中" v-if="loading" />
 			</view>
 		</rd-search>
 	</yb-page-anime>

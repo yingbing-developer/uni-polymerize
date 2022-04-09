@@ -1,6 +1,6 @@
 <template>
 	<view class="yb-modal" v-if="visibleSync">
-		<yb-mask ref="mask" @click="cancel" :style="{opacity: 0}" @tap="cancel"></yb-mask>
+		<yb-mask ref="mask" @click="cancel" :style="{opacity: 0}"></yb-mask>
 		<view class="popup" ref="popup" :style="{'background-color': bgColor}" @touchmove.stop.prevent="">
 			<text class="title" :style="{color: frontColor}">{{title}}</text>
 			<slot>
@@ -88,7 +88,7 @@
 				backs = page.$vm.$options.onBackPress//记录下当前页面有可能设置的返回事件监听方法，用于还原
 				page.$vm.$options.onBackPress = new Array(0)
 				page.$vm.$options.onBackPress.push((e) => {
-					this.hide()
+					this.cancel()
 					return true
 				})
 			},
