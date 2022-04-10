@@ -20,7 +20,7 @@
 		@loadmore="loadmoreContent">
 		</yingbing-ReadPage>
 		<view class="progress" :style="{color: skinColor.color_white, 'background-color': progressBg}">
-			{{reader.source == 'local' ? reader.book.title + '&nbsp;&nbsp;&nbsp;&nbsp;' + record.progress + '%' : record.title + '&nbsp;&nbsp;&nbsp;&nbsp;' + currentPage + '/' + totalPage}}
+			{{tipText}}
 		</view>
 	</yb-page-anime>
 </template>
@@ -75,6 +75,13 @@
 				bg = bg.match(/rgb\((\S*)\)/)[1]
 				bg = `rgba(${bg},0.5)`
 				return bg
+			},
+			tipText () {
+				if ( this.reader.source == 'local' ) {
+					return this.reader.book.title.slice(0, 40) + (this.reader.book.title.length > 40 ? '......' : '') + ' ' + (this.record.progress || 0) + '%'
+				} else {
+					return this.record.title ? (this.record.title?.slice(0, 40) + (this.record.title?.length > 40 ? '......' : '') + ' ' + this.currentPage + '/' + this.totalPage) : '加载中...'
+				}
 			}
 		},
 		beforeCreate () {
@@ -366,11 +373,16 @@
 		left: 15rpx;
 		bottom: 20rpx;
 		padding: 0 20rpx;
+		box-sizing: border-box;
+		max-width: calc(100% - 30rpx);
 		height: 30rpx;
 		display: flex;
 		align-items: center;
 		border-radius: 40rpx;
 		z-index: 50;
 		font-size: 18rpx;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
 	}
 </style>
