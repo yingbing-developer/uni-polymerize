@@ -1,50 +1,54 @@
 <template>
 	<yb-page-anime ref="ybPageAnime" :bgColor="skinColor.color_bg_1">
-		<scroll-view style="flex: 1;" scroll-y="true" @scroll="onScroll">
-			<view class="top">
-				<rd-image lazyLoad class="bg" enable-blur default-src="/static/cover/cover_default.jpg" :src="params.cover" mode="aspectFill" v-if="isShowCover"></rd-image>
-				<yb-mask color="rgba(0,0,0,0.2)"></yb-mask>
-				<yb-nav-bar :backShow="false" bgColor="rgba(0,0,0,0)"></yb-nav-bar>
-				<view class="info">
-					<rd-image lazyLoad class="cover" default-src="/static/cover/cover_default.jpg" :src="params.cover" mode="aspectFill"></rd-image>
-					<view class="info-right">
-						<text class="title" :style="{color: skinColor.color_white}">{{params.title}}</text>
-						<text class="label" :style="{color: skinColor.color_white}">作者：{{params.author}} / 著</text>
-						<text class="label" :style="{color: skinColor.color_white}">类型：{{params.style || '未知类型'}}</text>
-						<text class="label" :style="{color: skinColor.color_white}" v-if="params.size">大小：{{params.size}}</text>
-						<text class="label" :style="{color: skinColor.color_white}">状态：{{params.isEnd ? '已完结' : '连载中'}}</text>
-						<text class="label" :style="{color: skinColor.color_white}">来源：{{filterSource(params.source)}}</text>
-						<view class="line">
-							<view class="opac-actived" @tap="searchTo(tag)"  v-for="(tag, i) in params.tag" :key="i" style="margin-right: 10rpx;margin-bottom: 10rpx;">
-								<yb-tag :color="skinColor.color_white" :value="tag"></yb-tag>
+		<list @scroll="onScroll">
+			<cell>
+				<view class="top">
+					<rd-image lazyLoad class="bg" enable-blur default-src="/static/cover/cover_default.jpg" :src="params.cover" mode="aspectFill" v-if="isShowCover"></rd-image>
+					<yb-mask color="rgba(0,0,0,0.2)"></yb-mask>
+					<yb-nav-bar :backShow="false" bgColor="rgba(0,0,0,0)"></yb-nav-bar>
+					<view class="info">
+						<rd-image lazyLoad class="cover" default-src="/static/cover/cover_default.jpg" :src="params.cover" mode="aspectFill"></rd-image>
+						<view class="info-right">
+							<text class="title" :style="{color: skinColor.color_white}">{{params.title}}</text>
+							<text class="label" :style="{color: skinColor.color_white}">作者：{{params.author}} / 著</text>
+							<text class="label" :style="{color: skinColor.color_white}">类型：{{params.style || '未知类型'}}</text>
+							<text class="label" :style="{color: skinColor.color_white}" v-if="params.size">大小：{{params.size}}</text>
+							<text class="label" :style="{color: skinColor.color_white}">状态：{{params.isEnd ? '已完结' : '连载中'}}</text>
+							<text class="label" :style="{color: skinColor.color_white}">来源：{{filterSource(params.source)}}</text>
+							<view class="line">
+								<view class="opac-actived" @tap="searchTo(tag)"  v-for="(tag, i) in params.tag" :key="i" style="margin-right: 10rpx;margin-bottom: 10rpx;">
+									<yb-tag :color="skinColor.color_white" :value="tag"></yb-tag>
+								</view>
 							</view>
 						</view>
 					</view>
 				</view>
-			</view>
-			<view class="tabs">
-				<view class="tab opac-actived" @tap="toShelf(params)">
-					<rd-icon name="bookshelf-fill" size="26" :color="skinColor.color_green"></rd-icon>
-					<text class="text" :style="{color: skinColor.color_green}">书单</text>
+			</cell>
+			<cell>
+				<view class="tabs">
+					<view class="tab opac-actived" @tap="toShelf(params)">
+						<rd-icon name="bookshelf-fill" size="26" :color="skinColor.color_green"></rd-icon>
+						<text class="text" :style="{color: skinColor.color_green}">书单</text>
+					</view>
+					<view class="tab center opac-actived" :style="{'border-color': skinColor.color_green}" @tap="toCollection(params)">
+						<rd-icon name="love-fill" size="30" :color="skinColor.color_red" v-if="isCollection(params.id)"></rd-icon>
+						<rd-icon name="love" size="30" :color="skinColor.color_green" v-else></rd-icon>
+						<text class="text" :style="{color: skinColor.color_green}">收藏</text>
+					</view>
+					<view class="tab opac-actived" @tap="showComment(params)">
+						<rd-icon name="comment" size="30" :color="skinColor.color_green"></rd-icon>
+						<text class="text" :style="{color: skinColor.color_green}">评论</text>
+					</view>
 				</view>
-				<view class="tab center opac-actived" :style="{'border-color': skinColor.color_green}" @tap="toCollection(params)">
-					<rd-icon name="love-fill" size="30" :color="skinColor.color_red" v-if="isCollection(params.id)"></rd-icon>
-					<rd-icon name="love" size="30" :color="skinColor.color_green" v-else></rd-icon>
-					<text class="text" :style="{color: skinColor.color_green}">收藏</text>
+				<view class="box">
+					<view class="column" :style="{'border-color': skinColor.color_2}">
+						<text class="text" :style="{color: skinColor.color_1}">简介</text>
+					</view>
+					<text class="desc" :style="{color: skinColor.color_2}">{{params.desc || '暂无简介'}}</text>
 				</view>
-				<view class="tab opac-actived" @tap="showComment(params)">
-					<rd-icon name="comment" size="30" :color="skinColor.color_green"></rd-icon>
-					<text class="text" :style="{color: skinColor.color_green}">评论</text>
-				</view>
-			</view>
-			<view class="box">
-				<view class="column" :style="{'border-color': skinColor.color_2}">
-					<text class="text" :style="{color: skinColor.color_1}">简介</text>
-				</view>
-				<text class="desc" :style="{color: skinColor.color_2}">{{params.desc || '暂无简介'}}</text>
-			</view>
-			<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			<template v-if="record">
+				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
+			</cell>
+			<cell v-if="record">
 				<view class="box">
 					<view class="column" :style="{'border-color': skinColor.color_2}">
 						<text class="text" :style="{color: skinColor.color_1}">正在阅读</text>
@@ -55,44 +59,48 @@
 					</view>
 				</view>
 				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			</template>
-			<view class="box">
-				<view class="column" :style="{'border-color': skinColor.color_2}">
-					<text class="text" :style="{color: skinColor.color_1}">最新章节</text>
-					<view class="more opac-actived" v-if="params.updateTime">
-						<text class="text" :style="{color: skinColor.color_2}">（更新时间：{{params.updateTime}}）</text>
+			</cell>
+			<cell>
+				<view class="box">
+					<view class="column" :style="{'border-color': skinColor.color_2}">
+						<text class="text" :style="{color: skinColor.color_1}">最新章节</text>
+						<view class="more opac-actived" v-if="params.updateTime">
+							<text class="text" :style="{color: skinColor.color_2}">（更新时间：{{params.updateTime}}）</text>
+						</view>
 					</view>
-				</view>
-				<view class="chapter" @tap="createReader(item.chapter)" :class="skinMode + '-actived'" v-for="(item, index) in chapters.filter(cha => cha.id).slice(-5).reverse()" :key="index">
-					<rd-icon class="icon" name="lock" :color="skinColor.color_orange" size="30" v-if="item.payread"></rd-icon>
-					<text class="label" :style="{color: skinColor.color_1}">{{item.title}}</text>
-					<rd-icon name="arrow-right" size="30" :color="skinColor.color_2"></rd-icon>
-				</view>
-			</view>
-			<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			<view class="box">
-				<view class="column" :style="{'border-color': skinColor.color_2}">
-					<text class="text" :style="{color: skinColor.color_1}">目录</text>
-					<view class="more opac-actived" @tap="chapterShow = true">
-						<text class="text" :style="{color: skinColor.color_2}">共{{chapters.filter(ca => ca.chapter).length}}章</text>
+					<view class="chapter" @tap="createReader(item.chapter)" :class="skinMode + '-actived'" v-for="(item, index) in chapters.filter(cha => cha.id).slice(-5).reverse()" :key="index">
+						<rd-icon class="icon" name="lock" :color="skinColor.color_orange" size="30" v-if="item.payread"></rd-icon>
+						<text class="label" :style="{color: skinColor.color_1}">{{item.title}}</text>
 						<rd-icon name="arrow-right" size="30" :color="skinColor.color_2"></rd-icon>
 					</view>
 				</view>
-				<view v-for="(item, index) in chapters.slice(0, 10)" :key="index">
-					<template v-if="item.id">
-						<view class="chapter" :class="skinMode + '-actived'" @tap="createReader(item.chapter)">
-							<rd-icon class="icon" name="lock" :color="skinColor.color_orange" size="30" v-if="item.payread"></rd-icon>
-							<text class="label" :style="{color: skinColor.color_1}">{{item.title}}</text>
+				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
+			</cell>
+			<cell>
+				<view class="box">
+					<view class="column" :style="{'border-color': skinColor.color_2}">
+						<text class="text" :style="{color: skinColor.color_1}">目录</text>
+						<view class="more opac-actived" @tap="chapterShow = true">
+							<text class="text" :style="{color: skinColor.color_2}">共{{chapters.filter(ca => ca.chapter).length}}章</text>
 							<rd-icon name="arrow-right" size="30" :color="skinColor.color_2"></rd-icon>
 						</view>
-					</template>
-					<template v-else>
-						<rd-type gap="20rpx" :title="item.title"></rd-type>
-					</template>
+					</view>
+					<view v-for="(item, index) in chapters.slice(0, 10)" :key="index">
+						<template v-if="item.id">
+							<view class="chapter" :class="skinMode + '-actived'" @tap="createReader(item.chapter)">
+								<rd-icon class="icon" name="lock" :color="skinColor.color_orange" size="30" v-if="item.payread"></rd-icon>
+								<text class="label" :style="{color: skinColor.color_1}">{{item.title}}</text>
+								<rd-icon name="arrow-right" size="30" :color="skinColor.color_2"></rd-icon>
+							</view>
+						</template>
+						<template v-else>
+							<rd-type gap="20rpx" :title="item.title"></rd-type>
+						</template>
+					</view>
 				</view>
-			</view>
-			<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			<template v-if="guess.length > 0">
+				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
+			</cell>
+			<cell v-if="guess.length > 0">
 				<view class="box">
 					<view class="column" :style="{'border-color': skinColor.color_2}">
 						<text class="text" :style="{color: skinColor.color_1}">猜你喜欢</text>
@@ -115,8 +123,8 @@
 					</yb-grid>
 				</view>
 				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			</template>
-			<template v-if="sames.length > 0">
+			</cell>
+			<cell v-if="sames.length > 0">
 				<view class="box">
 					<view class="column" :style="{'border-color': skinColor.color_2}">
 						<text class="text" :style="{color: skinColor.color_1}">同类推荐</text>
@@ -138,8 +146,8 @@
 					</view>
 				</view>
 				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			</template>
-			<template v-if="other.length > 0">
+			</cell>
+			<cell v-if="other.length > 0">
 				<view class="box">
 					<view class="column" :style="{'border-color': skinColor.color_2}">
 						<text class="text" :style="{color: skinColor.color_1}">其它作品</text>
@@ -160,9 +168,11 @@
 						<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
 					</view>
 				</view>
-			</template>
-			<yb-gap height="120rpx" v-if="chapters.length > 0"></yb-gap>
-		</scroll-view>
+			</cell>
+			<cell>
+				<yb-gap height="120rpx" v-if="chapters.length > 0"></yb-gap>
+			</cell>
+		</list>
 		<view class="bottom" :style="{'background-color': skinColor.color_green}" v-if="chapters.length > 0">
 			<rd-icon name="read" size="90" :color="skinColor.color_white"></rd-icon>
 			<text class="text" :style="{color: skinColor.color_white}">{{ record ? '从上次阅读位置开始' : '从开头位置开始'}}</text>
@@ -255,7 +265,8 @@
 		},
 		methods: {
 			onScroll (e) {
-				this.navOpac = (e.detail.scrollTop / 150) > 1 ? 1 : (e.detail.scrollTop / 150)
+				// this.navOpac = (e.detail.scrollTop / 150) > 1 ? 1 : (e.detail.scrollTop / 150)
+				this.navOpac = (Math.abs(e.contentOffset.y) / 150) > 1 ? 1 : (Math.abs(e.contentOffset.y) / 150)
 			},
 			createReader (chapter) {
 				if ( this.record && !chapter ) {

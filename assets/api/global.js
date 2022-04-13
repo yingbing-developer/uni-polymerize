@@ -68,6 +68,7 @@ export function htmlDecodeByRegExp (str) {
 	s = s.replace(/<br \/>/g, "\n")
 	s = s.replace(/&amp;/g, "")
 	s = s.replace(/&nbsp;/g, " ")
+	s = s.replace(/&#8211;/g, "–")
 	s = s.replace(/#65279;/g, "")
 	s = s.replace(/&hellip;/g, '...')
 	s = s.replace(/&mdash;/g, '—')
