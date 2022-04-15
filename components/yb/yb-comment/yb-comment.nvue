@@ -4,24 +4,41 @@
 			<cell v-for="(item, index) in list">
 				<view class="list" :style="{'border-color': lineColor}">
 					<view class="top">
-						<yb-avatar enablePreview size="60" class="avatar" lazy-load :src="item.avatar"></yb-avatar>
+						<yb-avatar enablePreview size="60" class="avatar" lazy-load :src="item.avatar" v-if="item.avatar"></yb-avatar>
 						<view class="info">
 							<text class="title" :style="{color: titleColor}">{{item.title}}</text>
 							<text class="subtitle" :style="{color: titleColor}">{{item.subtitle}}</text>
 						</view>
 					</view>
-					<view class="bottom">
-						<text class="content" @longpress="copyComment(item.content)" :style="{color: contentColor}">{{item.content}}</text>
-						<view class="child" :style="{'background-color': lineColor}" v-if="item.subComment.length > 0">
-							<view class="list" :style="{'border-color': lineColor}" v-for="(child, i) in item.subComment.slice(0, item.isShowMore ? item.subComment.length : 1)" :key="i">
+					<view class="bottom" :style="{'padding-left': item.avatar ? '80rpx' : 0}" v-if="item.masterComment.length > 0">
+						<view class="child" :style="{'background-color': lineColor}" v-if="item.masterComment.length > 0">
+							<view class="list" :style="{'border-color': lineColor}" v-for="(child, i) in item.masterComment" :key="i">
 								<view class="top">
-									<yb-avatar enablePreview size="60" class="avatar" lazy-load :src="child.avatar"></yb-avatar>
+									<yb-avatar enablePreview size="60" class="avatar" lazy-load :src="child.avatar" v-if="child.avatar"></yb-avatar>
 									<view class="info">
 										<text class="title" :style="{color: titleColor}">{{child.title}}</text>
 										<text class="subtitle" :style="{color: titleColor}">{{child.subtitle}}</text>
 									</view>
 								</view>
-								<view class="bottom">
+								<view class="bottom" :style="{'padding-left': child.avatar ? '80rpx' : 0}">
+									<text class="content" @longpress="copyComment(child.content)" :style="{color: contentColor}">{{child.content}}</text>
+								</view>
+							</view>
+						</view>
+						<text class="content" @longpress="copyComment(item.content)" :style="{color: contentColor}">回复：{{item.content}}</text>
+					</view>
+					<view class="bottom" :style="{'padding-left': item.avatar ? '80rpx' : 0}" v-else>
+						<text class="content" @longpress="copyComment(item.content)" :style="{color: contentColor}">{{item.content}}</text>
+						<view class="child" :style="{'background-color': lineColor}" v-if="item.subComment.length > 0">
+							<view class="list" :style="{'border-color': lineColor}" v-for="(child, i) in item.subComment.slice(0, item.isShowMore ? item.subComment.length : 1)" :key="i">
+								<view class="top">
+									<yb-avatar enablePreview size="60" class="avatar" lazy-load :src="child.avatar" v-if="child.avatar"></yb-avatar>
+									<view class="info">
+										<text class="title" :style="{color: titleColor}">{{child.title}}</text>
+										<text class="subtitle" :style="{color: titleColor}">{{child.subtitle}}</text>
+									</view>
+								</view>
+								<view class="bottom" :style="{'padding-left': child.avatar ? '80rpx' : 0}">
 									<text class="content" @longpress="copyComment(child.content)" :style="{color: contentColor}">{{child.content}}</text>
 								</view>
 							</view>
