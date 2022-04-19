@@ -117,8 +117,8 @@
 			this.currentChapter = this.app.$Route.query.currentChapter
 		},
 		onReady() {
-			let start = this.record.start - 2 > 0 ? this.record.start - 2 : 0
-			this.currentPage = start
+			let start = this.currentChapter == this.record.chapter ? this.record.start : 0
+			this.currentPage = start - 2 > 0 ? start - 2 : 0
 			setTimeout(() => {
 				if ( this.reader.source == 'local' ) {
 					this.getLocalContent();
