@@ -118,23 +118,33 @@
 					page: this.nowPages,
 					isLastPage: this.isLastPages
 				}).then((ress) => {
-					let results = [];
-					ress.forEach(res => {
-						if ( res.code == getApp().globalData.$config.ERR_OK ) {
-							results = results.concat(res.data.list);
-							this.$set(this.isLastPages, res.data.source, res.data.isLastPage);
-						} else {
-							//请求失败
-							this.nowPages[res.data.source] = this.nowPages[res.data.source] > 1 ? this.nowPages[res.data.source] - 1 : 1;
-						}
-					})
-					//判断是不是所有网站数据都加载完了
-					this.isLastPage = Object.keys(this.isLastPages).every(key => this.isLastPages[key]);
-					this.$store.dispatch('search/addHistory', new History({
-						title: keyword,
-						type: 'story'
-					}))
-					return results
+					if ( keyword == this.keyword ) {
+						let results = [];
+						ress.forEach(res => {
+							if ( res.code == getApp().globalData.$config.ERR_OK ) {
+								results = results.concat(res.data.list);
+								this.$set(this.isLastPages, res.data.source, res.data.isLastPage);
+							} else {
+								//请求失败
+								this.nowPages[res.data.source] = this.nowPages[res.data.source] > 1 ? this.nowPages[res.data.source] - 1 : 1;
+							}
+						})
+						//判断是不是所有网站数据都加载完了
+						this.isLastPage = Object.keys(this.isLastPages).every(key => this.isLastPages[key]);
+						this.$store.dispatch('search/addHistory', new History({
+							title: keyword,
+							type: 'story'
+						}))
+						results.sort((a, b) => {
+							return a.title.length < b.title.length ? -1 : 1
+						})
+						results.sort((a, b) => {
+							return a.title.indexOf(this.keyword) > -1 && b.title.indexOf(this.keyword) == -1 ? -1 : 1
+						})
+						return results
+					} else {
+						return false
+					}
 				})
 			},
 			scrollTop () {
@@ -157,13 +167,11 @@
 					this.isLastPage = false;
 					if ( this.keyword ) {
 						this.search(this.keyword).then(results => {
-							this.loading = false
-							results.sort((a, b) => {
-								return a.type == 'singer' && b.type != 'singer' ? -1 : 1
-							})
-							this.results = results;
-							this.scrollTop();
-							
+							if ( results ) {
+								this.loading = false
+								this.results = results;
+								this.scrollTop();
+							}
 						})
 					} else {
 						this.results = []
@@ -177,11 +185,13 @@
 					this.nowPages[key] += 1;
 				})
 				this.search(this.keyword).then(results => {
-					this.results = this.results.concat(results);
-					if ( this.isLastPage ) {
-						this.$refs.pullup.finish()
-					} else {
-						this.$refs.pullup.success()
+					if ( results ) {
+						this.results = this.results.concat(results);
+						if ( this.isLastPage ) {
+							this.$refs.pullup.finish()
+						} else {
+							this.$refs.pullup.success()
+						}
 					}
 				})
 			},
