@@ -52,6 +52,9 @@
 				<view class="box">
 					<view class="column" :style="{'border-color': skinColor.color_2}">
 						<text class="text" :style="{color: skinColor.color_1}">正在阅读</text>
+						<view class="more opac-actived" @tap="deleteRecord">
+							<rd-icon name="dustbin" size="30" :color="skinColor.color_2"></rd-icon>
+						</view>
 					</view>
 					<view class="chapter" @tap="createReader(record.chapter)" :class="skinMode + '-actived'">
 						<text class="label" :style="{color: skinColor.color_1}">{{record.title}}</text>
@@ -348,6 +351,18 @@
 						}
 					})
 				}
+			},
+			deleteRecord () {
+				this.app.$nativeUI.confirm({
+					content: '确认要删除阅读记录吗？',
+					dark: this.skinMode == 'night',
+					themeColor: this.skinColor.color_blue,
+					success: (res) => {
+						if ( res.confirm ) {
+							this.removeRecord(this.params)
+						}
+					}
+				})
 			}
 		},
 		onBackPress (event) {
