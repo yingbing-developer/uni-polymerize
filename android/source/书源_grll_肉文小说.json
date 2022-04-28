@@ -27,7 +27,7 @@
 		},
 		"getContent": {
 			"label": "书籍内容",
-			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {http,ERR_OK,ERR_FALSE,replaceHTML,htmlDecodeByRegExp} = context;http.get(baseUrl + '/' + params.id + '.html', {headers: {Referer: baseUrl,Host: baseUrl.replace('https://', '')}}).then((res) => {let str = replaceHTML(res.data);let content = str.match(/<div[^>]*class=([""]?)novel_content\1[^>]*>*([\s\S]*?)<\/div>/)[2];content = htmlDecodeByRegExp(content);resolve({code: ERR_OK,data: {content: {title: params.title,chapter: params.chapter,content: content,isStart: params.isStart,isEnd: params.isEnd},source: source}})}).catch((err) => {resolve({code: ERR_FALSE,data: {content: '',source: source}})})})}"
+			"value": "function (context, params) {return new Promise(resolve => {const {baseUrl,source} = params;const {http,ERR_OK,ERR_FALSE,replaceHTML,htmlDecodeByRegExp} = context;http.get(baseUrl + '/' + params.id + '.html', {headers: {Referer: baseUrl,Host: baseUrl.replace('https://', '')}}).then((res) => {let str = replaceHTML(res.data);let content = str.match(/<div[^>]*class=([""]?)novel_content\1[^>]*>*([\s\S]*?)<\/div>/ig)[1].match(/<div[^>]*>*([\s\S]*?)<\/div>/)[1];content = htmlDecodeByRegExp(content);resolve({code: ERR_OK,data: {content: {title: params.title,chapter: params.chapter,content: content,isStart: params.isStart,isEnd: params.isEnd},source: source}})}).catch((err) => {resolve({code: ERR_FALSE,data: {content: '',source: source}})})})}"
 		}
 	}
 }
