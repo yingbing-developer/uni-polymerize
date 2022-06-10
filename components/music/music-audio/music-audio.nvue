@@ -1,5 +1,20 @@
 <template>
-	<music-lyric v-if="lyricShow"></music-lyric>
+	<yingbing-audio
+	ref="audio"
+	:playList="playList"
+	:paused="paused"
+	:playMode="playMode"
+	:lyricModel="lyricShow ? 'overall' : 'hidden'"
+	:lyricDefaultTitle="currentSong ? currentSong.title : '暂无歌词'"
+	@currentChange="currentChange"
+	@lyricChange="lyricChange"
+	@onCanplay="onCanplay"
+	@onPlay="onPlay"
+	@onPause="onPause"
+	@onStop="onStop"
+	@onError="onErr"
+	@onTimeUpdate="onTimeUpdate"
+	></yingbing-audio>
 </template>
 <script>
 	import appMixin from '@/common/mixin/app.js'
@@ -9,6 +24,18 @@
 		computed: {
 			lyricShow () {
 				return this.$store.getters['audio/getLyricShow']
+			},
+			playList () {
+				return this.$store.getters['audio/getPlayList']
+			},
+			paused () {
+				return this.$store.getters['audio/getPaused']
+			},
+			playMode () {
+				return this.$store.getters['audio/getPlayMode']
+			},
+			currentSong () {
+				return this.$store.getters['audio/getCurrentSong']
 			}
 		},
 		beforeCreate() {
@@ -20,6 +47,24 @@
 				getApp().globalData.$Router.push({
 					path: '/pages/music/player'
 				})
+			})
+			uni.$on('switchSong', song => {
+				this.change(song.id)
+			})
+			uni.$on('switchNext', () => {
+				this.next()
+			})
+			uni.$on('switchPrev', () => {
+				this.prev()
+			})
+			uni.$on('seekSong', time => {
+				this.seek(time)
+			})
+			uni.$on('play', () => {
+				this.play()
+			})
+			uni.$on('pause', () => {
+				this.pause()
 			})
 		},
 		created () {
@@ -45,12 +90,125 @@
 			})
 			ob.show();
 		},
+		methods: {
+			currentChange (song, callback) {
+				this.$store.dispatch('audio/destroy')
+				song.src = song.src || this.getCache(song.songId)
+				song.lyric = song.lyric
+				this.$store.commit('audio/setCurrentSong', song)
+				let arr = []
+				if ( !song.src ) {
+					arr.push(
+						this.app.$api.music.getPlayUrl({
+							id: song.songId,
+							source: song.source,
+							extra: song.extra
+						})
+					)
+				}
+				if ( song.lyricId && !song.lyric ) {
+					arr.push(
+						this.app.$api.music.getLyric({
+							id: song.lyricId,
+							source: song.source,
+							extra: song.extra
+						})
+					)
+				}
+				Promise.all(arr).then((ress) => {
+					ress.forEach((res, key) => {
+						if ( res.code == this.app.$config.ERR_OK ) {
+							if ( res.data.src ) {
+								song.src = res.data.src
+							}
+							if ( res.data.lyric ){
+								song.lyric = res.data.lyric
+							}
+						}
+						if ( key == arr.length - 1 ) {
+							this.$store.commit('audio/setCurrentSong', song)
+							callback({
+								src: song.src,
+								lyric: song.lyric || null
+							})
+						}
+					})
+				})
+			},
+			getCache (id) {
+				const caches = this.$store.getters['cache/getCache']
+				const index = caches.findIndex(cache => cache.parentId == id)
+				if ( index > -1 ) {
+					const src = plus.io.convertLocalFileSystemURL(caches[index].src);
+					const file = plus.android.newObject('java.io.File', src);
+					if ( plus.android.invoke(file, 'exists') ) {
+						return src
+					} else {
+						dispatch('cache/removeCache', caches[index].id)
+					}
+				}
+				return null
+			},
+			lyricChange (e) {
+				this.$store.commit('audio/setCurrentLyricIndex', e.index)
+				this.$store.commit('audio/setCurrentLyricTitle', e.title)
+			},
+			onCanplay (e) {
+				this.$store.commit('audio/setDuration', e.duration)
+			},
+			onPlay () {
+				this.$store.commit('audio/setPaused', false)
+			},
+			onPause () {
+				this.$store.commit('audio/setPaused', true)
+			},
+			onStop () {
+				this.$store.dispatch('audio/destroy')
+			},
+			onErr () {
+				this.app.$nativeUI.alert({
+					title: '错误提示',
+					content: '歌曲播放失败！换首歌曲播放吧',
+					dark: this.skinMode == 'night',
+					success: (res) => {
+						dispatch('removeSong', id)
+					}
+				})
+			},
+			onTimeUpdate (time) {
+				this.$store.commit('audio/setCurrentTime', time)
+			},
+			next () {
+				this.$refs.audio.next()
+			},
+			prev () {
+				this.$refs.audio.prev()
+			},
+			seek (time) {
+				this.$refs.audio.seek(time)
+			},
+			change (id) {
+				this.$refs.audio.change(id)
+			},
+			play () {
+				this.$refs.audio.play()
+			},
+			pause () {
+				this.$refs.audio.pause()
+			}
+		},
 		beforeDestroy () {
 			ob.close()
 			ob = null
 			this.$store.dispatch('audio/destroy')
 			uni.$off('scircle')
 			uni.$off('goPlayer')
+			uni.$off('switchSong')
+			uni.$off('switchNext')
+			uni.$off('switchPrev')
+			uni.$off('seekSong')
+			uni.$off('play')
+			uni.$off('pause')
 		},
 		watch: {
 			skinMode (newVal) {

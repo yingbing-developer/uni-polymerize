@@ -66,8 +66,8 @@
 						<music-icon name="prev" size="55" :color="skinColor.color_white"></music-icon>
 					</view>
 					<view class="control-box" @tap="playPause">
-						<music-icon name="play" size="70" :color="skinColor.color_white" v-if="!playStatus"></music-icon>
-						<music-icon name="pause" size="70" :color="skinColor.color_white" v-if="playStatus"></music-icon>
+						<music-icon name="play" size="70" :color="skinColor.color_white" v-if="paused"></music-icon>
+						<music-icon name="pause" size="70" :color="skinColor.color_white" v-else></music-icon>
 					</view>
 					<view class="control-box" @tap="next">
 						<music-icon name="next" size="55" :color="skinColor.color_white"></music-icon>
@@ -107,10 +107,9 @@
 
 <script>
 	import appMixin from '@/common/mixin/app.js';
-	import lyricMixin from '@/common/mixin/lyric.js';
 	const animation = weex.requireModule('animation');
 	export default {
-		mixins: [appMixin, lyricMixin],
+		mixins: [appMixin],
 		data () {
 			return {
 				animaDuration: 400,
@@ -124,14 +123,20 @@
 			song () {
 				return this.$store.getters['audio/getCurrentSong']
 			},
-			player () {
-				return this.$store.getters['audio/getPlayer']
+			lyric () {
+				return this.song ? this.song.lyric : []
+			},
+			lyricNowTitle () {
+				return this.$store.getters['audio/getCurrentLyricTitle'] || this.song?.title
+			},
+			lyricNowIndex () {
+				return this.$store.getters['audio/getCurrentLyricIndex']
 			},
 			cdImage () {
 				return this.song ? this.song.cover : '/static/music/music-bg.jpg'
 			},
-			playStatus () {
-				return this.$store.getters['audio/getPlayStatus']
+			paused () {
+				return this.$store.getters['audio/getPaused']
 			},
 			currentTime () {
 				return this.$store.getters['audio/getCurrentTime']
@@ -144,6 +149,9 @@
 			},
 			playMode () {
 				return this.$store.getters['audio/getPlayMode']
+			},
+			lyricShow () {
+				return this.$store.getters['audio/getLyricShow']
 			}
 		},
 		onReady() {
@@ -157,7 +165,7 @@
 		methods: {
 			//更新时间
 			updateTime (percent) {
-				this.player.instance.seek(Math.ceil(((percent / 100) * this.duration)));
+				uni.$emit('seekSong', Math.ceil(((percent / 100) * this.duration)))
 			},
 			//改变播放模式
 			changeMode () {
@@ -165,24 +173,19 @@
 			},
 			// 下一曲
 			next () {
-				this.player ? this.$store.dispatch('audio/next') : uni.showToast({
-					title: '没有歌曲在播放',
-					icon: 'none'
-				})
+				uni.$emit('switchNext')
 			},
 			// 上一曲
 			prev () {
-				this.player ? this.$store.dispatch('audio/prev') : uni.showToast({
-					title: '没有歌曲在播放',
-					icon: 'none'
-				})
+				uni.$emit('switchPrev')
 			},
 			//播放和暂停
 			playPause () {
-				this.player ? this.player.instance.paused ? this.player.instance.play() : this.player.instance.pause() : uni.showToast({
-					title: '没有歌曲在播放',
-					icon: 'none'
-				})
+				if ( this.paused ) {
+					uni.$emit('play')
+				} else {
+					uni.$emit('pause')
+				}
 			},
 			//切换歌词显示
 			switchLyricShow () {
@@ -191,7 +194,6 @@
 			toDownload () {
 				if ( this.song ) {
 					const song = {...this.song}
-					song.src = this.player.src
 					this.download(song)
 				}
 			},
@@ -255,7 +257,7 @@
 					    needLayout:false,
 					    delay: 0 //ms
 					}, () => {
-						if ( this.playStatus ) {
+						if ( !this.paused ) {
 							this.startRotate();
 						}
 						this.bgShow = true
@@ -352,8 +354,8 @@
 			this.cdTimer = null;
 		},
 		watch: {
-			playStatus (val) {
-				if ( val ) {
+			paused (val) {
+				if ( !val ) {
 					this.startRotate()
 				} else {
 					this.stopRotate()

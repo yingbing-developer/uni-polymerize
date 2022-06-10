@@ -32,7 +32,9 @@ const appMixin = {
 				const currentId = this.$store.getters['audio/getCurrentSong'] ? this.$store.getters['audio/getCurrentSong'].id : ''
 				if ( currentId != song.id ) {
 					this.$store.dispatch('audio/addSong', [song])
-					this.$store.dispatch('audio/create', song.id)
+					this.$nextTick(() => {
+						uni.$emit('switchSong', song)
+					})
 				}
 				uni.$emit('goPlayer')
 			}
@@ -41,9 +43,10 @@ const appMixin = {
 		playAlbum (album) {
 			const songs = album.filter(song => !song.payplay)
 			if ( songs.length > 0 ) {
-				this.$store.dispatch('audio/clearSong')
-				this.$store.dispatch('audio/addSong', songs)
-				this.$store.dispatch('audio/create', songs[0].id)
+				this.$store.commit('audio/setPlayList', songs)
+				if ( !this.$store.getters['audio/getCurrentSong'] ) {
+					this.$store.commit('audio/setPaused', false)
+				}
 				uni.$emit('goPlayer')
 			} else {
 				this.app.$nativeUI.alert({

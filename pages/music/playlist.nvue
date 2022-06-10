@@ -70,9 +70,6 @@
 			currentId () {
 				return this.song ? this.song.id : ''
 			},
-			playStatus () {
-				return this.$store.getters['audio/getPlayStatus']
-			},
 			playList () {
 				return this.$store.getters['audio/getPlayList']
 			},
@@ -130,7 +127,7 @@
 			},
 			play (song) {
 				if ( song.id != this.currentId ) {
-					this.$store.dispatch('audio/create', song.id)
+					uni.$emit('switchSong', song)
 				}
 				getApp().globalData.$Router.back()
 			},
