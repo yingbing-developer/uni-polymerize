@@ -1,5 +1,5 @@
 <template>
-	<yb-page-anime ref="ybPageAnime" tabbar :bgColor="skinColor.color_bg_1">
+	<view style="flex: 1;" v-if="isCreated">
 		<list class="list">
 			<yb-pulldown ref="pulldown" :color="skinColor.color_1" @pulldown="pulldown"></yb-pulldown>
 			<cell>
@@ -147,8 +147,8 @@
 			</cell>
 			<yb-pullup ref="pullup" :color="skinColor.color_1" @pullup="pullup" v-if="newSongs.length == 0"></yb-pullup>
 		</list>
-		<yb-list-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></yb-list-loading>
-	</yb-page-anime>
+		<rd-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></rd-loading>
+	</view>
 </template>
 
 <script>
@@ -157,8 +157,8 @@
 		mixins: [appMixin],
 		data () {
 			return {
+				isCreated: false,
 				statusBarHeight: 0,
-				windowHeight: 0,
 				hotSingers: [],
 				hotTops: [],
 				banners: [],
@@ -167,48 +167,47 @@
 				loading: true
 			}
 		},
-		onLoad () {
+		created () {
 			this.statusBarHeight = uni.getSystemInfoSync().statusBarHeight
-			this.windowHeight = uni.getSystemInfoSync().windowWidth
-		},
-		onReady () {
-			getApp().globalData.$api.music.getRecom().then((ress) => {
-				this.loading = false
-				ress.forEach(res => {
-					if ( res.code == getApp().globalData.$config.ERR_OK ) {
-						this.banners = this.banners.concat(res.data.banners)
-						if ( res.data.hotSingers?.length > 0 ) {
-							this.hotSingers.push({
-								label: this.filterSource(res.data.source),
-								value: res.data.source,
-								source: res.data.source,
-								list: res.data.hotSingers
-							})
-						}
-						if ( res.data.hotTops?.length > 0 ) {
-							this.hotTops.push({
-								label: this.filterSource(res.data.source),
-								value: res.data.source,
-								source: res.data.source,
-								list: res.data.hotTops
-							})
-						}
-						if ( res.data.hotAlbums?.length > 0 ) {
-							this.hotAlbums.push({
-								label: this.filterSource(res.data.source),
-								value: res.data.source,
-								source: res.data.source,
-								list: res.data.hotAlbums
-							})
-						}
-					}
-				})
-			})
-		},
-		onShow () {
-			getApp().globalData.$business.setSkinColor();
 		},
 		methods: {
+			onCreated () {
+				if ( !this.isCreated  ) {
+					this.isCreated = true
+					getApp().globalData.$api.music.getRecom().then((ress) => {
+						this.loading = false
+						ress.forEach(res => {
+							if ( res.code == getApp().globalData.$config.ERR_OK ) {
+								this.banners = this.banners.concat(res.data.banners)
+								if ( res.data.hotSingers?.length > 0 ) {
+									this.hotSingers.push({
+										label: this.filterSource(res.data.source),
+										value: res.data.source,
+										source: res.data.source,
+										list: res.data.hotSingers
+									})
+								}
+								if ( res.data.hotTops?.length > 0 ) {
+									this.hotTops.push({
+										label: this.filterSource(res.data.source),
+										value: res.data.source,
+										source: res.data.source,
+										list: res.data.hotTops
+									})
+								}
+								if ( res.data.hotAlbums?.length > 0 ) {
+									this.hotAlbums.push({
+										label: this.filterSource(res.data.source),
+										value: res.data.source,
+										source: res.data.source,
+										list: res.data.hotAlbums
+									})
+								}
+							}
+						})
+					})
+				}
+			},
 			pulldown () {
 				getApp().globalData.$api.music.getRecom().then((ress) => {
 					this.$refs.pulldown.success()

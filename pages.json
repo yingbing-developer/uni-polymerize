@@ -1,8 +1,8 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		//小说主页
+		//主页
 		{
-			"path": "pages/book/index"
+			"path": "pages/home/index"
 		},
 		//小说搜索页
 		{
@@ -57,18 +57,6 @@
 		{
 			"path": "pages/book/record"
 		},
-		//漫画主页
-		{
-			"path": "pages/comic/index"
-		},
-		//漫画搜索页
-		{
-			"path": "pages/comic/search"
-		},
-		//漫画分类
-		{
-			"path": "pages/comic/type"
-		},
 		//漫画阅读
 		{
 			"path": "pages/comic/reader"
@@ -80,10 +68,6 @@
 		//本地漫画
 		{
 			"path": "pages/comic/local"
-		},
-		//音乐首页
-		{
-			"path": "pages/music/index"
 		},
 		//音乐歌单分类列表
 		{
@@ -152,10 +136,6 @@
 		//自定义歌单
 		{
 			"path": "pages/music/custom"
-		},
-		//个人
-		{
-			"path": "pages/user/index"
 		},
 		//下载页面
 		{
@@ -264,33 +244,33 @@
 			"animationType": "fade-in"
 		}
 	},
-	"tabBar": {
-		"color": "#666666",
-		"selectedColor": "#2ca2f9",
-		"borderStyle": "black",
-		"backgroundColor": "#131313",
-		"list": [{
-			"pagePath": "pages/book/index",
-			"iconPath": "static/tabbar/book_default.png",
-			"selectedIconPath": "static/tabbar/book_default-actived.png",
-			"text": "小说"
-		},{
-			"pagePath": "pages/comic/index",
-			"iconPath": "static/tabbar/comic_default.png",
-			"selectedIconPath": "static/tabbar/comic_default-actived.png",
-			"text": "漫画"
-		},{
-			"pagePath": "pages/music/index",
-			"iconPath": "static/tabbar/music_default.png",
-			"selectedIconPath": "static/tabbar/music_default-actived.png",
-			"text": "音乐"
-		},{
-			"pagePath": "pages/user/index",
-			"iconPath": "static/tabbar/user_default.png",
-			"selectedIconPath": "static/tabbar/user_default-actived.png",
-			"text": "我的"
-		}]
-	},
+	// "tabBar": {
+	// 	"color": "#666666",
+	// 	"selectedColor": "#2ca2f9",
+	// 	"borderStyle": "black",
+	// 	"backgroundColor": "#131313",
+	// 	"list": [{
+	// 		"pagePath": "pages/book/index",
+	// 		"iconPath": "static/tabbar/book_default.png",
+	// 		"selectedIconPath": "static/tabbar/book_default-actived.png",
+	// 		"text": "小说"
+	// 	},{
+	// 		"pagePath": "pages/comic/index",
+	// 		"iconPath": "static/tabbar/comic_default.png",
+	// 		"selectedIconPath": "static/tabbar/comic_default-actived.png",
+	// 		"text": "漫画"
+	// 	},{
+	// 		"pagePath": "pages/music/index",
+	// 		"iconPath": "static/tabbar/music_default.png",
+	// 		"selectedIconPath": "static/tabbar/music_default-actived.png",
+	// 		"text": "音乐"
+	// 	},{
+	// 		"pagePath": "pages/user/index",
+	// 		"iconPath": "static/tabbar/user_default.png",
+	// 		"selectedIconPath": "static/tabbar/user_default-actived.png",
+	// 		"text": "我的"
+	// 	}]
+	// },
 	"easycom": {
 		"autoscan": true, //是否自动扫描组件
 		"custom": { //自定义扫描规则

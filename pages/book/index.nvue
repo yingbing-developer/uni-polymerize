@@ -1,11 +1,11 @@
 <template>
-	<yb-page-anime ref="ybPageAnime" tabbar :bgColor="skinColor.color_gap_2">
+	<view :style="{flex: 1, 'background-color': skinColor.color_gap_2}" v-if="isCreated">
 		<list>
 			<yb-pulldown ref="pulldown" :color="skinColor.color_1" @pulldown="pulldown"></yb-pulldown>
 			<cell>
 				<yb-gap-bar></yb-gap-bar>
 				<view class="statusbar padding-gap" :style="{'background-color': skinColor.color_bg_1}">
-					<text class="title" :style="{color: skinColor.color_1}">聚合小说</text>
+					<text class="title" :style="{color: skinColor.color_1}">聚合{{title}}</text>
 				</view>
 			</cell>
 			<cell>
@@ -28,18 +28,21 @@
 						<rd-image lazyLoad class="ad" :src="item.cover" mode="aspectFill"></rd-image>
 					</swiper-item>
 				</swiper>
-				<rd-image v-if="banners.length > 0" class="banner-bottom" :src="'/static/book/banner-bottom-' + skinMode + '.png'" mode="widthFix"></rd-image>
+				<image v-if="banners.length > 0" class="banner-bottom" :src="'/static/book/banner-bottom-' + skinMode + '.png'" mode="aspectFit"></image>
 				<view class="menus" :style="{'background-color': skinColor.color_bg_1}">
 					<view class="menu" @click="app.$Router.push({
-						path: '/pages/book/type'
+						path: '/pages/book/type',
+						query: {
+							apiType: apiType
+						}
 					})">
-						<rd-image class="image" src="/static/book/menu-type.png" mode="widthFix"></rd-image>
+						<image class="image" src="/static/book/menu-type.png" mode="aspectFit"></image>
 						<text class="title" :style="{color: skinColor.color_2}">分类</text>
 					</view>
 					<view class="menu" @click="app.$Router.push({
 						path: '/pages/book/custom'
 					})">
-						<rd-image class="image" src="/static/book/menu-rank.png" mode="widthFix"></rd-image>
+						<image class="image" src="/static/book/menu-rank.png" mode="aspectFit"></image>
 						<text class="title" :style="{color: skinColor.color_2}">书架</text>
 					</view>
 					<view class="menu" @click="app.$Router.push({
@@ -50,33 +53,39 @@
 							tabs: encodeURIComponent(JSON.stringify(updates))
 						}
 					})">
-						<rd-image class="image" src="/static/book/menu-update.png" mode="widthFix"></rd-image>
+						<image class="image" src="/static/book/menu-update.png" mode="aspectFit"></image>
 						<text class="title" :style="{color: skinColor.color_2}">更新</text>
 					</view>
 					<view class="menu" @click="app.$Router.push({
-						path: '/pages/book/record'
+						path: '/pages/book/record',
+						query: {
+							current: apiType == 'book' ? 0 : 1
+						}
 					})">
-						<rd-image class="image" src="/static/book/menu-record.png" mode="widthFix"></rd-image>
+						<image class="image" src="/static/book/menu-record.png" mode="aspectFit"></image>
 						<text class="title" :style="{color: skinColor.color_2}">记录</text>
 					</view>
 				</view>
 				<yb-gap height="15rpx"></yb-gap>
 				<view class="margin-gap search opac-actived" :style="{'background-color': skinColor.color_bg_1}" @tap="app.$Router.push({
-					path: '/pages/book/search'
+					path: '/pages/book/search',
+					query: {
+						apiType: apiType
+					}
 				})">
 					<rd-icon name="search" :color="skinColor.color_2"></rd-icon>
-					<text class="text" :style="{color: skinColor.color_2}">搜索小说</text>
+					<text class="text" :style="{color: skinColor.color_2}">搜索{{title}}</text>
 				</view>
 			</cell>
 			<template v-if="hotBooks.length > 0">
 			<cell>
 				<yb-gap height="15rpx"></yb-gap>
 				<view class="box padding-gap" :style="{'background-color': skinColor.color_bg_1}">
-					<rd-title title="热门小说" moreText="更多"
+					<rd-title :title="'热门' + title" moreText="更多"
 					@more="app.$Router.push({
 						path: '/pages/book/sub',
 						query: {
-							title: '热门小说',
+							title: '热门' + title,
 							tabs: encodeURIComponent(JSON.stringify(hotBooks))
 						}
 					})"></rd-title>
@@ -236,18 +245,23 @@
 				<yb-gap></yb-gap>
 			</cell>
 		</list>
-		<yb-list-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></yb-list-loading>
-		<music-audio></music-audio>
-	</yb-page-anime>
+		<rd-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></rd-loading>
+	</view>
 </template>
 
 <script>
 	import appMixin from '@/common/mixin/app.js';
 	export default {
 		mixins: [appMixin],
+		props: {
+			apiType: {
+				type: String,
+				default: 'book'
+			}
+		},
 		data () {
 			return {
-				windowHeight: 0,
+				isCreated: false,
 				loading: true,
 				banners: [],
 				populars: [],
@@ -257,22 +271,26 @@
 				hotTypes: []
 			}
 		},
-		onLoad() {
+		computed: {
+			title () {
+				return this.apiType == 'book' ? '小说' : '漫画'
+			}
+		},
+		created() {
 			this.$store.dispatch('cache/clearCache', 'image')
-			this.windowHeight = uni.getSystemInfoSync().windowWidth
-		},
-		onReady() {
-			this.app.$api.book.getRecome().then((ress) => {
-				this.loading = false
-				this.onRequested(ress)
-			})
-		},
-		onShow () {
-			getApp().globalData.$business.setSkinColor();
 		},
 		methods: {
+			onCreated () {
+				if ( !this.isCreated ) {
+					this.isCreated = true
+					this.app.$api[this.apiType].getRecome().then((ress) => {
+						this.loading = false
+						this.onRequested(ress)
+					})
+				}
+			},
 			pulldown () {
-				this.app.$api.book.getRecome().then((ress) => {
+				this.app.$api[this.apiType].getRecome().then((ress) => {
 					this.$refs.pulldown.success()
 					this.banners = []
 					this.hotBooks = []
@@ -369,6 +387,7 @@
 	}
 	.banner-bottom {
 		margin-top: -30rpx;
+		height: 32rpx;
 	}
 	.menus {
 		flex-direction: row;
@@ -381,6 +400,7 @@
 	}
 	.menus .menu .image {
 		width: 70rpx;
+		height: 70rpx;
 	}
 	.menus .menu .title {
 		font-size: 30rpx;

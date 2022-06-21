@@ -42,7 +42,6 @@ const actions = {
 	//改变皮肤模式
 	changeSkin ({commit}, skin) {
 		commit('setSkin', skin)
-		getApp().globalData.$business.setSkinColor()
 	},
 	changeAdultPwd ({commit}, pwd) {
 		commit('setAdultPwd', pwd)

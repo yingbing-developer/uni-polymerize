@@ -1,86 +1,84 @@
 <template>
-	<yb-page-anime ref="ybPageAnime" tabbar :bgColor="skinColor.color_gap_2">
-		<scroll-view style="flex: 1;" scroll-y="true" >
-			<view class="top" :style="{'background-color': skinColor.color_theme_1}">
-				<yb-gap-bar></yb-gap-bar>
-				<view class="content">
-					<yb-avatar enablePreview :src="avatar"></yb-avatar>
-					<text class="title" :style="{color: skinColor.color_4}">{{name}}</text>
-					<view class="icons">
-						<rd-icon enableClick @click="changeSkin" class="icon" :name="skinMode == 'night' ? 'sun' : 'moon'" size="40" :color="skinColor.color_4"></rd-icon>
-						<rd-icon enableClick @click="app.$Router.push({
-							path: '/pages/user/edit'
-						})" class="icon opac-actived" name="edit-rect" size="38" :color="skinColor.color_4"></rd-icon>
-					</view>
+	<scroll-view :style="{flex: 1, 'background-color': skinColor.color_gap_2}" scroll-y="true" >
+		<view class="top" :style="{'background-color': skinColor.color_theme_1}">
+			<yb-gap-bar></yb-gap-bar>
+			<view class="content">
+				<yb-avatar enablePreview :src="avatar"></yb-avatar>
+				<text class="title" :style="{color: skinColor.color_4}">{{name}}</text>
+				<view class="icons">
+					<rd-icon enableClick @click="changeSkin" class="icon" :name="skinMode == 'night' ? 'sun' : 'moon'" size="40" :color="skinColor.color_4"></rd-icon>
+					<rd-icon enableClick @click="app.$Router.push({
+						path: '/pages/user/edit'
+					})" class="icon opac-actived" name="edit-rect" size="38" :color="skinColor.color_4"></rd-icon>
 				</view>
 			</view>
-			<view class="box" :style="{'background-color': skinColor.color_bg_2, 'margin-top': '-30rpx'}">
-				<text class="title" :style="{color: skinColor.color_1}">我的音乐</text>
-				<yb-grid :data="music" :column="5">
-					<template v-slot="{gridItem}">
-						<view class="menu" @tap="jumpTo(gridItem.detail)">
-							<view class="icon">
-								<rd-icon :name="gridItem.detail.icon" :size="gridItem.detail.size" :color="gridItem.detail.color"></rd-icon>
-							</view>
-							<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+		</view>
+		<view class="box" :style="{'background-color': skinColor.color_bg_2, 'margin-top': '-30rpx'}">
+			<text class="title" :style="{color: skinColor.color_1}">我的音乐</text>
+			<yb-grid :data="music" :column="5">
+				<template v-slot="{gridItem}">
+					<view class="menu" @tap="jumpTo(gridItem.detail)">
+						<view class="icon">
+							<rd-icon :name="gridItem.detail.icon" :size="gridItem.detail.size" :color="gridItem.detail.color"></rd-icon>
 						</view>
-					</template>
-				</yb-grid>
-			</view>
-			<view class="box" :style="{'background-color': skinColor.color_bg_2, 'margin-top': '20rpx'}">
-				<text class="title" :style="{color: skinColor.color_1}">我的书籍</text>
-				<yb-grid :data="book" :column="5">
-					<template v-slot="{gridItem}">
-						<view class="menu" @tap="jumpTo(gridItem.detail)">
-							<view class="icon">
-								<rd-icon :name="gridItem.detail.icon" :size="gridItem.detail.size" :color="gridItem.detail.color"></rd-icon>
-							</view>
-							<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+						<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+					</view>
+				</template>
+			</yb-grid>
+		</view>
+		<view class="box" :style="{'background-color': skinColor.color_bg_2, 'margin-top': '20rpx'}">
+			<text class="title" :style="{color: skinColor.color_1}">我的书籍</text>
+			<yb-grid :data="book" :column="5">
+				<template v-slot="{gridItem}">
+					<view class="menu" @tap="jumpTo(gridItem.detail)">
+						<view class="icon">
+							<rd-icon :name="gridItem.detail.icon" :size="gridItem.detail.size" :color="gridItem.detail.color"></rd-icon>
 						</view>
-					</template>
-				</yb-grid>
+						<text class="name" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
+					</view>
+				</template>
+			</yb-grid>
+		</view>
+		<view class="box list" :style="{'background-color': skinColor.color_bg_2, 'margin-top': '20rpx'}">
+			<view class="cell" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
+				path: '/pages/user/download'
+			})">
+				<view class="left">
+					<rd-icon class="icon" name="download-cloud-fill" size="40" :color="skinColor.color_blue"></rd-icon>
+					<text class="title" :style="{color: skinColor.color_1}">下载列表</text>
+				</view>
+				<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
 			</view>
-			<view class="box list" :style="{'background-color': skinColor.color_bg_2, 'margin-top': '20rpx'}">
-				<view class="cell" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
-					path: '/pages/user/download'
-				})">
-					<view class="left">
-						<rd-icon class="icon" name="download-cloud-fill" size="40" :color="skinColor.color_blue"></rd-icon>
-						<text class="title" :style="{color: skinColor.color_1}">下载列表</text>
-					</view>
-					<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
+			<view class="cell" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
+				path: '/pages/setting/index'
+			})">
+				<view class="left">
+					<rd-icon class="icon" name="setting-fill" size="40" :color="skinColor.color_green"></rd-icon>
+					<text class="title" :style="{color: skinColor.color_1}">设置中心</text>
 				</view>
-				<view class="cell" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
-					path: '/pages/setting/index'
-				})">
-					<view class="left">
-						<rd-icon class="icon" name="setting-fill" size="40" :color="skinColor.color_green"></rd-icon>
-						<text class="title" :style="{color: skinColor.color_1}">设置中心</text>
-					</view>
-					<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
-				</view>
-				<view class="cell" v-if="adult" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
-					path: '/pages/adult/index'
-				})">
-					<view class="left">
-						<rd-icon class="icon" name="person" size="40" :color="skinColor.color_yellow"></rd-icon>
-						<text class="title" :style="{color: skinColor.color_1}">青壮年模式</text>
-					</view>
-					<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
-				</view>
-				<view class="cell" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
-					path: '/pages/about/index'
-				})">
-					<view class="left">
-						<rd-icon class="icon" name="info-fill" size="40" :color="skinColor.color_cyan"></rd-icon>
-						<text class="title" :style="{color: skinColor.color_1}">关于软件</text>
-					</view>
-					<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
-				</view>
+				<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
 			</view>
-			<yb-gap></yb-gap>
-		</scroll-view>
-	</yb-page-anime>
+			<view class="cell" v-if="adult" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
+				path: '/pages/adult/index'
+			})">
+				<view class="left">
+					<rd-icon class="icon" name="person" size="40" :color="skinColor.color_yellow"></rd-icon>
+					<text class="title" :style="{color: skinColor.color_1}">青壮年模式</text>
+				</view>
+				<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
+			</view>
+			<view class="cell" :style="{'border-color': skinColor.color_gap_2}" @tap="app.$Router.push({
+				path: '/pages/about/index'
+			})">
+				<view class="left">
+					<rd-icon class="icon" name="info-fill" size="40" :color="skinColor.color_cyan"></rd-icon>
+					<text class="title" :style="{color: skinColor.color_1}">关于软件</text>
+				</view>
+				<rd-icon name="arrow-right" size="40" :color="skinColor.color_2"></rd-icon>
+			</view>
+		</view>
+		<yb-gap></yb-gap>
+	</scroll-view>
 </template>
 
 <script>
@@ -152,10 +150,9 @@
 				return this.$store.getters['app/getAdult']
 			}
 		},
-		onShow() {
-			getApp().globalData.$business.setSkinColor();
-		},
 		methods: {
+			onCreated () {
+			},
 			jumpTo (params) {
 				if ( params.to ) {
 					getApp().globalData.$Router.push({

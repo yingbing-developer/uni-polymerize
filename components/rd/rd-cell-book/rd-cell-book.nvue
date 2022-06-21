@@ -1,18 +1,19 @@
 <template>
 	<view class="cell-item_3"
-	@tap="readBook(item)"
-	:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
+	:style="itemStyle"
+	@tap="readBook(item)">
 		<view elevation="3">
-			<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+			<rd-image :style="coverStyle" lazyLoad class="cover" :src="item.cover" :mode="mode == 'row' ? 'aspectFill' : 'widthFix'"></rd-image>
 		</view>
-		<view class="info">
+		<yb-gap v-if="mode != 'row'"></yb-gap>
+		<view class="info" :style="{'margin-left': mode == 'row' ? '30rpx' : 0}">
 			<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
 			<view class="author">
 				<rd-icon class="icon" name="person" size="25" :color="skinColor.color_2"></rd-icon>
 				<text class="name" :style="{'color': skinColor.color_2}">{{item.author}}</text>
 			</view>
-			<text class="desc" :style="{'color': skinColor.color_2}">{{item.desc.trim() || '暂无简介'}}</text>
-			<view class="badges">
+			<text class="desc" :style="descStyle">{{desc}}</text>
+			<view class="badges" :style="{'margin-top': mode == 'row' ? '10rpx' : '20rpx'}">
 				<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
 				<yb-tag class="badge" v-if="item.style" :color="skinColor.color_2" :value="item.style"></yb-tag>
 				<yb-tag class="badge" v-if="item.size" :color="skinColor.color_blue" :value="item.size"></yb-tag>
@@ -32,6 +33,46 @@
 				default () {
 					return new Object
 				}
+			},
+			mode: {
+				type: String,
+				default: 'row'
+			}
+		},
+		computed: {
+			itemStyle () {
+				return this.mode == 'row' ? {
+					'flex-direction': 'row',
+					height: '270rpx',
+					'border-bottom-color': this.skinColor.color_gap_1,
+					'background-color': this.skinColor.color_bg_1
+				} : {
+					'border-bottom-color': this.skinColor.color_gap_1,
+					'background-color': this.skinColor.color_bg_1
+				}
+			},
+			coverStyle () {
+				return this.mode == 'row' ? {
+					width: '160rpx',
+					height: '240rpx'
+				} : {}
+			},
+			descStyle () {
+				return this.mode == 'row' ? {
+					height: '90rpx',
+					color: this.skinColor.color_2
+				} : {
+					color: this.skinColor.color_2
+				}
+			},
+			desc () {
+				if ( this.item.desc ) {
+					return this.item.desc.trim()
+				} else if ( this.item.lastChapter ) {
+					return '更新到：' + this.item.lastChapter
+				} else {
+					return '这是一部来自《' + this.filterSource(this.item.source) + '》的' + (this.item.type == 'story' ? '小说' : '漫画')
+				}
 			}
 		}
 	}
@@ -39,20 +80,13 @@
 
 <style scoped>
 .cell-item_3 {
-	flex-direction: row;
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
-	height: 270rpx;
 	padding: 20rpx 0;
 	position: relative;
 }
-.cell-item_3 .cover {
-	width: 160rpx;
-	height: 240rpx;
-}
 .cell-item_3 .info {
 	flex: 1;
-	margin-left: 30rpx;
 }
 .cell-item_3 .title {
 	font-size: 30rpx;
@@ -64,7 +98,6 @@
 	font-size: 26rpx;
 	lines: 3;
 	text-overflow: ellipsis;
-	height: 90rpx;
 	margin-top: 20rpx;
 }
 .cell-item_3 .author {
@@ -85,7 +118,6 @@
 .cell-item_3 .badges {
 	flex-direction: row;
 	align-items: center;
-	margin-top: 10rpx;
 }
 .cell-item_3 .badge {
 	margin-right: 10rpx;

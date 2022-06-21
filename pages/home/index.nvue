@@ -1,0 +1,88 @@
+<template>
+	<yb-page-anime ref="ybPageAnime" tabbar :bgColor="skinColor.color_bg_1">
+		<view class="wrapper">
+			<swiper :current="current" @change="onCurrentChange" style="flex: 1;" :indicator-dots="false" :autoplay="false" :duration="500">
+				<swiper-item>
+					<book-index ref="item1" apiType="book"></book-index>
+				</swiper-item>
+				<swiper-item>
+					<book-index ref="item2" apiType="comic"></book-index>
+				</swiper-item>
+				<swiper-item>
+					<micro-index ref="item3"></micro-index>
+				</swiper-item>
+				<swiper-item>
+					<user-index ref="item4"></user-index>
+				</swiper-item>
+			</swiper>
+		</view>
+		<yb-tabbar
+		:bgColor="skinColor.color_bg_1"
+		:frontColor="skinColor.color_1"
+		:iconColor="skinColor.color_1"
+		:borderColor="skinColor.color_gap_1"
+		v-model="current"
+		:tabbar="tabbar"></yb-tabbar>
+		<music-audio></music-audio>
+	</yb-page-anime>
+</template>
+
+<script>
+	import BookIndex from '../book/index.nvue'
+	import MicroIndex from '../music/index.nvue'
+	import UserIndex from '../user/index.nvue'
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		data () {
+			return {
+				tabbar: [{
+					title: '小说',
+					iconType: 'icon',
+					icon: 'read',
+					activedIcon: 'read-fill',
+					iconSize: '50',
+				},{
+					title: '漫画',
+					iconType: 'icon',
+					icon: 'image',
+					activedIcon: 'image',
+					iconSize: '49',
+				},{
+					title: '音乐',
+					iconType: 'icon',
+					icon: 'music-circle-1',
+					activedIcon: 'music-circle-1-fill',
+					iconSize: '49',
+				},{
+					title: '我的',
+					iconType: 'icon',
+					icon: 'mine',
+					activedIcon: 'mine-fill',
+					iconSize: '49',
+				}],
+				current: 0
+			}
+		},
+		mounted() {
+			this.$refs['item' + (this.current + 1)].onCreated()
+		},
+		methods: {
+			onCurrentChange (e) {
+				this.current = e.detail.current
+				this.$refs['item' + (this.current + 1)].onCreated()
+			}
+		},
+		components: {
+			BookIndex,
+			MicroIndex,
+			UserIndex
+		}
+	}
+</script>
+
+<style scoped>
+.wrapper {
+	flex: 1;
+}
+</style>

@@ -18,7 +18,7 @@
 				<cell>
 					<view ref="listTop"></view>
 				</cell>
-				<rd-cell-book class="padding-gap" :item="item" />
+				<rd-cell-book :mode="apiType == 'book' ? 'row' : 'column'" class="padding-gap" :item="item" />
 				</view>
 			</cell>
 			<cell v-if="isLastPage && list.length > 0">
@@ -54,7 +54,10 @@
 		},
 		computed: {
 			title () {
-				return this.typeTitle || '小说分类'
+				return this.typeTitle ? this.typeTitle : this.apiType == 'book' ? '小说分类' : '漫画分类'
+			},
+			apiType () {
+				return getApp().globalData.$Route.query.apiType || 'book'
 			}
 		},
 		onReady() {
@@ -84,7 +87,7 @@
 				})
 			},
 			async getList () {
-				return await this.app.$api.book.getTypeDetail({
+				return await this.app.$api[this.apiType].getTypeDetail({
 					page: this.currentPage,
 					id: this.typeId,
 					title: this.typeTitle,
@@ -98,7 +101,7 @@
 				})
 			},
 			async getTypes () {
-				return await this.app.$api.book.getTypeList().then(ress => {
+				return await this.app.$api[this.apiType].getTypeList().then(ress => {
 					let types = []
 					ress.forEach(res => {
 						if ( res.code == this.app.$config.ERR_OK ) {

@@ -44,9 +44,11 @@ const appMixin = {
 			const songs = album.filter(song => !song.payplay)
 			if ( songs.length > 0 ) {
 				this.$store.commit('audio/setPlayList', songs)
-				if ( !this.$store.getters['audio/getCurrentSong'] ) {
-					this.$store.commit('audio/setPaused', false)
-				}
+				this.$nextTick(() => {
+					if ( !this.$store.getters['audio/getCurrentSong'] ) {
+						this.$store.commit('audio/setPaused', false)
+					}
+				})
 				uni.$emit('goPlayer')
 			} else {
 				this.app.$nativeUI.alert({

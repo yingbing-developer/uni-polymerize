@@ -1,0 +1,119 @@
+<template>
+	<view class="yb-tabbar" :style="tabbarStyle">
+		<view class="tabbars" :style="{'border-color': borderColor}">
+			<view
+			class="tabbar"
+			v-for="(item, index) in tabbar" :key="index"
+			@tap="onChange(index)">
+				<template v-if="item.iconType == 'icon'">
+					<rd-icon
+					class="icon"
+					:name="currentSync == index ? item.activedIcon : item.icon"
+					:size="item.iconSize"
+					:color="currentSync == index ? activedColor : iconColor"></rd-icon>
+				</template>
+				<template v-else>
+					<image class="icon" :style="{width: item.iconSize, height: item.iconSize}" :src="currentSync == index ? item.activedIcon : item.icon" mode="aspectFit"></image>
+				</template>
+				<text :style="{'font-size': fontSize + 'rpx', color: currentSync == index ? activedColor : frontColor}" class="name">{{item.title}}</text>
+			</view>
+		</view>
+		<view v-if="!fixed" :style="{ height: this.windowBottom + 'px' }"></view>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			value: {
+				type: Number,
+				default: 0
+			},
+			tabbar: {
+				type: Array,
+				default () {
+					return new Object
+				}
+			},
+			fixed: {
+				type: Boolean,
+				default: false
+			},
+			bgColor: {
+				type: String,
+				default: '#fff'
+			},
+			fontSize: {
+				type: String | Number,
+				default: '24'
+			},
+			frontColor: {
+				type: String,
+				default: '#333'
+			},
+			iconColor: {
+				type: String,
+				default: '#333'
+			},
+			activedColor: {
+				type: String,
+				default: '#2ca2f9'
+			},
+			borderColor: {
+				type: String,
+				default: '#eee'
+			}
+		},
+		data () {
+			return {
+				windowBottom: 0,
+				currentSync: 0
+			}
+		},
+		computed: {
+			tabbarStyle () {
+				return this.fixed ? {
+					position: 'fixed',
+					left: 0,
+					right: 0,
+					bottom: 0,
+					'background-color': this.bgColor
+				} : {
+					'background-color': this.bgColor
+				}
+			}
+		},
+		created () {
+			this.windowBottom = uni.getSystemInfoSync().windowBottom
+			this.currentSync = this.value
+		},
+		methods: {
+			onChange (current) {
+				this.currentSync = current
+				this.$emit('input', this.currentSync)
+			}
+		},
+		watch: {
+			value (newVal) {
+				this.currentSync = newVal
+			}
+		}
+	}
+</script>
+
+<style scoped>
+.yb-tabbar .tabbars {
+	flex-direction: row;
+	align-items: center;
+	height: 100rpx;
+	border-top-width: 1px;
+}
+.yb-tabbar .tabbars .tabbar {
+	flex: 1;
+	align-items: center;
+	justify-content: center;
+}
+.yb-tabbar .tabbar .icon {
+	margin-bottom: 5rpx;
+}
+</style>
