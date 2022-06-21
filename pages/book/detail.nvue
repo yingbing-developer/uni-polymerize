@@ -294,8 +294,9 @@
 			},
 			searchTo (keyword) {
 				this.app.$Router.push({
-					path: this.params.type == 'story' ? '/pages/book/search' : '/pages/comic/search',
+					path: '/pages/book/search',
 					query: {
+						apiType: this.params.type == 'story' ? 'book' : 'comic'
 						keyword: keyword
 					}
 				})

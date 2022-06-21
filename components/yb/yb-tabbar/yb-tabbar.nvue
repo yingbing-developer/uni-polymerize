@@ -18,7 +18,7 @@
 				<text :style="{'font-size': fontSize + 'rpx', color: currentSync == index ? activedColor : frontColor}" class="name">{{item.title}}</text>
 			</view>
 		</view>
-		<view v-if="!fixed" :style="{ height: this.windowBottom + 'px' }"></view>
+		<view :style="{ height: this.windowBottom + 'px' }"></view>
 	</view>
 </template>
 
