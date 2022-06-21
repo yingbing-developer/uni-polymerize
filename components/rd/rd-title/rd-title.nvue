@@ -1,9 +1,12 @@
 <template>
 	<view class="title">
-		<text class="title-name" :style="{color: skinColor.color_1, 'font-size': titleSize + 'rpx'}">{{title}}</text>
+		<view class="title-left">
+			<view class="rect" :style="{'background-color': skinColor.color_red}"></view>
+			<text class="title-name" :style="{color: skinColor.color_1, 'font-size': titleSize + 'rpx'}">{{title}}</text>
+		</view>
 		<view class="more opac-actived" @tap="more" v-if="moreShow">
 			<text class="more-text" :style="{color: skinColor.color_2}">{{moreText}}</text>
-			<rd-icon name="arrow-right" :color="skinColor.color_2"></rd-icon>
+			<rd-icon name="arrow-right" size="38" :color="skinColor.color_2"></rd-icon>
 		</view>
 	</view>
 </template>
@@ -45,13 +48,23 @@
 		justify-content: space-between;
 		padding: 40rpx 0;
 	}
+	.title-left {
+		flex-direction: row;
+		align-items: center;
+	}
+	.title .rect {
+		width: 10rpx;
+		height: 30rpx;
+		margin-right: 10rpx;
+	}
 	.title .title-name {
 		font-weight: bold;
 	}
 	.title .more {
 		flex-direction: row;
+		align-items: center;
 	}
 	.title .more .more-text {
-		font-size: 24rpx;
+		font-size: 30rpx;
 	}
 </style>

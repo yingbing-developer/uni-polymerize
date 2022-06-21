@@ -4,25 +4,16 @@
 			<yb-pulldown ref="pulldown" :color="skinColor.color_1" @pulldown="pulldown"></yb-pulldown>
 			<cell>
 				<yb-gap-bar></yb-gap-bar>
-				<view class="statusbar padding-gap">
+				<view class="statusbar padding-gap" :style="{'background-color': skinColor.color_bg_1}">
 					<text class="title" :style="{color: skinColor.color_1}">聚合漫画</text>
-					<view class="right">
-						<rd-icon enableClick @click="app.$Router.push({
-							path: '/pages/book/record',
-							query: {
-								current: 1
-							}
-						})" class="icon opac-actived" name="read" size="36" :color="skinColor.color_2"></rd-icon>
-						<rd-icon enableClick @click="app.$Router.push({
-							path: '/pages/book/custom'
-						})" class="icon opac-actived" name="bookshelf-fill" size="26" :color="skinColor.color_2"></rd-icon>
-					</view>
 				</view>
+			</cell>
+			<cell>
 				<swiper
 				v-if="banners.length > 0"
 				class="ad-swiper"
 				circular
-				:indicator-dots="true"
+				:indicator-dots="false"
 				:indicator-color="skinColor.color_bg_1"
 				:indicator-active-color="skinColor.color_actived_1"
 				:autoplay="true"
@@ -34,9 +25,42 @@
 							params: encodeURIComponent(JSON.stringify(item))
 						}
 					})">
-						<rd-image lazyLoad class="ad margin-gap" :src="item.cover" mode="aspectFill"></rd-image>
+						<rd-image lazyLoad class="ad" :src="item.cover" mode="aspectFill"></rd-image>
 					</swiper-item>
 				</swiper>
+				<rd-image v-if="banners.length > 0" class="banner-bottom" :src="'/static/book/banner-bottom-' + skinMode + '.png'" mode="widthFix"></rd-image>
+				<view class="menus" :style="{'background-color': skinColor.color_bg_1}">
+					<view class="menu" @click="app.$Router.push({
+						path: '/pages/comic/type'
+					})">
+						<rd-image class="image" src="/static/book/menu-type.png" mode="widthFix"></rd-image>
+						<text class="title" :style="{color: skinColor.color_2}">分类</text>
+					</view>
+					<view class="menu" @click="app.$Router.push({
+						path: '/pages/book/custom'
+					})">
+						<rd-image class="image" src="/static/book/menu-rank.png" mode="widthFix"></rd-image>
+						<text class="title" :style="{color: skinColor.color_2}">书架</text>
+					</view>
+					<view class="menu" @click="app.$Router.push({
+						path: '/pages/book/sub',
+						query: {
+							title: '最近更新',
+							type: 'update',
+							tabs: encodeURIComponent(JSON.stringify(updates))
+						}
+					})">
+						<rd-image class="image" src="/static/book/menu-update.png" mode="widthFix"></rd-image>
+						<text class="title" :style="{color: skinColor.color_2}">更新</text>
+					</view>
+					<view class="menu" @click="app.$Router.push({
+						path: '/pages/book/record'
+					})">
+						<rd-image class="image" src="/static/book/menu-record.png" mode="widthFix"></rd-image>
+						<text class="title" :style="{color: skinColor.color_2}">记录</text>
+					</view>
+				</view>
+				<yb-gap height="15rpx"></yb-gap>
 				<view class="margin-gap search opac-actived" :style="{'background-color': skinColor.color_bg_1}" @tap="app.$Router.push({
 					path: '/pages/comic/search'
 				})">
@@ -44,15 +68,20 @@
 					<text class="text" :style="{color: skinColor.color_2}">搜索漫画</text>
 				</view>
 			</cell>
+			<template v-if="hotBooks.length > 0">
 			<cell>
-				<yb-gap></yb-gap>
-				<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
-					<rd-title title="热门漫画" titleSize="25" moreText="更多"
+				<yb-gap height="15rpx"></yb-gap>
+				<view class="box padding-gap" :style="{'background-color': skinColor.color_bg_1}">
+					<rd-title title="热门漫画" moreText="更多"
 					@more="app.$Router.push({
-						path: '/pages/comic/type'
+						path: '/pages/book/sub',
+						query: {
+							title: '热门漫画',
+							tabs: encodeURIComponent(JSON.stringify(hotBooks))
+						}
 					})"></rd-title>
 					<yb-swiper-list
-					style="height: 650rpx;"
+					:style="{height: hotBooks.length > 1 ? '820rpx' : '770rpx'}"
 					type="card"
 					:size="24"
 					:column="hotBooks.length < 5 ? hotBooks.length : 'auto'"
@@ -61,82 +90,59 @@
 					:activedColor="skinColor.color_red">
 						<template v-slot="{swiperSlot}">
 							<yb-gap></yb-gap>
-							<yb-grid :style="{'background-color': skinColor.color_bg_1}" :data="swiperSlot.detail.book" :column="4" :count="8">
+							<yb-grid :style="{'background-color': skinColor.color_bg_1}" :data="swiperSlot.detail.book" :column="3" :count="6">
 								<template v-slot="{gridItem}">
-									<view class="grid_item_1" @tap="app.$Router.push({
-										path: '/pages/book/detail',
-										query: {
-											params: encodeURIComponent(JSON.stringify(gridItem.detail))
-										}
-									})">
-										<view elevation="3">
-											<rd-image lazyLoad class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
-										</view>
-										<text class="title" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
-									</view>
+									<rd-grid-book :item="gridItem.detail" />
 								</template>
 							</yb-grid>
 						</template>
 					</yb-swiper-list>
 				</view>
 			</cell>
+			</template>
 			<template v-if="populars.length > 0">
-				<cell>
-					<yb-gap></yb-gap>
-					<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
-						<rd-title title="人气推荐" titleSize="25" :moreShow="false"></rd-title>
-					</view>
-				</cell>
-				<cell v-for="(item, index) in populars">
-					<view class="cell-item_3"
-					@tap="app.$Router.push({
-						path: '/pages/book/detail',
+			<cell>
+				<yb-gap></yb-gap>
+				<view class="box padding-gap" :style="{'background-color': skinColor.color_bg_1}">
+					<rd-title title="人气推荐" moreText="更多"
+					@more="app.$Router.push({
+						path: '/pages/book/sub',
 						query: {
-							params: encodeURIComponent(JSON.stringify(item))
+							title: '人气推荐',
+							type: 'detail',
+							tabs: encodeURIComponent(JSON.stringify(populars))
 						}
-					})"
-					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-						<view elevation="3">
-							<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
-						</view>
-						<view class="info">
-							<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
-							<view class="subtitles">
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">作者：{{item.author}}</text>
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">题材：{{item.style || '未知题材'}}</text>
-								<text class="subtitle" :style="{
-									'color': skinColor.color_3
-								}">来源：{{filterSource(item.source)}}</text>
-							</view>
-							<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc || '暂无简介'}}</text>
-							<text class="tip" :style="{'color': skinColor.color_red}" v-if="item.lastChapter">更新至：{{item.lastChapter}}</text>
-							<view class="badges" v-else>
-								<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
-								<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
-								<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
-							</view>
-						</view>
-					</view>
-				</cell>
+					})"></rd-title>
+					<yb-swiper-list
+					:style="{height: populars.length > 1 ? '1150rpx' : '1100rpx'}"
+					type="card"
+					:size="24"
+					:column="populars.length < 5 ? populars.length : 'auto'"
+					:tabs="populars"
+					:frontColor="skinColor.color_white"
+					:activedColor="skinColor.color_red">
+						<template v-slot="{swiperSlot}">
+							<rd-cell-book v-for="(item, index) in swiperSlot.detail.book.slice(0, 4)" :key="item.id" :item="item" />
+						</template>
+					</yb-swiper-list>
+				</view>
+			</cell>
 			</template>
 			<template v-if="updates.length > 0">
 				<cell>
 					<yb-gap></yb-gap>
-					<view class="box padding-gap" :style="{'background-color': skinColor.color_bg_1}">
-						<rd-title title="最近更新" titleSize="25" moreText="更多"
+					<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
+						<rd-title title="最近更新" moreText="更多"
 						@more="app.$Router.push({
-							path: '/pages/comic/update',
+							path: '/pages/book/sub',
 							query: {
 								title: '最近更新',
+								type: 'update',
 								tabs: encodeURIComponent(JSON.stringify(updates))
 							}
 						})"></rd-title>
 						<yb-swiper-list
-						:style="{height: '600rpx', 'background-color': skinColor.color_bg_1}"
+						:style="{height: updates.length > 1 ? '620rpx' : '550rpx'}"
 						type="card"
 						:size="24"
 						:column="updates.length < 5 ? updates.length : 'auto'"
@@ -145,30 +151,19 @@
 						:activedColor="skinColor.color_red">
 							<template v-slot="{swiperSlot}">
 								<yb-gap></yb-gap>
-								<yb-grid :style="{'background-color': skinColor.color_bg_1}" :data="swiperSlot.detail.book" :column="4" :count="8">
-									<template v-slot="{gridItem}">
-										<view class="grid_item_1" @tap="app.$Router.push({
-											path: '/pages/book/detail',
-											query: {
-												params: encodeURIComponent(JSON.stringify(gridItem.detail))
-											}
-										})">
-											<view elevation="3">
-												<rd-image lazyLoad class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
-											</view>
-											<text class="title" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
-										</view>
-									</template>
-								</yb-grid>
+								<view style="flex: 1;position: relative;">
+									<rd-cell-book-2 v-for="(item, index) in swiperSlot.detail.book.slice(0, 4)" :key="item.id" :item="item" />
+								</view>
 							</template>
 						</yb-swiper-list>
 					</view>
 				</cell>
 			</template>
+			<template v-if="hotTops.length > 0">
 			<cell>
 				<yb-gap></yb-gap>
 				<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
-					<rd-title title="排行榜" titleSize="25" :moreShow="false"></rd-title>
+					<rd-title title="排行榜" :moreShow="false"></rd-title>
 				</view>
 			</cell>
 			<cell v-for="(item, index) in hotTops">
@@ -178,6 +173,7 @@
 						<yb-mask color="rgba(0,0,0,0.2)" @click="app.$Router.push({
 						path: '/pages/book/shelf',
 						query: {
+							type: 'top',
 							params: encodeURIComponent(JSON.stringify(item))
 						}
 					})"></yb-mask>
@@ -202,51 +198,46 @@
 				</view>
 				<yb-gap></yb-gap>
 			</cell>
+			</template>
 			<cell v-for="(type, i) in hotTypes">
-				<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
-					<rd-title :title="type.title" titleSize="25" @more="app.$Router.push({
+				<template v-if="type.desc">
+					<view @tap="app.$Router.push({
 						path: '/pages/book/shelf',
 						query: {
 							params: encodeURIComponent(JSON.stringify(type))
 						}
-					})"></rd-title>
-					<yb-grid :style="{'background-color': skinColor.color_bg_1}" :data="type.book" :column="4" :count="8" v-if="i % 3 == 0">
-						<template v-slot="{gridItem}">
-							<view class="grid_item_1" @tap="app.$Router.push({
-								path: '/pages/book/detail',
-								query: {
-									params: encodeURIComponent(JSON.stringify(gridItem.detail))
-								}
-							})">
-								<view elevation="3">
-									<rd-image lazyLoad class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
-								</view>
-								<text class="title" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
-							</view>
-						</template>
-					</yb-grid>
-					<scroll-view class="scroller-book" :show-scrollbar="false" scroll-x="true" v-else>
-						<view class="grid_item_1"
-						style="margin-right: 40rpx;"
-						v-for="(item, index) in type.book.slice(0, 8)"
-						:key="item.id"
-						@tap="app.$Router.push({
-							path: '/pages/book/detail',
+					})" class="shelf padding-gap" :style="{'background-color': skinColor.color_bg_1}">
+						<yb-gap></yb-gap>
+						<yb-grid :data="type.book" :column="3" :count="3">
+							<template v-slot="{gridItem}">
+								<rd-grid-book :item="gridItem.detail" />
+							</template>
+						</yb-grid>
+						<text class="title" :style="{color: skinColor.color_1}">{{type.title}}</text>
+						<text class="desc" :style="{color: skinColor.color_3}">{{type.desc}}</text>
+						<yb-gap></yb-gap>
+					</view>
+				</template>
+				<template v-else>
+					<view class="padding-gap box" :style="{'background-color': skinColor.color_bg_1}">
+						<rd-title :title="type.title" @more="app.$Router.push({
+							path: '/pages/book/shelf',
 							query: {
-								params: encodeURIComponent(JSON.stringify(item))
+								params: encodeURIComponent(JSON.stringify(type))
 							}
-						})">
-							<view elevation="3">
-								<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
-							</view>
-							<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-						</view>
-					</scroll-view>
-				</view>
+						})"></rd-title>
+						<yb-grid :style="{'background-color': skinColor.color_bg_1}" :data="type.book" :column="3" :count="9">
+							<template v-slot="{gridItem}">
+								<rd-grid-book :item="gridItem.detail" />
+							</template>
+						</yb-grid>
+					</view>
+				</template>
 				<yb-gap></yb-gap>
 			</cell>
 		</list>
 		<yb-list-loading :style="{'background-color': skinColor.color_bg_1}" :color="skinColor.color_3" v-if="loading" size="70" title="加载中"></yb-list-loading>
+		<music-audio></music-audio>
 	</yb-page-anime>
 </template>
 
@@ -259,42 +250,21 @@
 				windowHeight: 0,
 				loading: true,
 				banners: [],
-				hotBooks: [],
 				populars: [],
+				hotBooks: [],
 				updates: [],
 				hotTops: [],
-				hotTypes: [],
-				currentUpTab: 0
+				hotTypes: []
 			}
 		},
 		onLoad() {
+			this.$store.dispatch('cache/clearCache', 'image')
 			this.windowHeight = uni.getSystemInfoSync().windowWidth
+		},
+		onReady() {
 			this.app.$api.comic.getRecome().then((ress) => {
 				this.loading = false
-				ress.forEach(res => {
-					if ( res.code == this.app.$config.ERR_OK ) {
-						if ( res.data.hotBooks?.length > 0 ) {
-							this.hotBooks.push({
-								label: this.filterSource(res.data.source),
-								value: res.data.source,
-								source: res.data.source,
-								book: res.data.hotBooks
-							})
-						}
-						if ( res.data.updates?.length > 0 ) {
-							this.updates.push({
-								label: this.filterSource(res.data.source),
-								value: res.data.source,
-								source: res.data.source,
-								book: res.data.updates
-							})
-						}
-						this.banners = res.data.banners?.length > 0 ? this.banners.concat(res.data.banners) : this.banners
-						this.populars = res.data.populars?.length > 0 ? this.populars.concat(res.data.populars) : this.populars
-						this.hotTops = res.data.hotTops?.length > 0 ? this.hotTops.concat(res.data.hotTops) : this.hotTops
-						this.hotTypes = res.data.hotTypes?.length > 0 ? this.hotTypes.concat(res.data.hotTypes) : this.hotTypes
-					}
-				})
+				this.onRequested(ress)
 			})
 		},
 		onShow () {
@@ -310,30 +280,49 @@
 					this.updates = []
 					this.hotTops = []
 					this.hotTypes = []
-					ress.forEach(res => {
-						if ( res.code == this.app.$config.ERR_OK ) {
-							if ( res.data.hotBooks?.length > 0 ) {
-								this.hotBooks.push({
-									label: this.filterSource(res.data.source),
-									value: res.data.source,
-									source: res.data.source,
-									book: res.data.hotBooks
-								})
-							}
-							if ( res.data.updates?.length > 0 ) {
-								this.updates.push({
-									label: this.filterSource(res.data.source),
-									value: res.data.source,
-									source: res.data.source,
-									book: res.data.updates
-								})
-							}
-							this.banners = res.data.banners?.length > 0 ? this.banners.concat(res.data.banners) : this.banners
-							this.populars = res.data.populars?.length > 0 ? this.populars.concat(res.data.populars) : this.populars
-							this.hotTops = res.data.hotTops?.length > 0 ? this.hotTops.concat(res.data.hotTops) : this.hotTops
-							this.hotTypes = res.data.hotTypes?.length > 0 ? this.hotTypes.concat(res.data.hotTypes) : this.hotTypes
+					this.onRequested(ress)
+				})
+			},
+			onRequested (ress) {
+				ress.forEach(res => {
+					if ( res.code == this.app.$config.ERR_OK ) {
+						if ( res.data.hotBooks?.length > 0 ) {
+							this.hotBooks.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source,
+								book: res.data.hotBooks
+							})
+							this.hotBooks.sort((a, b) => {
+								return b.book.length - a.book.length
+							})
 						}
-					})
+						if ( res.data.updates?.length > 0 ) {
+							this.updates.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source,
+								book: res.data.updates
+							})
+							this.updates.sort((a, b) => {
+								return b.book.length - a.book.length
+							})
+						}
+						if ( res.data.populars?.length > 0 ) {
+							this.populars.push({
+								label: this.filterSource(res.data.source),
+								value: res.data.source,
+								source: res.data.source,
+								book: res.data.populars
+							})
+							this.populars.sort((a, b) => {
+								return b.book.length - a.book.length
+							})
+						}
+						this.banners = res.data.banners?.length > 0 ? this.banners.concat(res.data.banners) : this.banners
+						this.hotTops = res.data.hotTops?.length > 0 ? this.hotTops.concat(res.data.hotTops) : this.hotTops
+						this.hotTypes = res.data.hotTypes?.length > 0 ? this.hotTypes.concat(res.data.hotTypes) : this.hotTypes
+					}
 				})
 			}
 		}
@@ -359,7 +348,7 @@
 		margin-left: 20rpx;
 	}
 	.ad-swiper {
-		height: 200rpx;
+		height: 255rpx;
 	}
 	.ad-swiper .ad {
 		flex: 1;
@@ -369,7 +358,6 @@
 		align-items: center;
 		justify-content: center;
 		height: 60rpx;
-		margin-top: 15rpx;
 		border-radius: 6rpx;
 	}
 	.search .text {
@@ -378,5 +366,33 @@
 	}
 	.hotTops {
 		height: 440rpx;
+	}
+	.banner-bottom {
+		margin-top: -30rpx;
+	}
+	.menus {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 90rpx;
+	}
+	.menus .menu {
+		align-items: center;
+	}
+	.menus .menu .image {
+		width: 70rpx;
+	}
+	.menus .menu .title {
+		font-size: 30rpx;
+		margin: 15rpx 0 25rpx 0;
+	}
+	.shelf .title {
+		font-size: 32rpx;
+	}
+	.shelf .desc {
+		font-size: 28rpx;
+		lines: 3;
+		text-overflow: ellipsis;
+		margin-top: 20rpx;
 	}
 </style>

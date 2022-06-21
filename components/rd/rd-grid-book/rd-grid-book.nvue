@@ -1,0 +1,58 @@
+<template>
+	<view class="grid_item_1"
+	@longpress="onLongpress"
+	@tap="readBook(item)">
+		<view elevation="3">
+			<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+		</view>
+		<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+		<text class="info" :style="{color: skinColor.color_3}">{{tip || item.lastChapter || item.style || item.author}}</text>
+	</view>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		props: {
+			item: {
+				type: Object,
+				default () {
+					return new Object
+				}
+			},
+			tip: {
+				type: String,
+				default: ''
+			}
+		},
+		methods: {
+			onLongpress () {
+				this.$emit('onLongpress', this.item)
+			}
+		}
+	}
+</script>
+
+<style scoped>
+.grid_item_1 {
+	width: 225rpx;
+	margin-bottom: 20rpx;
+}
+.grid_item_1 .cover {
+	width: 225rpx;
+	height: 280rpx;
+}
+.grid_item_1 .title {
+	font-size: 24rpx;
+	lines: 1;
+	text-overflow: ellipsis;
+	margin-top: 10rpx;
+}
+.grid_item_1 .info {
+	font-size: 22rpx;
+	lines: 1;
+	text-overflow: ellipsis;
+	margin-top: 10rpx;
+}
+</style>

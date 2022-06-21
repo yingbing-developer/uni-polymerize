@@ -10,45 +10,24 @@
 		:activedColor="skinColor.color_actived_1">
 			<template v-slot="{swiperSlot}">
 				<list v-if="swiperSlot.detail.data.length > 0">
-					<cell v-for="(item, index) in swiperSlot.detail.data.slice(0, list[swiperSlot.index].currentPage * size)">
-						<uni-swipe-action>
-						    <!-- 基础用法 -->
-						    <uni-swipe-action-item :right-options="options" :left-options="options" @click="onClick($event, item)">
-						        <view class="cell-item_3"
-						        @tap="readBook(item)"
-						        :style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-						        	<view elevation="3">
-						        		<rd-image defaultSrc="/static/cover/cover_default.jpg" lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
-						        	</view>
-						        	<view class="info">
-						        		<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
-						        		<view class="subtitles">
-						        			<text class="subtitle" :style="{
-						        				'color': skinColor.color_3
-						        			}">作者：{{item.author}}</text>
-						        			<text class="subtitle" :style="{
-						        				'color': skinColor.color_3
-						        			}">题材：{{item.style || '未知题材'}}</text>
-						        			<text class="subtitle" :style="{
-						        				'color': skinColor.color_3
-						        			}">来源：{{filterSource(item.source)}}</text>
-						        		</view>
-						        		<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc.replace(/\n/g, '') || '暂无简介'}}</text>
-						        		<view class="badges">
-						        			<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
-						        			<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
-						        			<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
-						        		</view>
-						        	</view>
-						        </view>
-						    </uni-swipe-action-item>
-						</uni-swipe-action>
+					<cell>
+						<yb-gap></yb-gap>
+					</cell>
+					<cell v-for="(grid, i) in Math.ceil(swiperSlot.detail.data.length / 3)">
+						<yb-grid class="padding-gap" :style="{'background-color': skinColor.color_bg_1}" :data="swiperSlot.detail.data.slice(i * 3, (i * 3) + 3)" :column="3" :count="3">
+							<template v-slot="{gridItem}">
+								<rd-grid-book
+								@onLongpress="showActionSheet"
+								:item="gridItem.detail" />
+							</template>
+						</yb-grid>
 					</cell>
 					<cell v-if="list[swiperSlot.index].currentPage * size >= swiperSlot.detail.data.length && swiperSlot.detail.data.length > 0">
 						<yb-no-more :color="skinColor.color_3"></yb-no-more>
 					</cell>
 					<yb-pullup v-if="list[swiperSlot.index].currentPage * size < swiperSlot.detail.data.length" :ref="'pullup_' + swiperSlot.index" :color="skinColor.color_1" @pullup="pullup(swiperSlot.index)"></yb-pullup>
 				</list>
+				<rd-no-data title="暂无数据" v-else />
 				<rd-no-data title="暂无数据" v-else />
 			</template>
 		</yb-swiper-list>
@@ -68,12 +47,6 @@
 				size: 20,
 				list: [],
 				current: 0,
-				options:[{
-				    text: '删除',
-				    style: {
-				        backgroundColor: '#dd524d'
-				    }
-				}]
 			}
 		},
 		onLoad () {
@@ -116,10 +89,25 @@
 					}
 				})
 			},
-			onClick (e, params) {
-				if ( e.index == 0 ) {
-					this.toCollection(params)
-				}
+			showActionSheet (params) {
+				getApp().globalData.$modules.showActionSheet({
+					title: '操作列表',
+					itemList: ['阅读', '删除'],
+					success: (res) => {
+						if ( res.confirm ) {
+							switch (res.data.index) {
+								case 0:
+									this.readBook(params)
+									break;
+								case 1:
+									this.toCollection(params)
+									break;
+								default:
+									break;
+							}
+						}
+					}
+				})
 			}
 		}
 	}

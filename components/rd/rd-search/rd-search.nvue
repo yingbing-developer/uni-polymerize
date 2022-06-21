@@ -37,7 +37,7 @@
 					<cell>
 						<view class="title padding-gap">
 							<text class="title-text" :style="{'color': skinColor.color_3}">搜索历史</text>
-							<rd-icon enableClick class="opac-actived" name="dustbin" size="30" :color="skinColor.color_3" @click="clearRecord"></rd-icon>
+							<rd-icon enableClick class="opac-actived" name="dustbin" size="40" :color="skinColor.color_3" @click="clearRecord"></rd-icon>
 						</view>
 						<view class="records padding-gap">
 							<view class="record"
@@ -45,7 +45,7 @@
 							v-for="(item, index) in recordsSync" :key="index"
 							@tap="changeKeyword(item.title)">
 								<text class="record-text" :style="{'color': skinColor.color_2}">{{item.title}}</text>
-								<rd-icon enableClick class="opac-actived" size="38" name="fork" :color="skinColor.color_2" @click="removeRecord(item)"></rd-icon>
+								<rd-icon enableClick class="opac-actived" size="50" name="fork" :color="skinColor.color_2" @click="removeRecord(item)"></rd-icon>
 							</view>
 						</view>
 					</cell>

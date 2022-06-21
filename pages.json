@@ -12,9 +12,9 @@
 		{
 			"path": "pages/book/type"
 		},
-		//小说最近更新页面
+		//综合小说
 		{
-			"path": "pages/book/update"
+			"path": "pages/book/sub"
 		},
 		//书籍详情
 		{
@@ -68,10 +68,6 @@
 		//漫画分类
 		{
 			"path": "pages/comic/type"
-		},
-		//漫画最近更新页面
-		{
-			"path": "pages/comic/update"
 		},
 		//漫画阅读
 		{

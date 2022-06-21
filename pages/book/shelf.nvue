@@ -3,59 +3,38 @@
 		<yb-nav-bar ref="navbar" class="nav-bar" :title="title" :bg-color="skinColor.color_theme_1" :front-color="skinColor.color_4">
 		</yb-nav-bar>
 		<list>
-			<template v-if="params.style == 'top'">
+			<template v-if="type == 'top'">
 				<cell v-for="(item, index) in params.book">
-					<view class="cell-item_2 margin-gap"
+					<view class="cell-item_2 padding-gap"
 					:style="{'border-color': skinColor.color_gap_1}"
 					@tap="readBook(item)">
 						<text class="index" :style="{color: skinColor.color_red_2}" v-if="index > 2">{{index + 1}}</text>
 						<image v-if="index == 0" class="trophy" src="/static/music/trophy_1.png" mode="aspectFill"></image>
 						<image v-if="index == 1" class="trophy" src="/static/music/trophy_2.png" mode="aspectFill"></image>
 						<image v-if="index == 2" class="trophy" src="/static/music/trophy_3.png" mode="aspectFill"></image>
-						<rd-icon v-if="item.type == 'story'" name="read-fill" size="30" :color="skinColor.color_green"></rd-icon>
-						<rd-image defaultSrc="/static/cover/cover_default.jpg" v-else class="cover" :src="item.cover" mode="aspectFill"></rd-image>
-						<view class="info">
-							<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
-							<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
-						</view>
+						<rd-cell-book-2 style="flex: 1;" class="padding-gap" :item="item" />
 					</view>
 				</cell>
 			</template>
-			<template v-else>
+			<template v-else-if="type == 'detail'">
 				<cell v-for="(item, index) in params.book">
 					<uni-swipe-action>
-					    <!-- 基础用法 -->
 					    <uni-swipe-action-item :right-options="options" :left-options="options" @click="onClick($event, item)">
-					       <view class="cell-item_3"
-					       @tap="readBook(item)"
-					       :style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-								<view elevation="3">
-									<rd-image defaultSrc="/static/cover/cover_default.jpg" lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
-								</view>
-								<view class="info">
-									<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
-									<view class="subtitles">
-										<text class="subtitle" :style="{
-											'color': skinColor.color_3
-										}">作者：{{item.author}}</text>
-										<text class="subtitle" :style="{
-											'color': skinColor.color_3
-										}">题材：{{item.style || '未知题材'}}</text>
-										<text class="subtitle" :style="{
-											'color': skinColor.color_3
-										}">来源：{{filterSource(item.source)}}</text>
-									</view>
-									<text class="desc" :style="{'color': skinColor.color_2}">简介：{{item.desc.replace(/\n/g, '') || '暂无简介'}}</text>
-									<text class="tip" :style="{'color': skinColor.color_red}" v-if="item.lastChapter">更新至：{{item.lastChapter}}</text>
-									<view class="badges" v-else>
-										<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
-										<yb-tag class="badge" v-if="isRecord(item.id)" :color="skinColor.color_yellow" value="正在阅读中"></yb-tag>
-										<yb-tag class="badge" v-if="isCollection(item.id)" :color="skinColor.color_red" value="已收藏"></yb-tag>
-									</view>
-								</view>
-					       </view>
+							<rd-cell-book class="padding-gap" :item="item" />
 					    </uni-swipe-action-item>
 					</uni-swipe-action>
+				</cell>
+			</template>
+			<template v-else>
+				<cell>
+					<yb-gap></yb-gap>
+				</cell>
+				<cell v-for="(grid, i) in Math.ceil(params.book.length / 3)">
+					<yb-grid class="padding-gap" :data="params.book.slice(i * 3, (i * 3) + 3)" :column="3" :count="3">
+						<template v-slot="{gridItem}">
+							<rd-grid-book @onLongpress="showActionSheet" :item="gridItem.detail" />
+						</template>
+					</yb-grid>
 				</cell>
 			</template>
 			<yb-page-anime-fixed>
@@ -88,6 +67,9 @@
 						backgroundColor: '#dd524d'
 					}
 				}]
+			},
+			type () {
+				return getApp().globalData.$Route.query.type || 'default'
 			}
 		},
 		onLoad() {
@@ -119,6 +101,28 @@
 						}
 					}
 				})
+			},
+			showActionSheet (params) {
+				if ( this.params.source == 'local' ) {
+					getApp().globalData.$modules.showActionSheet({
+						title: '操作列表',
+						itemList: ['阅读', '删除'],
+						success: (res) => {
+							if ( res.confirm ) {
+								switch (res.data.index) {
+									case 0:
+										this.readBook(params)
+										break;
+									case 1:
+										this.removeCustom(params)
+										break;
+									default:
+										break;
+								}
+							}
+						}
+					})
+				}
 			}
 		}
 	}

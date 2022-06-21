@@ -103,75 +103,55 @@
 				</view>
 				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
 			</cell>
-			<cell v-if="guess.length > 0">
-				<view class="box">
-					<view class="column" :style="{'border-color': skinColor.color_2}">
-						<text class="text" :style="{color: skinColor.color_1}">猜你喜欢</text>
+			<template v-if="guess.length > 0">
+				<cell>
+					<view class="box">
+						<view class="column" :style="{'border-color': skinColor.color_2}">
+							<text class="text" :style="{color: skinColor.color_1}">猜你喜欢</text>
+						</view>
 					</view>
-					<yb-gap></yb-gap>
-					<yb-grid :data="guess" :column="4">
+				</cell>
+				<cell v-for="(grid, i) in Math.ceil(guess.length / 3)">
+					<yb-grid style="padding-left: 20rpx;padding-right: 20rpx" :data="guess.slice(i * 3, (i * 3) + 3)" :column="3" :count="3">
 						<template v-slot="{gridItem}">
-							<view class="grid_item_1" @tap="app.$Router.push({
-								path: '/pages/book/detail',
-								query: {
-									params: encodeURIComponent(JSON.stringify(gridItem.detail))
-								}
-							})">
-								<view elevation="3">
-									<rd-image lazyLoad class="cover" :src="gridItem.detail.cover" mode="aspectFill"></rd-image>
-								</view>
-								<text class="title" :style="{color: skinColor.color_1}">{{gridItem.detail.title}}</text>
-							</view>
+							<rd-grid-book :item="gridItem.detail" />
 						</template>
 					</yb-grid>
-				</view>
-				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			</cell>
-			<cell v-if="sames.length > 0">
-				<view class="box">
-					<view class="column" :style="{'border-color': skinColor.color_2}">
-						<text class="text" :style="{color: skinColor.color_1}">同类推荐</text>
+				</cell>
+				<cell>
+					<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
+				</cell>
+			</template>
+			<template v-if="sames.length > 0">
+				<cell>
+					<view class="box">
+						<view class="column" :style="{'border-color': skinColor.color_2}">
+							<text class="text" :style="{color: skinColor.color_1}">同类推荐</text>
+						</view>
 					</view>
-					<yb-gap></yb-gap>
-					<view
-					v-for="(item, index) in sames" :key="item.id"
-					class="cell-item_5 opac-actived"
-					@tap="app.$Router.push({
-						path: '/pages/book/detail',
-						query: {
-							params: encodeURIComponent(JSON.stringify(item))
-						}
-					})"
-					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-						<text class="label" :style="{color: skinColor.color_3}">{{item.style}}</text>
-						<text class="title" :style="{color: skinColor.color_1}">{{(item.style ? ' | ' : '') + item.title}}</text>
-						<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
+				</cell>
+				<cell v-for="(item, index) in sames">
+					<rd-cell-book-2 style="padding-left: 20rpx;padding-right: 20rpx" :item="item" />
+				</cell>
+				<cell>
+					<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
+				</cell>
+			</template>
+			<template v-if="other.length > 0">
+				<cell>
+					<view class="box">
+						<view class="column" :style="{'border-color': skinColor.color_2}">
+							<text class="text" :style="{color: skinColor.color_1}">其它作品</text>
+						</view>
 					</view>
-				</view>
-				<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
-			</cell>
-			<cell v-if="other.length > 0">
-				<view class="box">
-					<view class="column" :style="{'border-color': skinColor.color_2}">
-						<text class="text" :style="{color: skinColor.color_1}">其它作品</text>
-					</view>
-					<yb-gap></yb-gap>
-					<view
-					v-for="(item, index) in other" :key="item.id"
-					class="cell-item_5 opac-actived"
-					@tap="app.$Router.push({
-						path: '/pages/book/detail',
-						query: {
-							params: encodeURIComponent(JSON.stringify(item))
-						}
-					})"
-					:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
-						<text class="label" :style="{color: skinColor.color_3}">{{item.style || item.author}}</text>
-						<text class="title" :style="{color: skinColor.color_1}"> | {{item.title}}</text>
-						<text class="value" :style="{color: skinColor.color_3}">{{filterSource(item.source)}}</text>
-					</view>
-				</view>
-			</cell>
+				</cell>
+				<cell v-for="(item, index) in other">
+					<rd-cell-book-2 style="padding-left: 20rpx;padding-right: 20rpx" :item="item" />
+				</cell>
+				<cell>
+					<yb-gap height="10rpx" :color="skinColor.color_gap_1"></yb-gap>
+				</cell>
+			</template>
 			<cell>
 				<yb-gap height="120rpx" v-if="chapters.length > 0"></yb-gap>
 			</cell>

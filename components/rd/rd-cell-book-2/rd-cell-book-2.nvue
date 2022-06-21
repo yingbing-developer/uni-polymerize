@@ -1,0 +1,62 @@
+<template>
+	<view
+	class="cell-item_5 opac-actived"
+	@tap="readBook(item)"
+	:style="{'border-bottom-color': skinColor.color_gap_1}">
+		<rd-image v-if="item.cover != '/static/cover/cover_default.jpg'" class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+		<view class="bottom">
+			<text class="title" :style="{color: skinColor.color_1}">{{item.title}}</text>
+			<text class="value" :style="{color: skinColor.color_3}">{{item.lastChapter || item.desc.trim() || item.style || item.author}}</text>
+		</view>
+		<text class="source" :style="{color: skinColor.color_orange}">{{item.updateTime || filterSource(item.source)}}</text>
+	</view>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		props: {
+			item: {
+				type: Object,
+				default () {
+					return new Object
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+.cell-item_5 {
+	border-bottom-width: 1rpx;
+	padding: 15rpx 0;
+	flex-direction: row;
+	justify-content: space-between;
+	height: 130rpx;
+}
+.cell-item_5 .cover {
+	width: 100rpx;
+	height: 100rpx;
+	margin-right: 20rpx;
+}
+.cell-item_5 .title {
+	font-size: 26rpx;
+	flex: 1;
+	lines: 1;
+	text-overflow: ellipsis;
+}
+.cell-item_5 .bottom {
+	flex: 1;
+}
+.cell-item_5 .value {
+	font-size: 22rpx;
+	lines: 1;
+	text-overflow: ellipsis;
+}
+	
+.cell-item_5 .source {
+	font-size: 26rpx;
+	font-style: italic;
+}
+</style>

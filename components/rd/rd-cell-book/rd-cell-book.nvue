@@ -1,0 +1,98 @@
+<template>
+	<view class="cell-item_3"
+	@tap="readBook(item)"
+	:style="{'border-bottom-color': skinColor.color_gap_1, 'background-color': skinColor.color_bg_1}">
+		<view elevation="3">
+			<rd-image lazyLoad class="cover" :src="item.cover" mode="aspectFill"></rd-image>
+		</view>
+		<view class="info">
+			<text class="title" :style="{'color': skinColor.color_1}">{{item.title}}</text>
+			<view class="author">
+				<rd-icon class="icon" name="person" size="25" :color="skinColor.color_2"></rd-icon>
+				<text class="name" :style="{'color': skinColor.color_2}">{{item.author}}</text>
+			</view>
+			<text class="desc" :style="{'color': skinColor.color_2}">{{item.desc.trim() || '暂无简介'}}</text>
+			<view class="badges">
+				<yb-tag class="badge" :color="item.isEnd ? skinColor.color_green : skinColor.color_orange" :value="item.isEnd ? '已完结' : '连载中'"></yb-tag>
+				<yb-tag class="badge" v-if="item.style" :color="skinColor.color_2" :value="item.style"></yb-tag>
+				<yb-tag class="badge" v-if="item.size" :color="skinColor.color_blue" :value="item.size"></yb-tag>
+				<yb-tag class="badge" :color="skinColor.color_red" :value="filterSource(item.source)"></yb-tag>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	import appMixin from '@/common/mixin/app.js';
+	export default {
+		mixins: [appMixin],
+		props: {
+			item: {
+				type: Object,
+				default () {
+					return new Object
+				}
+			}
+		}
+	}
+</script>
+
+<style scoped>
+.cell-item_3 {
+	flex-direction: row;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	height: 270rpx;
+	padding: 20rpx 0;
+	position: relative;
+}
+.cell-item_3 .cover {
+	width: 160rpx;
+	height: 240rpx;
+}
+.cell-item_3 .info {
+	flex: 1;
+	margin-left: 30rpx;
+}
+.cell-item_3 .title {
+	font-size: 30rpx;
+	font-weight: bold;
+	lines: 1;
+	text-overflow: ellipsis;
+}
+.cell-item_3 .desc {
+	font-size: 26rpx;
+	lines: 3;
+	text-overflow: ellipsis;
+	height: 90rpx;
+	margin-top: 20rpx;
+}
+.cell-item_3 .author {
+	flex-direction: row;
+	align-items: center;
+	margin-top: 10rpx;
+}
+.cell-item_3 .author .icon {
+	margin-top: 5rpx;
+}
+.cell-item_3 .name {
+	font-size: 24rpx;
+	lines: 1;
+	text-overflow: ellipsis;
+	margin-top: 10rpx;
+	margin-left: 10rpx;
+}
+.cell-item_3 .badges {
+	flex-direction: row;
+	align-items: center;
+	margin-top: 10rpx;
+}
+.cell-item_3 .badge {
+	margin-right: 10rpx;
+}
+.cell-item_3 .delete {
+	position: absolute;
+	right: 20rpx;
+	bottom: 20rpx;
+}
+</style>
