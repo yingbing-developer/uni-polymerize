@@ -25,6 +25,7 @@
 			$nativeUI: NativeUI
 		},
 		onLaunch: function() {
+			plus.navigator.setFullscreen(false);
 			console.log('App Launch')
 			// plus.screen.lockOrientation('portrait-primary');
 			//重写toast方法如果内容为 ‘再次返回退出应用’ 就隐藏应用，其他正常toast

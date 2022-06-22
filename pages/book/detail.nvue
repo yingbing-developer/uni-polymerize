@@ -211,6 +211,9 @@
 			that = this
 			this.params = JSON.parse(decodeURIComponent(getApp().globalData.$Route.query.params))
 		},
+		onShow() {
+			plus.navigator.setFullscreen(false);
+		},
 		onReady() {
 			uni.startPullDownRefresh()
 		},
@@ -296,7 +299,7 @@
 				this.app.$Router.push({
 					path: '/pages/book/search',
 					query: {
-						apiType: this.params.type == 'story' ? 'book' : 'comic'
+						apiType: this.params.type == 'story' ? 'book' : 'comic',
 						keyword: keyword
 					}
 				})

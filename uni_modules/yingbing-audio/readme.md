@@ -9,6 +9,7 @@
 | 属性名 | 类型 | 默认值 | 可选值 | 说明 |
 | :----- | :----: | :----: | :----: | :---- |
 | playList | Array | [] | 自定义 | 播放列表 |
+| autoplay | Boolean | false | true/false | 添加歌曲并且当前没有播放歌曲时是否自动播放 |
 | paused | Boolean | true | true/false | 是否暂停 |
 | playback | Boolean | false | true/false | 是否开启后台播放（仅app端支持） |
 | playbackRate | Number | 1.0 | 0.5/0.8/1.0/1.25/1.5/2.0 | 音频播放倍率（H5不支持，其它端需要版本支持具体看官方api文档[uni.createInnerAudioContext()](https://uniapp.dcloud.io/api/media/audio-context.html)） |

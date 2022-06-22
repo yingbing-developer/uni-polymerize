@@ -108,6 +108,7 @@
 			uni.$off('change-page')
 		},
 		onLoad() {
+			plus.navigator.setFullscreen(true);
 			if ( !this.reader ) {
 				this.app.$Router.back()
 				return

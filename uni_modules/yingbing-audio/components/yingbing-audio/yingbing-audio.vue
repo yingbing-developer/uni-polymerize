@@ -23,6 +23,11 @@
 					return new Array
 				}
 			},
+			//添加歌曲是否自动播放
+			autoplay: {
+				type: Boolean,
+				default: false
+			},
 			//是否暂停
 			paused: {
 				type: Boolean,
@@ -330,6 +335,9 @@
 						randomList.splice(index, 0, arr1[num])
 					})
 					this.randomList = randomList
+					if ( !this.currentSong && this.autoplay ) {
+						this.next()
+					}
 				} else {
 					this.randomList = []
 					this.stop()

@@ -1,7 +1,7 @@
 {
   "id": "yingbing-audio",
   "displayName": "好用音频播放器",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "支持歌词显示，歌曲切换，随机播放",
   "keywords": [
     "音乐",
